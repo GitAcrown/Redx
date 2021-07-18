@@ -95,6 +95,30 @@ class AltEco(commands.Cog):
         self.config.register_member(**default_member)
         self.config.register_guild(**default_guild)
         
+    
+    async def migrate_from_finance(self):
+        """Tente l'importation des données depuis l'ancien module économique Finance"""
+        try:
+            finance_config = Config.get_conf(None, identifier=736144321857978388, cog_name="Finance")
+            guilds = self.bot.guilds
+            n = 1
+            for guild in guilds:
+                logger.info(msg=f"{n} Importation des données Finance de : {guild.name}")
+                old_data = await finance_config.guild(guild).all()
+                await self.config.guild(guild).Currency.set_raw('string', value=old_data['currency'])
+                await self.config.guild(guild).DailyBonus.set({'base': old_data['daily_bonus'], 'boost': old_data['booster_bonus']})
+
+                for member in guild.members:
+                    user_old = await finance_config.member(member).all()
+                    await self.config.member(member).balance.set(user_old['balance'])
+                    await self.config.member(member).config.set_raw('bonus_base', value=user_old['config']['daily_bonus'])
+                    await self.config.member(member).config.set_raw('bonus_boost', value=user_old['config']['daily_bonus'])
+
+                n += 1
+        except:
+            return False
+        return True
+        
 
 # Banque et serveur ---------------------
 

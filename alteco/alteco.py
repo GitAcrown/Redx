@@ -454,7 +454,7 @@ class AltEco(commands.Cog):
             total += bonus['base']
             txt += f"+{bonus['base']} · Base de revenu journalier\n"
             
-        if bonus['boost'] and account.config['bonus_boost'] != today:
+        if bonus['boost'] and account.config['bonus_boost'] != today and ctx.author.premium_since:
             await self.config.member(author).config.set_raw('bonus_boost', value=today)
             total += bonus['boost']
             txt += f"+{bonus['boost']} · Revenu lié au statut de booster du serveur\n"

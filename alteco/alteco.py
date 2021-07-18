@@ -268,7 +268,7 @@ class AltEco(commands.Cog):
         
         if code in redms:
             raise ValueError(f"Le code {code} existe déjà dans les redeemables de ce serveur")
-        await self.config.guild(guild).Redemmables.set_raw(code, value=content)
+        await self.config.guild(guild).Redeemables.set_raw(code, value=content)
         return code
     
     async def delete_redeemable(self, guild: discord.Guild, code: str):
@@ -277,7 +277,7 @@ class AltEco(commands.Cog):
         
         if code not in redms:
             raise ValueError(f"Le code {code} n'existe pas dans les redeemables de ce serveur")
-        await self.config.guild(guild).Redemmables.clear_raw(code)
+        await self.config.guild(guild).Redeemables.clear_raw(code)
     
     async def get_redeemable(self, guild: discord.Guild, code: str, *, delete_after_use: bool = False):
         """Récupérer un code échangeable"""

@@ -546,11 +546,16 @@ class AltEco(commands.Cog):
                 
             if emoji == '🎁':
                 await self.delete_redeemable(guild, code)
-                em.set_footer("✅ Le contenu du code a été transféré sur votre compte")
+                for c in content:
+                    if c == 'credits':
+                        await self.deposit_credits(author, content[c], desc="Code cadeau")
+                    else:
+                        pass
+                em.set_footer(text="✅ Le contenu du code a été transféré sur votre compte")
                 await msg.edit(embed=em)
             
             else:
-                em.set_footer("❌ Le contenu n'a pas été transféré sur votre compte")
+                em.set_footer(text="❌ Le contenu n'a pas été transféré sur votre compte")
                 await msg.edit(embed=em)
                 await msg.delete(delay=15)
                 

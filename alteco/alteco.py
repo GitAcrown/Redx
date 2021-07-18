@@ -63,7 +63,7 @@ class AltEcoOperation:
     def description(self):
         poss_desc = [k for k in self.info if k in ('description', 'desc', 'reason')]
         if poss_desc:
-            return poss_desc[0]
+            return self.info[poss_desc[0]]
         return '...'
     
 
@@ -357,7 +357,7 @@ class AltEco(commands.Cog):
             em.set_author(name=f"Compte de {user.name}", icon_url=user.avatar_url)
             
         fmt_balance = humanize_number(account.balance)
-        em.add_field(name="Solde", value=box(f"{fmt_balance}{currency}"))
+        em.add_field(name="Solde", value=box(f"{fmt_balance} {currency}"))
         
         var = await self.get_balance_variation(user)
         vartime = round(await self.config.member(user).config.get_raw('variation_period') / 3600)
@@ -486,7 +486,7 @@ class AltEco(commands.Cog):
             tbl = []
             found = False
             for acc in lbd:
-                tbl.append([str(acc.member), acc.balance])
+                tbl.append([str(acc.member.display_name), acc.balance])
                 if acc.member == ctx.author:
                     found = True
             em = discord.Embed(color=await self.bot.get_embed_color(ctx.channel),

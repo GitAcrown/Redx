@@ -1,0 +1,11 @@
+{
+    "author": ["Acrone"],
+	"description": "Base de l'économie virtuelle alternative utilisée dans les autres modules du repo",
+	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help AltEco` pour voir les commandes disponibles",
+	"short": "Base de l'économie virtuelle alternative",
+	"tags": ["community", "fun", "economy", "games"],
+    "requirements" : [],
+    "required_cogs": {},
+	"type": "COG",
+	"end_user_data_statement": "This cog does not store personal data."
+}

@@ -70,9 +70,9 @@ class AltGames(commands.Cog):
                    ("⚡", "x5", "Mise x100")]]
             em = discord.Embed(title="Tableau des gains",
                                color=await ctx.embed_color(), inline=False)
-            em.add_field(name="Niveau 1 (5 - 100 crédits)", value=box(tabulate(tbl[0], headers=("Emoji", "Nb.", "Gain"))))
-            em.add_field(name="Niveau 2 (101 - 500 crédits)", value=box(tabulate(tbl[1])))
-            em.add_field(name="Niveau 3 (501 - 1000 crédits)", value=box(tabulate(tbl[2])))
+            em.add_field(name="Niveau 1 (5 - 100 crédits)", value=box(tabulate(tbl[0], headers=("Emoji", "Nb.", "Gain"))), inline=False)
+            em.add_field(name="Niveau 2 (101 - 500 crédits)", value=box(tabulate(tbl[1])), inline=False)
+            em.add_field(name="Niveau 3 (501 - 1000 crédits)", value=box(tabulate(tbl[2])), inline=False)
             em.set_footer(text=f"🍒 = Même fruit")
             return await ctx.send(embed=em)
         

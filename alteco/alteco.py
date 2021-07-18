@@ -369,7 +369,7 @@ class AltEco(commands.Cog):
         logs = await self.get_logs(user)
         if logs:
             txt = "\n".join([f"{log.delta:+} · {log.description[:50]}" for log in logs][::-1][:5])
-            em.add_field(name="Dernières opérations", value=box(txt), inline=False)
+            em.add_field(name=f"Dernières opérations", value=box(txt), inline=False)
         
         em.set_footer(text=f"Sur {guild.name}")
         await ctx.reply(embed=em, mention_author=False)
@@ -465,10 +465,11 @@ class AltEco(commands.Cog):
             txt += f"+{round(bonus['base'] / 2)} · Revenu supp. d'aide aux soldes faibles\n"
         
         if total: 
-            txt += f'———————————\nTotal : {total}{currency}'
+            txt += f'————————————\n= {total}{currency}'
             await self.deposit_credits(author, total, desc='Récupération des revenus journaliers')
-            em = discord.Embed(description=box(txt, lang='css'), color=author.color)
+            em = discord.Embed(description=box(txt), color=author.color)
             em.set_author(name="Vos revenus journaliers", icon_url=author.avatar_url)
+            em.set_footer(text=f"Vous avez désormais {await self.get_balance(author)}{currency}")
         else:
             em = discord.Embed(description="**Vous n'avez plus aucun revenu à récupérer pour aujourd'hui**\nRevenez demain !", color=author.color)
             em.set_author(name="Vos revenus journaliers", icon_url=author.avatar_url)

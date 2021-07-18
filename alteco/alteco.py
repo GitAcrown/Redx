@@ -359,14 +359,14 @@ class AltEco(commands.Cog):
         fmt_balance = humanize_number(account.balance)
         em.add_field(name="Solde", value=box(f"{fmt_balance}{currency}"))
         
-        var = await self.get_balance_variation(member)
-        vartime = round(await self.config.member(member).config.get_raw('variation_period') / 3600)
+        var = await self.get_balance_variation(user)
+        vartime = round(await self.config.member(user).config.get_raw('variation_period') / 3600)
         em.add_field(name=f"Variation ({vartime}h)", value=box(f"{var:+}", lang='fix' if var < 0 else 'css'))
         
-        rank = await self.get_leaderboard_member_rank(member)
+        rank = await self.get_leaderboard_member_rank(user)
         em.add_field(name="Rang", value=box(f"#{rank}", lang='css'))
         
-        logs = await self.get_logs(member)
+        logs = await self.get_logs(user)
         if logs:
             txt = "\n".join([f"{log.delta:+} · {log.description[:50]}" for log in logs][::-1][:5])
             em.add_field(name="Dernières opérations", value=box(txt), inline=False)

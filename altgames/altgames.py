@@ -175,22 +175,22 @@ class AltGames(commands.Cog):
                     txt = "4x ⚡ · Vous gagnez {}"
                 elif count("⚡") in (1, 2, 3):
                     txt = "Zap ⚡ · Vous perdez votre mise"
-                elif count("💎") == 3:
+                elif count("💎") == 4:
                     delta = mise * 30
                     txt = "4x 💎 · Vous gagnez {}"
-                elif count("💎") == 2:
+                elif count("💎") == 3:
                     delta = mise * 15
                     txt = "3x 💎 · Vous gagnez {}"
-                elif count("🍀") == 3:
+                elif count("🍀") == 4:
                     delta = mise * 10
                     txt = "4x 🍀 · Vous gagnez {}"
-                elif count("🍀") == 2:
+                elif count("🍀") == 3:
                     delta = mise + 1000
                     txt = "3x 🍀 · Vous gagnez {}"
-                elif fruitcount() == 3:
+                elif fruitcount() == 4:
                     delta = mise * 5
                     txt = "4x fruit · Vous gagnez {}"
-                elif fruitcount() == 2:
+                elif fruitcount() == 3:
                     delta = mise + 250
                     txt = "3x fruit · Vous gagnez {}"
                 else:

@@ -56,6 +56,8 @@ class Royale(commands.Cog):
         self.config.register_guild(**default_guild)
 
         self.cache = {}
+        self.image_mimes = ["image/png", "image/pjpeg", "image/jpeg", "image/x-icon"]
+        self.gif_mimes = ["image/gif"]
         
         
     # Parties    

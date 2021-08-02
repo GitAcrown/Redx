@@ -200,7 +200,7 @@ class Royale(commands.Cog):
         layerpath = bundled_data_path(self) / f'avatar_layer/{filename}' 
         try:
             task = ctx.bot.loop.run_in_executor(
-                None, self.apply_layer, b, layerpath, True if layerpath.endswith('.gif') else False
+                None, self.apply_layer, b, layerpath, True if str(layerpath).endswith('.gif') else False
             )
             file, file_size = await asyncio.wait_for(task, timeout=120)
         except asyncio.TimeoutError:

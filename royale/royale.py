@@ -191,7 +191,7 @@ class Royale(commands.Cog):
     
     @commands.command()
     async def avatartest(self, ctx, filename: str = 'crown_test.png'):
-        url = ctx.author.avatar_url
+        url = str(ctx.author.avatar_url)
         b, mime = await self.bytes_download(url)
         if mime not in self.image_mimes + self.gif_mimes and not isinstance(
             url, discord.Asset
@@ -199,7 +199,10 @@ class Royale(commands.Cog):
             return await ctx.reply("Ce n'est pas une image valide.", mention_author=False)
         layerpath = bundled_data_path(self) / f'avatar_layer/{filename}' 
         try:
-            file, file_size = self.apply_layer(b, layerpath)
+            task = ctx.bot.loop.run_in_executor(
+                None, self.apply_layer, b, layerpath, True if str(layerpath).endswith('.gif') else False
+            )
+            file, file_size = await asyncio.wait_for(task, timeout=120)
         except asyncio.TimeoutError:
             return await ctx.reply("L'image a mis trop de temps à être traitée.", mention_author=False)
         try:

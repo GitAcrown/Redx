@@ -44,6 +44,14 @@ class Shops(commands.Cog):
         all_keys = [i for s in all_shops for i in s]
         return not (key in all_keys)
     
+    async def is_shop_item(self, guild: discord.Guild, itemid: str):
+        all_members = await self.config.all_members(guild)
+        for m in all_members:
+            for i in all_members[m]['Shop']:
+                if i == itemid:
+                    return True
+        return False
+    
     async def get_shop_item(self, guild: discord.Guild, itemid: str):
         all_members = await self.config.all_members(guild)
         for m in all_members:
@@ -300,7 +308,7 @@ class Shops(commands.Cog):
         itemid = await query_value("**A. Identifiant d'item :** C'est l'identifiant unique qui va permettre aux membres d'acheter votre item.\nCelui-ci ne peut pas contenir d'espaces ou de caractères spéciaux (y compris accents) et doit faire 20 caractères max.")
         if not itemid:
             return await ctx.send("Ajout d'item annulé")
-        elif await self.get_shop_item(ctx.guild, itemid):
+        elif await self.is_shop_item(ctx.guild, itemid):
             return await ctx.send("**Identifiant déjà utilisé** • Cet identifiant existe déjà pour un autre item sur ce serveur")
         elif ' ' in itemid:
             return await ctx.send("**Identifiant invalide** • L'identifiant ne peut contenir un espace")

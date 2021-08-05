@@ -1,0 +1,11 @@
+{
+    "author": ["Acrone"],
+	"description": "Système de marché personnalisé exploitant AltEco",
+	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help Shops` pour voir les commandes disponibles",
+	"short": "Permet de créer des boutiques personnalisées",
+	"tags": ["community", "fun", "economy", "games"],
+    "requirements" : [],
+    "required_cogs": {},
+	"type": "COG",
+	"end_user_data_statement": "This cog does not store personal data."
+}

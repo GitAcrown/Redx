@@ -114,7 +114,7 @@ class Shops(commands.Cog):
         embeds = []
         for itemid in shop:
             item = shop[itemid]
-            em = discord.Embed(title=f"`{itemid}` **{item['name']}**", 
+            em = discord.Embed(title=f"`{itemid}` › **{item['name']}**", 
                                description=f"*{item.get('description', 'Aucune description')}*",
                                color=user.color)
             
@@ -125,7 +125,7 @@ class Shops(commands.Cog):
                 em.add_field(name="Quantité disp.", value=box(item['qte'], lang='css'))
                 
             em.add_field(name="Prix à l'unité", value=box(item['value'], lang='fix'))
-            em.add_field(name="Type de vente", value=f"{'Manuelle' if item['sellmode'] is 'manual' else 'Automatisée'}")
+            em.add_field(name="Type de vente", value=box(f"{'Manuelle' if item['sellmode'] == 'manual' else 'Automatisée'}"))
             
             em.set_footer(text=f"Item {n}/{len(shop)} · {user.name}")
             n += 1
@@ -162,7 +162,7 @@ class Shops(commands.Cog):
             em.add_field(name="Quantité disp.", value=box(item['qte'], lang='css'))
         
         em.add_field(name="Prix à l'unité", value=box(item['value'], lang='fix'))
-        em.add_field(name="Type de vente", value=f"{'Manuelle' if item['sellmode'] is 'manual' else 'Automatisée'}")
+        em.add_field(name="Type de vente", value=box(f"{'Manuelle' if item['sellmode'] == 'manual' else 'Automatisée'}"))
         em.set_footer(text=f"Boutique de {seller.name}\n››› Confirmer l'achat de x{qte} {itemid} ?")
         msg = await ctx.reply(embed=em, mention_author=False)
         start_adding_reactions(msg, ['✅', '❎'])
@@ -181,7 +181,7 @@ class Shops(commands.Cog):
         
         await msg.delete()
         sellmode = item['sellmode']
-        if sellmode is 'manual':
+        if sellmode == 'manual':
             buyid = str(int(time.time() * 10))
             manualdata = {'item': itemid, 'qte': qte, 'buyer': ctx.author.id, 'timestamp': time.time()}
             await self.config.member(seller).ManualIDs.set_raw(buyid, value=manualdata)
@@ -341,24 +341,25 @@ class Shops(commands.Cog):
             return await ctx.send("**Quantité invalide** • Nombre introuvable dans votre réponse")
         await asyncio.sleep(0.5)
         
-        sellmode = 'manual'
-        if qte > 0:
-            mem = discord.Embed(description="**D bis. Mode de vente :** Mode de fonctionnement de la vente pour cet item parmi les deux modes disponibles\n`A` = La quantité baisse automatiquement au fil des ventes\n`B` = La quantité ne baisse pas automatiquement, vous devez manuellement retirer les quantitées vendues avec `;shop sell`\nLe deuxième mode est utile pour se servir de la boutique comme hub de commandes.",
-                                color=author.color)
-            mem.set_footer(text="››› Choisissez le mode désiré pour cet item en cliquant sur la réaction correspondante")
-            msg = await ctx.send(embed=mem)
-            start_adding_reactions(msg, ['🇦', '🇧'])
-            try:
-                react, _ = await self.bot.wait_for("reaction_add",
-                                                        check=lambda m,
-                                                                    u: u == ctx.author and m.message.id == msg.id,
-                                                        timeout=45)
-            except asyncio.TimeoutError:
-                await ctx.send("Ajout d'item annulé")
-                return await msg.delete()
+        mem = discord.Embed(description="**D bis. Mode de vente :** Mode de fonctionnement de la vente pour cet item parmi les deux modes disponibles\n`A` = La quantité baisse automatiquement au fil des ventes\n`B` = La quantité ne baisse pas automatiquement, vous devez manuellement retirer les quantitées vendues avec `;shop sell`\nLe deuxième mode est utile pour se servir de la boutique comme hub de commandes.",
+                            color=author.color)
+        mem.set_footer(text="››› Choisissez le mode désiré pour cet item en cliquant sur la réaction correspondante")
+        msg = await ctx.send(embed=mem)
+        start_adding_reactions(msg, ['🇦', '🇧'])
+        try:
+            react, _ = await self.bot.wait_for("reaction_add",
+                                                    check=lambda m,
+                                                                u: u == ctx.author and m.message.id == msg.id,
+                                                    timeout=45)
+        except asyncio.TimeoutError:
+            await ctx.send("Ajout d'item annulé")
+            return await msg.delete()
 
-            if react.emoji == '🇦':
-                sellmode = 'auto'
+        if react.emoji == '🇦':
+            sellmode = 'auto'
+        else:
+            sellmode = 'manual'
+                
         await asyncio.sleep(0.5)
         
         value = await query_value("**E. Prix :** Prix de l'item à l'unité.\nLe prix doit être un nombre positif ou nul (si gratuit).")

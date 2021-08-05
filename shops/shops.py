@@ -153,7 +153,7 @@ class Shops(commands.Cog):
             if qte > item['qte']:
                 return await ctx.reply(f"**Quantité trop importante** • La boutique visée n'a pas cette quantité d'items à disposition, consultez `;shop {seller.name}` pour en savoir plus.", mention_author=False)
         
-        em = discord.Embed(title=f"`{itemid}` **{item['name']}**", 
+        em = discord.Embed(title=f"`{itemid}` › **{item['name']}**", 
                             description=f"*{item.get('description', 'Aucune description')}*",
                             color=seller.color)
         if item.get('img', None):
@@ -163,7 +163,7 @@ class Shops(commands.Cog):
         
         em.add_field(name="Prix à l'unité", value=box(item['value'], lang='fix'))
         em.add_field(name="Type de vente", value=f"{'Manuelle' if item['sellmode'] is 'manual' else 'Automatisée'}")
-        em.set_footer(text=f"Boutique de {seller.name}\n››› Confirmer l'achat ?")
+        em.set_footer(text=f"Boutique de {seller.name}\n››› Confirmer l'achat de x{qte} {itemid} ?")
         msg = await ctx.reply(embed=em, mention_author=False)
         start_adding_reactions(msg, ['✅', '❎'])
         try:
@@ -238,7 +238,7 @@ class Shops(commands.Cog):
                     if data['qte'] > item['qte']:
                         return await ctx.reply(f"**Quantité trop importante** • Votre boutique n'a plus la quantité commandée d'items à disposition, l'opération est donc suspendue.", mention_author=False)
                     
-                sellem = discord.Embed(title=f"Demande d'achat · `{itemid}` **{item['name']}**", description=f"**{ctx.author}** sur *{ctx.guild.name}* désire acheter l'item **x{data['qte']}** `{itemid}`.", color=author.color)
+                sellem = discord.Embed(title=f"Demande d'achat · `{itemid}` › **{item['name']}**", description=f"**{ctx.author}** sur *{ctx.guild.name}* désire acheter l'item **x{data['qte']}** `{itemid}`.", color=author.color)
                 if item.get('qte', None):
                     sellem.add_field(name="Quantité disp.", value=box(item['qte'], lang='css'))
                 sellem.add_field(name="Expiration", value=box(datetime.utcfromtimestamp(data['timestamp']).strftime('%d/%m/%Y %H:%M')))
@@ -314,21 +314,21 @@ class Shops(commands.Cog):
             return await ctx.send("**Identifiant invalide** • L'identifiant ne peut contenir un espace")
         elif len(itemid) > 20:
             return await ctx.send("**Identifiant invalide** • L'identifiant ne peut faire plus de 20 caractères")
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
         
         name = await query_value("**B. Nom de l'item :** C'est le nom qui s'affichera dans la boutique pour cet item.\nIl ne doit pas faire plus de 50 caractères.", 60)
         if not name:
             return await ctx.send("Ajout d'item annulé")
         elif len(name) > 50:
             return await ctx.send("**Nom invalide** • Le nom ne peut faire plus de 50 caractères")
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
         
         desc = await query_value("**C. Description :** Une rapide description de l'item ou du service vendu.\nElle ne peut pas faire plus de 400 caractères et le markdown est supporté (y compris l'intégration de liens).", 300)
         if not desc:
             return await ctx.send("Ajout d'item annulé")
         elif len(desc) > 400:
             return await ctx.send("**Description invalide** • La description ne peut faire plus de 400 caractères")
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
         
         qte = await query_value("**D. Quantité :** Nombre d'exemplaires disponibles de cet item, s'il est dénombrable.\nLa quantité doit être positive s'il y en a une. Mettre '0' indiquera que l'item peut être vendu à l'infini (jusqu'au retrait manuel)", 60)
         if not qte:
@@ -339,7 +339,7 @@ class Shops(commands.Cog):
                 return await ctx.send("**Quantité invalide** • Le nombre est invalide car négatif")
         except:
             return await ctx.send("**Quantité invalide** • Nombre introuvable dans votre réponse")
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
         
         sellmode = 'manual'
         if qte > 0:
@@ -359,7 +359,7 @@ class Shops(commands.Cog):
 
             if react.emoji == '🇦':
                 sellmode = 'auto'
-        await asyncio.sleep(2)
+        await asyncio.sleep(0.5)
         
         value = await query_value("**E. Prix :** Prix de l'item à l'unité.\nLe prix doit être un nombre positif ou nul (si gratuit).")
         if not value:
@@ -370,12 +370,12 @@ class Shops(commands.Cog):
                 return await ctx.send("**Prix invalide** • Le nombre est invalide car négatif")
         except:
             return await ctx.send("**Prix invalide** • Nombre introuvable dans votre réponse")
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
         
         img = await query_value("**F. Image de représentation (Optionnel) :** Image représentant l'item que vous vendez.\nPour ne rien mettre, répondez 'rien' ou 'aucune'.", 120)
         if not img:
             img = False
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
         
         resume = f"__Nom :__ {name}\n__Description :__ {desc if len(desc) < 50 else desc[:50] + '...'}\n__Quantité vendue :__ {qte if qte > 0 else 'Indefinie'}\n__Mode de vente :__ {sellmode.title()}\n__Prix à l'unité :__ {value}{curr}/u\n__URL de l'image :__ {img if img else 'Aucune'}"
         em = discord.Embed(title=f"Résumé › `{itemid}`",

@@ -136,7 +136,7 @@ class Shops(commands.Cog):
         Si aucune quantité n'est précisée, vous en acheterez un seul"""
         seller, item = await self.get_shop_item(ctx.guild, itemid)
         eco = self.bot.get_cog('AltEco')
-        curr = await eco.get_currenc(ctx.guild)
+        curr = await eco.get_currency(ctx.guild)
         
         if not seller:
             return await ctx.reply(f"**Identifiant d'item inconnu** • Vérifiez l'identifiant dans la boutique du membre puis réessayez", mention_author=False)
@@ -210,7 +210,7 @@ class Shops(commands.Cog):
         await self.clear_manualids(author)
         ids = await self.config.member(author).ManualIDs()
         eco = self.bot.get_cog('AltEco')
-        curr = await eco.get_currenc(ctx.guild)
+        curr = await eco.get_currency(ctx.guild)
         if not opeid:
             if not ids:
                 return await ctx.reply(f"**Aucune opération en attente** • Vous n'avez pas de vente en attente d'être réalisée", mention_author=False)
@@ -275,7 +275,7 @@ class Shops(commands.Cog):
         author = ctx.author
         shop = await self.config.member(author).Shop()
         eco = self.bot.get_cog('AltEco')
-        curr = await eco.get_currenc(ctx.guild)
+        curr = await eco.get_currency(ctx.guild)
         
         if len(shop) >= 5:
             return await ctx.reply(f"**Ajout d'item impossible** • Votre boutique ne peut contenir que 5 items différents, libérez d'abord de la place avec `;shop rem`")

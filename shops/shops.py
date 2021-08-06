@@ -204,7 +204,7 @@ class Shops(commands.Cog):
             await eco.withdraw_credits(ctx.author, item['value'] * qte, desc=f"Achat boutique ${uid}")
             await eco.deposit_credits(seller, item['value'] * qte, desc=f"Vente boutique ${uid}")
             
-            await self.config.member(ctx.author).Shop.set_raw(itemid, 'qte', value=item['qte'] - qte)
+            await self.config.member(seller).Shop.set_raw(itemid, 'qte', value=item['qte'] - qte)
             
             return await ctx.reply(f"**Achat effectué** • Vous avez acheté x{qte} **{item['name']}** à {seller.mention} pour {qte * item['value']}{curr}.", embed=await self.get_log_ticket(ctx.guild, uid))
             
@@ -452,5 +452,14 @@ class Shops(commands.Cog):
         user = ctx.author
         await self.config.member(user).Shop.clear()
         await ctx.reply("**Reset effectué** • Tous les items de votre boutique ont été retirés.")
+        
+    @commands.command(name="preuve", aliases=['proof'])
+    async def get_operation_proof(self, ctx, logid: str):
+        """Récupérer la preuve de paiement à partir de son identifiant"""
+        ope = await self.get_log_ticket(ctx.guild, logid)
+        if ope:
+            await ctx.reply(embed=ope, mention_author=False)
+        else:
+            await ctx.reply("**Erreur** • Cet identifiant est invalide ou la durée maximale de conservation de ce ticket a été atteinte")
     
     

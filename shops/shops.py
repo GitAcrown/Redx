@@ -189,7 +189,8 @@ class Shops(commands.Cog):
             sellem = discord.Embed(title=f"Demande d'achat · `{itemid}` **{item['name']}**", description=f"**{ctx.author}** sur *{ctx.guild.name}* désire acheter l'item **x{qte}** `{itemid}`.", color=seller.color)
             if item.get('qte', None):
                 sellem.add_field(name="Quantité disp.", value=box(item['qte'], lang='css'))
-            sellem.set_footer(text=f"Acceptez la vente en faisant ';shop sell {buyid}' dans les 24h sur le serveur ou ignorez-la pour refuser")
+            sellem.add_field(name="Identifiant d'achat", value=box(buyid, lang='fix'))
+            sellem.set_footer(text=f"Acceptez la vente en faisant ';shop sell <id>' dans les 24h sur le serveur ou ignorez-la pour refuser")
             try:
                 await seller.send(embed=sellem)
             except:

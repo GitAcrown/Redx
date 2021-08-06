@@ -417,7 +417,7 @@ class Shops(commands.Cog):
         """Ajouter une quantité d'un item de sa boutique"""
         user = ctx.author
         shop = await self.config.member(user).Shop()
-        if qte > 0:
+        if qte < 0:
             return await ctx.reply(f"**Quantité invalide** • Vous ne pouvez pas ajouter une quantité négative d'items", mention_author=False)
         if itemid not in shop:
             return await ctx.reply(f"**Item invalide** • Cet item n'existe pas dans votre boutique. Si vous voulez ajouter un nouvel item, utilisez `;shop new`", mention_author=False)

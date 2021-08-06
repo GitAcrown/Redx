@@ -376,7 +376,7 @@ class Shops(commands.Cog):
             return await ctx.send("**Prix invalide** • Nombre introuvable dans votre réponse")
         await asyncio.sleep(0.5)
         
-        img = await query_value("**G. Image de représentation (Optionnel) :** Image représentant l'item que vous vendez.\nPour ne rien mettre, répondez 'rien' ou 'aucune'.", 120)
+        img = await query_value("**G. Image de représentation (Optionnel) :** URL d'une image représentant l'item que vous vendez.\nPour ne rien mettre, répondez 'rien' ou 'aucune'.", 120)
         if not img:
             img = False
         await asyncio.sleep(0.5)

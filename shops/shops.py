@@ -427,7 +427,7 @@ class Shops(commands.Cog):
             return await ctx.reply(f"**Action impossible** • Cet item n'est pas dénombrable. Si vous voulez qu'il soit quantifié, vous devez l'effacer avec `;shop remove` et le refaire avec `;shop new`", mention_author=False)
         
         await self.config.member(user).Shop.set_raw(itemid, 'qte', value=item['qte'] + qte)
-        await ctx.reply(f"**Ajout effectué** • L'item `{itemid}`` est désormais disponible en x{item['qte'] + qte} exemplaires", mention_author=False)
+        await ctx.reply(f"**Ajout effectué** • L'item `{itemid}` est désormais disponible en x{item['qte'] + qte} exemplaires", mention_author=False)
         
     @member_shop_commands.command(name='remove', aliases=['rem'])
     async def remove_shop_item(self, ctx, itemid: str, qte: int = None):

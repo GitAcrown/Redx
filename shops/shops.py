@@ -282,7 +282,7 @@ class Shops(commands.Cog):
     
     @member_shop_commands.command(name='new')
     async def new_shop_item(self, ctx):
-        """Ajouter un item dans sa boutique"""
+        """Ajouter un nouvel item dans sa boutique"""
         author = ctx.author
         shop = await self.config.member(author).Shop()
         eco = self.bot.get_cog('AltEco')
@@ -412,6 +412,22 @@ class Shops(commands.Cog):
         else:
             await ctx.send(f"✅ **Succès** • L'item `{itemid}` a été ajouté dans votre boutique !\n__Rappel :__ Le mode de vente étant en 'Manuel', vous recevrez des MP de vente lorsque quelqu'un voudra acheter un item et vous devrez confirmer la vente avec la commande `;shop sell`. **Vérifiez donc que le bot puisse avoir accès à vos MP.**")
         
+    @member_shop_commands.command(name='add')
+    async def add_shop_item(self, ctx, itemid: str, qte: int):
+        """Ajouter une quantité d'un item de sa boutique"""
+        user = ctx.author
+        shop = await self.config.member(user).Shop()
+        if qte > 0:
+            return await ctx.reply(f"**Quantité invalide** • Vous ne pouvez pas ajouter une quantité négative d'items", mention_author=False)
+        if itemid not in shop:
+            return await ctx.reply(f"**Item invalide** • Cet item n'existe pas dans votre boutique. Si vous voulez ajouter un nouvel item, utilisez `;shop new`", mention_author=False)
+        
+        item = shop[itemid]
+        if not item.get('qte', False):
+            return await ctx.reply(f"**Action impossible** • Cet item n'est pas dénombrable. Si vous voulez qu'il soit quantifié, vous devez l'effacer avec `;shop remove` et le refaire avec `;shop new`", mention_author=False)
+        
+        await self.config.member(user).Shop.set_raw(itemid, 'qte', value=item['qte'] + qte)
+        await ctx.reply(f"**Ajout effectué** • L'item `{itemid}`` est désormais disponible en x{item['qte'] + qte} exemplaires", mention_author=False)
         
     @member_shop_commands.command(name='remove', aliases=['rem'])
     async def remove_shop_item(self, ctx, itemid: str, qte: int = None):

@@ -121,7 +121,7 @@ class Shops(commands.Cog):
             if item.get('img', None):
                 em.set_thumbnail(url=item['img'])
             
-            if item.get('qte', None):
+            if 'qte' in item:
                 em.add_field(name="Quantité disp.", value=box(item['qte'], lang='css'))
                 
             em.add_field(name="Prix à l'unité", value=box(item['value'], lang='fix'))
@@ -149,7 +149,7 @@ class Shops(commands.Cog):
         if not seller:
             return await ctx.reply(f"**Identifiant d'item inconnu** • Vérifiez l'identifiant dans la boutique du membre puis réessayez", mention_author=False)
         
-        if item.get('qte', False):
+        if 'qte' in item:
             if qte > item['qte']:
                 return await ctx.reply(f"**Quantité trop importante** • La boutique visée n'a pas cette quantité d'items à disposition, consultez `;shop {seller.name}` pour en savoir plus.", mention_author=False)
         
@@ -158,7 +158,7 @@ class Shops(commands.Cog):
                             color=seller.color)
         if item.get('img', None):
             em.set_thumbnail(url=item['img'])
-        if item.get('qte', None):
+        if 'qte' in item:
             em.add_field(name="Quantité disp.", value=box(item['qte'], lang='css'))
         
         em.add_field(name="Prix à l'unité", value=box(item['value'], lang='fix'))
@@ -187,7 +187,7 @@ class Shops(commands.Cog):
             await self.config.member(seller).ManualIDs.set_raw(buyid, value=manualdata)
             
             sellem = discord.Embed(title=f"Demande d'achat · `{itemid}` **{item['name']}**", description=f"**{ctx.author}** sur *{ctx.guild.name}* désire acheter l'item **x{qte}** `{itemid}`.", color=seller.color)
-            if item.get('qte', None):
+            if 'qte' in item:
                 sellem.add_field(name="Quantité disp.", value=box(item['qte'], lang='css'))
             sellem.add_field(name="Identifiant d'achat", value=box(buyid, lang='fix'))
             sellem.set_footer(text=f"Acceptez la vente en faisant ';shop sell <id>' dans les 24h sur le serveur ou ignorez-la pour refuser")
@@ -205,7 +205,7 @@ class Shops(commands.Cog):
             await eco.withdraw_credits(ctx.author, item['value'] * qte, desc=f"Achat boutique ${uid}")
             await eco.deposit_credits(seller, item['value'] * qte, desc=f"Vente boutique ${uid}")
             
-            if item.get('qte', False):
+            if 'qte' in item:
                 await self.config.member(seller).Shop.set_raw(itemid, 'qte', value=item['qte'] - qte)
             
             return await ctx.reply(f"**Achat effectué** • Vous avez acheté x{qte} **{item['name']}** à {seller.mention} pour {qte * item['value']}{curr}.", embed=await self.get_log_ticket(ctx.guild, uid))
@@ -236,12 +236,12 @@ class Shops(commands.Cog):
             
             _, item = await self.get_shop_item(ctx.guild, itemid)
             if item:
-                if item.get('qte', False):
+                if 'qte' in item:
                     if data['qte'] > item['qte']:
                         return await ctx.reply(f"**Quantité trop importante** • Votre boutique n'a plus la quantité commandée d'items à disposition, l'opération est donc suspendue.", mention_author=False)
                     
                 sellem = discord.Embed(title=f"Demande d'achat · `{itemid}` › **{item['name']}**", description=f"**{ctx.author}** sur *{ctx.guild.name}* désire acheter l'item **x{data['qte']}** `{itemid}`.", color=author.color)
-                if item.get('qte', None):
+                if 'qte' in item:
                     sellem.add_field(name="Quantité disp.", value=box(item['qte'], lang='css'))
                 sellem.add_field(name="Expiration", value=box(datetime.utcfromtimestamp(data['timestamp']).strftime('%d/%m/%Y %H:%M')))
                 sellem.set_footer(text=f"››› Acceptez-vous cette vente ? [Silence vaut suspension] (60s)")
@@ -271,7 +271,7 @@ class Shops(commands.Cog):
                     await eco.withdraw_credits(buyer, item['value'] * data['qte'], desc=f"Achat boutique ${uid}")
                     await eco.deposit_credits(ctx.author, item['value'] * data['qte'], desc=f"Vente boutique ${uid}")
                     
-                    if item.get('qte', False):
+                    if 'qte' in item:
                         await self.config.member(ctx.author).Shop.set_raw(itemid, 'qte', value=item['qte'] - data['qte'])
                     
                     return await ctx.reply(f"**Vente effectuée** • Vous avez vendu x{data['qte']} **{item['name']}** à {buyer.mention} pour {data['qte'] * item['value']}{curr}.", embed=await self.get_log_ticket(ctx.guild, uid))
@@ -423,7 +423,7 @@ class Shops(commands.Cog):
             return await ctx.reply(f"**Item invalide** • Cet item n'existe pas dans votre boutique. Si vous voulez ajouter un nouvel item, utilisez `;shop new`", mention_author=False)
         
         item = shop[itemid]
-        if not item.get('qte', False):
+        if 'qte' not in item:
             return await ctx.reply(f"**Action impossible** • Cet item n'est pas dénombrable. Si vous voulez qu'il soit quantifié, vous devez l'effacer avec `;shop remove` et le refaire avec `;shop new`", mention_author=False)
         
         await self.config.member(user).Shop.set_raw(itemid, 'qte', value=item['qte'] + qte)
@@ -443,7 +443,7 @@ class Shops(commands.Cog):
             return await ctx.reply(f"**Identifiant d'item inconnu** • Vérifiez les identifiants des items dans votre boutique avec `;shop`", mention_author=False)
         
         item = shop[itemid]
-        if qte and item.get('qte', None):
+        if qte and 'qte' in item:
             if qte < item['qte']:
                 await self.config.member(user).Shop.set_raw(itemid, 'qte', value = item['qte'] - qte)
                 txt = f"**Quantité réduite** • L'item *{item['name']}* (`{itemid}`) n'est désormais disponible qu'en {item['qte'] - qte} exemplaires"

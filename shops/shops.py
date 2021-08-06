@@ -204,7 +204,8 @@ class Shops(commands.Cog):
             await eco.withdraw_credits(ctx.author, item['value'] * qte, desc=f"Achat boutique ${uid}")
             await eco.deposit_credits(seller, item['value'] * qte, desc=f"Vente boutique ${uid}")
             
-            await self.config.member(seller).Shop.set_raw(itemid, 'qte', value=item['qte'] - qte)
+            if item.get('qte', False):
+                await self.config.member(seller).Shop.set_raw(itemid, 'qte', value=item['qte'] - qte)
             
             return await ctx.reply(f"**Achat effectué** • Vous avez acheté x{qte} **{item['name']}** à {seller.mention} pour {qte * item['value']}{curr}.", embed=await self.get_log_ticket(ctx.guild, uid))
             
@@ -269,7 +270,8 @@ class Shops(commands.Cog):
                     await eco.withdraw_credits(buyer, item['value'] * data['qte'], desc=f"Achat boutique ${uid}")
                     await eco.deposit_credits(ctx.author, item['value'] * data['qte'], desc=f"Vente boutique ${uid}")
                     
-                    await self.config.member(ctx.author).Shop.set_raw(itemid, 'qte', value=item['qte'] - data['qte'])
+                    if item.get('qte', False):
+                        await self.config.member(ctx.author).Shop.set_raw(itemid, 'qte', value=item['qte'] - data['qte'])
                     
                     return await ctx.reply(f"**Vente effectuée** • Vous avez vendu x{data['qte']} **{item['name']}** à {buyer.mention} pour {data['qte'] * item['value']}{curr}.", embed=await self.get_log_ticket(ctx.guild, uid))
             else:
@@ -341,7 +343,7 @@ class Shops(commands.Cog):
             return await ctx.send("**Quantité invalide** • Nombre introuvable dans votre réponse")
         await asyncio.sleep(0.5)
         
-        mem = discord.Embed(description="**D bis. Mode de vente :** Mode de fonctionnement de la vente pour cet item parmi les deux modes disponibles\n`A` = La quantité baisse automatiquement au fil des ventes\n`B` = La quantité ne baisse pas automatiquement, vous devez manuellement retirer les quantitées vendues avec `;shop sell`\nLe deuxième mode est utile pour se servir de la boutique comme hub de commandes.",
+        mem = discord.Embed(description="**E. Mode de vente :** Mode de fonctionnement de la vente pour cet item parmi les deux modes disponibles\n`A` = La vente se fait automatiquement dès que le membre fait la commande d'achat\n`B` = Vous devez confirmer manuellement chaque vente avec `;shop sell`\n\nLe deuxième mode est utile pour se servir de la boutique comme hub de commandes.",
                             color=author.color)
         mem.set_footer(text="››› Choisissez le mode désiré pour cet item en cliquant sur la réaction correspondante")
         msg = await ctx.send(embed=mem)
@@ -362,7 +364,7 @@ class Shops(commands.Cog):
                 
         await asyncio.sleep(0.5)
         
-        value = await query_value("**E. Prix :** Prix de l'item à l'unité.\nLe prix doit être un nombre positif ou nul (si gratuit).")
+        value = await query_value("**F. Prix :** Prix de l'item à l'unité.\nLe prix doit être un nombre positif ou nul (si gratuit).")
         if not value:
             return await ctx.send("Ajout d'item annulé")
         try:
@@ -373,7 +375,7 @@ class Shops(commands.Cog):
             return await ctx.send("**Prix invalide** • Nombre introuvable dans votre réponse")
         await asyncio.sleep(0.5)
         
-        img = await query_value("**F. Image de représentation (Optionnel) :** Image représentant l'item que vous vendez.\nPour ne rien mettre, répondez 'rien' ou 'aucune'.", 120)
+        img = await query_value("**G. Image de représentation (Optionnel) :** Image représentant l'item que vous vendez.\nPour ne rien mettre, répondez 'rien' ou 'aucune'.", 120)
         if not img:
             img = False
         await asyncio.sleep(0.5)
@@ -460,6 +462,6 @@ class Shops(commands.Cog):
         if ope:
             await ctx.reply(embed=ope, mention_author=False)
         else:
-            await ctx.reply("**Erreur** • Cet identifiant est invalide ou la durée maximale de conservation de ce ticket a été atteinte")
+            await ctx.reply("**Erreur** • Cet identifiant est invalide ou la durée maximale de conservation de ce ticket a été atteinte")&p
     
     

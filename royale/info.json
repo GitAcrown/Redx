@@ -1,8 +1,8 @@
 {
     "author": ["Acrone"],
-	"description": "Minijeux d'origine de l'économie AltEco",
-	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help AltGames` pour voir les commandes disponibles",
-	"short": "Minijeux d'origine de l'économie AltEco",
+	"description": "Battle Royale sur Discord",
+	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help Royale` pour voir les commandes disponibles",
+	"short": "Battle Royale sur Discord",
 	"tags": ["community", "fun", "economy", "games"],
     "requirements" : [],
     "required_cogs": {},

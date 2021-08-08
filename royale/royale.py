@@ -2,15 +2,12 @@ import asyncio
 import logging
 import random
 import time
-from io import BytesIO
+from copy import copy
 
 import discord
+from discord import channel
 from discord.errors import DiscordException
-import aiohttp
-from PIL import Image, ImageSequence, ImageOps
-import wand
-import wand.color
-import wand.drawing
+from typing import Union, List, Literal
 
 from redbot.core import Config, commands
 from redbot.core.utils.chat_formatting import box
@@ -18,9 +15,19 @@ from redbot.core.utils.menus import start_adding_reactions
 from tabulate import tabulate
 from redbot.core.data_manager import cog_data_path, bundled_data_path
 
-logger = logging.getLogger("red.RedX.Royale")
-
 RoyaleColor = 0xFFC107
+
+IA_NAMES = ['Aphrodite', 'Apollon', 'Artemis', 'Athena', 'Charon', 'Eris', 'Gaia', 'Hades', 'Hephaistos', 'Hermes', 'Morphee', 'Persephone', 'Ploutos', 'Zeus']
+
+PASSIVES = {
+    'simp': ('Simp', "Regagne 15% de ses PV à chaque action de coopération avec un autre champion"),
+    'survivor' : ('Survivor', "Double la probabilité que votre Champion se batte plutôt qu'une autre action"),
+    'diamond' : ('Diamond', "A chaque fin de journée survécue : +10 pts d'Armure"),
+    'disco': ('Disco', "Immunisé contre les attaques à distance des autres champions"),
+    'king': ('King', "Double toutes les stats du Champion lorsqu'il ne reste plus qu'un seul autre concurrent en vie"),
+    'queen': ('Queen', "Commence la partie avec 150 PV (à la place de 100)")
+}
+
 
 class RoyalePlayer:
     def __init__(self, user: discord.Member, champion_data: dict):
@@ -28,11 +35,50 @@ class RoyalePlayer:
         self.data = champion_data
         
         self.status = 1
-        self.hp = 100
+        self.hp = 100 if self.passive != 'queen' else 150
         self.armor = 0
+        
+        self.atk = 1
+        
+        self.last_action = None
                 
     def __str__(self):
         return f'**{self.user.display_name}**'
+    
+    @property
+    def passive(self):
+        return self.data['passive']
+    
+    
+class RoyaleIA:
+    def __init__(self, guild: discord.Guild, name: str):
+        self.guild = guild
+        self.name = name
+        self.data = self.generate_data(name.lower())
+        self.user = None
+        
+        self.status = 1
+        self.hp = 100 if self.passive != 'queen' else 150
+        self.armor = 0
+        
+        self.atk = 1
+        
+        self.last_action = None
+                
+    def __str__(self):
+        return f'**{self.name} [IA]**'
+    
+    def generate_data(self, seed: str):
+        rng = random.Random(seed)
+        data = {
+            'passive': rng.choice(list(PASSIVES.keys()))
+        }
+        return data
+    
+    @property
+    def passive(self):
+        return self.data['passive']
+
 
 class Royale(commands.Cog):
     """Battle Royale sur Discord"""
@@ -43,7 +89,15 @@ class Royale(commands.Cog):
         self.config = Config.get_conf(self, identifier=736144321857978388, force_registration=True)
 
         default_member = {
-            'Champion': {}
+            'Champion': {
+                'img': None,
+                'rang': 0,
+                
+                'passive': None
+            },
+            'xp': 0,
+            'next_unlock': 100,
+            'unlocked_passives': []
         }
 
         default_guild = {
@@ -56,8 +110,6 @@ class Royale(commands.Cog):
         self.config.register_guild(**default_guild)
 
         self.cache = {}
-        self.image_mimes = ["image/png", "image/pjpeg", "image/jpeg", "image/x-icon"]
-        self.gif_mimes = ["image/gif"]
         
         
     # Parties    
@@ -89,127 +141,20 @@ class Royale(commands.Cog):
         player = RoyalePlayer(user, champ_data)
         cache['players'].append(player)
         
-        
-    # Avatars Mods
-    
-    async def bytes_download(self, url: str):
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as resp:
-                    if resp.status == 200:
-                        data = await resp.read()
-                        mime = resp.headers.get("Content-type", "").lower()
-                        b = BytesIO(data)
-                        b.seek(0)
-                        return b, mime
-                    else:
-                        return False, False
-        except asyncio.TimeoutError:
-            return False, False
-        except Exception:
-            logger.error(
-                "Impossible de télécharger en bytes-like", exc_info=True)
-            return False, False
-        
-    def apply_layer(self, b, layer_path, wm_gif=False):
-        final = BytesIO()
-        rscale = 100
-        x, y = 0, 0
-        transparency = 0
-        
-        with wand.image.Image(file=b) as img:
-            is_gif = len(getattr(img, "sequence")) > 1
-            if not is_gif and not wm_gif:
-                logger.debug("Aucun gif")
-                with img.clone() as new_img:
-                    new_img.transform(resize="250000@")
-                    with wand.image.Image(filename=layer_path) as wm:
-                        wm.transform(resize=f"{round(new_img.width * rscale)}x{round(new_img.height * rscale)}")
-                        new_img.watermark(
-                            image=wm, left=x, top=y
-                        )
-                    new_img.save(file=final)
+    def add_ia_players(self, guild: discord.Guild, limit: int = 4):
+        cache = self.get_cache(guild)
+        if not cache['status'] == 1:
+            raise ValueError("La valeur de statut du cache lors de l'inscription doit être 1")
+        if 2 <= len(cache['players']) < limit: 
+            names = random.choices(IA_NAMES, k = limit - len(cache['players']))
+            for n in names:
+                ia = RoyaleIA(guild, n)
+                cache['players'].append(ia)
 
-            elif is_gif and not wm_gif:
-                logger.debug("L'image de base est un gif")
-                    
-                with wand.image.Image(filename=layer_path) as wm:
-                    with wand.image.Image() as new_image:
-                        with img.clone() as new_img:
-                            wm.transform(
-                                resize=f"{round(new_img.height * rscale)}x{round(new_img.width * rscale)}")
-                            for frame in new_img.sequence:
-                                frame.transform(resize="90000@")
-                                final_x = int(frame.height * (x * 0.01))
-                                final_y = int(frame.width * (y * 0.01))
-                                frame.watermark(
-                                    image=wm,
-                                    left=final_x,
-                                    top=final_y,
-                                    transparency=transparency,
-                                )
-                                new_image.sequence.append(frame)
-                        new_image.save(file=final)
-            else:
-                logger.debug("Le layer est un gif")
-                with wand.image.Image() as new_image:
-                    with wand.image.Image(filename=layer_path) as new_img:
-                        new_img.transform(
-                            resize=f"{round(new_img.height * rscale)}x{round(new_img.width * rscale)}")
-                        
-                        for frame in new_img.sequence:
-                            with img.clone() as clone:
-                                if is_gif:
-                                    clone = clone.sequence[0]
-                                else:
-                                    clone = clone.convert("gif")
+    def get_actions_weights(self, player: Union[RoyalePlayer, RoyaleIA]):
+        if not player.last_action:
+            return ()
 
-                                clone.transform(resize="90000@")
-                                final_x = int(
-                                    clone.height * (x * 0.01))
-                                final_y = int(clone.width * (y * 0.01))
-                                clone.watermark(
-                                    image=frame,
-                                    left=final_x,
-                                    top=final_y,
-                                    transparency=transparency,
-                                )
-                                new_image.sequence.append(clone)
-                                new_image.dispose = "background"
-                                with new_image.sequence[-1] as new_frame:
-                                    new_frame.delay = frame.delay
-
-                    new_image.save(file=final)
-
-        size = final.tell()
-        final.seek(0)
-        filename = f"{random.randint(0, 99999)}.{'gif' if is_gif or wm_gif else 'png'}"
-
-        file = discord.File(final, filename=filename)
-        final.close()
-        return file, size
-    
-    @commands.command()
-    async def avatartest(self, ctx, filename: str = 'crown_test.png'):
-        url = str(ctx.author.avatar_url)
-        b, mime = await self.bytes_download(url)
-        if mime not in self.image_mimes + self.gif_mimes and not isinstance(
-            url, discord.Asset
-        ):
-            return await ctx.reply("Ce n'est pas une image valide.", mention_author=False)
-        layerpath = bundled_data_path(self) / f'avatar_layer/{filename}' 
-        try:
-            task = ctx.bot.loop.run_in_executor(
-                None, self.apply_layer, b, layerpath, True if str(layerpath).endswith('.gif') else False
-            )
-            file, file_size = await asyncio.wait_for(task, timeout=120)
-        except asyncio.TimeoutError:
-            return await ctx.reply("L'image a mis trop de temps à être traitée.", mention_author=False)
-        try:
-            await ctx.send(file=file)
-        except:
-             return await ctx.reply("L'image ne peut pas être upload (trop lourde).", mention_author=False)
-        
     @commands.command(name="royale")
     async def start_royale(self, ctx):
         """Démarrer une partie de Battle Royale"""
@@ -221,44 +166,92 @@ class Royale(commands.Cog):
         eco = self.bot.get_cog('AltEco')
         currency = await eco.get_currency(guild)
         
-        if cache['status'] == 0:
-            if not await eco.check_balance(author, settings['TicketPrice']):
-                return await ctx.reply(f"**Impossible de lancer une partie** — Votre solde ne permet pas d'acheter votre propre ticket ({settings['TicketPrice']}{currency})", 
-                                       mention_author=False)
-                
-            cache['status'] = 1
-            timeout = time.time() + settings['TimeoutDelay']
+        if cache['status'] == 1:
+            return await ctx.send("**Inscriptions déjà en cours** — Des inscriptions pour une partie ont déjà été lancées sur ce serveur. Cliquez sur 🎫 sous le message d'inscription pour rejoindre la partie.")
+        elif cache['status'] == 2:
+            return await ctx.send("**Partie en cours** — Une partie de BR est déjà en cours sur ce serveur. Attendez qu'elle finisse pour en lancer une autre.")
+        
+        
+        if not await eco.check_balance(author, settings['TicketPrice']):
+            return await ctx.reply(f"**Impossible de lancer une partie** — Votre solde ne permet pas d'acheter votre propre ticket ({settings['TicketPrice']}{currency})", 
+                                    mention_author=False)
             
-            await self.add_player(author)
-            pcache = []
-            msg = None
+        cache['status'] = 1
+        timeout = time.time() + settings['TimeoutDelay']
+        
+        await self.add_player(author)
+        players_cache = []
+        msg = None
+        
+        while len(cache['players']) < settings['MaxPlayers'] \
+            and time.time() <= timeout \
+                and cache['status'] == 1:
+                    
+            if players_cache != cache['players']:
+                desc = '\n'.join((f'• {p}' for p in cache['players']))
+                em = discord.Embed(title=f"Battle Royale — Inscriptions ({len(cache['players'])}/{settings['MaxPlayers']})", description=desc, color=RoyaleColor)
+                em.set_footer(text=f"Cliquez sur 🎫 pour s'inscrire ({settings['TicketPrice']}{currency})")
+                if not msg:
+                    msg = await ctx.send(embed=em)
+                    await msg.add_reaction('🎫')
+                    cache['register_msg'] = msg.id
+                else:
+                    await msg.edit(embed=em)
+                players_cache = cache['players']
+            await asyncio.sleep(1)
             
-            while len(cache['players']) < settings['MaxPlayers'] \
-                and time.time() <= timeout \
-                    and cache['status'] == 1:
-                        
-                if pcache != cache['players']:
-                    desc = '\n'.join((f'• {p}' for p in cache['players']))
-                    em = discord.Embed(title="Battle Royale — Inscriptions", description=desc, color=RoyaleColor)
-                    em.set_footer(text=f"Cliquez sur 🎫 pour s'inscrire ({settings['TicketPrice']}{currency})")
-                    if not msg:
-                        msg = await ctx.send(embed=em)
-                        await msg.add_reaction('🎫')
-                        cache['register_msg'] = msg.id
-                    else:
-                        await msg.edit(embed=em)
-                    pcache = cache['players']
+        if len(cache['players']) < 2:
+            self.clear_cache(guild)
+            em = discord.Embed(title="Battle Royale — Inscriptions", 
+                                description= "**Inscriptions annulées** : Manque de joueurs (min. 2)", 
+                                color=RoyaleColor)
+            em.set_footer(text=f"Aucune somme n'a été prélevée sur le compte des inscrits")
+            return await msg.edit(embed=em)
+        
+        await msg.clear_reactions()
+        em.set_footer(text=f"Vérification des soldes & paiements ···")
+        await msg.edit(embed=em)
+        
+        newcache = copy(cache['players'])
+        for p in cache['players']:
+            try:
+                await eco.withdraw_credits(p.user, settings['TicketPrice'], desc='Participation à une partie BR')
+            except ValueError:
+                newcache.remove(p)
+                await ctx.send(f"**Correction** — {p.user.mention} a été kick de la partie par manque de fonds", delete_after=10)
                 await asyncio.sleep(1)
+        
+        cache['players'] = newcache
+        await asyncio.sleep(3)
+        await msg.delete()
+        cache['status'] = 2
+        
+        desc = '\n'.join((f'• {p}' for p in cache['players']))
+        em = discord.Embed(title="Battle Royale — Joueurs", 
+                                description=desc, 
+                                color=RoyaleColor)
+        
+        if len(cache['players']) < 4:
+            em.set_footer(text=f"Ajout d'IA ···")
+            msg = await ctx.send(embed=em)
+            self.add_ia_players(guild)
+            await asyncio.sleep(3)
+            
+            desc = '\n'.join((f'• {p}' for p in cache['players']))
+            em = discord.Embed(title="Battle Royale — Joueurs", description=desc, color=RoyaleColor)
+            em.set_footer(text=f"La partie va bientôt commencer ···")
+            await msg.edit(embed=em)
+        else:
+            em.set_footer(text=f"La partie va bientôt commencer ···")
+            msg = await ctx.send(embed=em)
+        await asyncio.sleep(5)
+
+        ACTIONS = ('neutral', 'atk', 'coop_2', 'coop_3', 'explo', 'find_obj', 'find_place')
+        while len([p for p in cache['players'] if p.status != 0]) > 1 and cache['status'] == 2:
+            for player in [q for q in cache['players'] if q.status != 0]:
                 
-            if len(cache['players']) < 4:
-                self.clear_cache(guild)
-                em = discord.Embed(title="Battle Royale — Inscriptions", 
-                                   description= "**Inscriptions annulées** : Manque de joueurs (min. 4)", 
-                                   color=RoyaleColor)
-                em.set_footer(text=f"Aucune somme n'a été prélevée sur le compte des inscrits")
-                return await msg.edit(embed=em)
-            
-            
+                actions = random.choices(ACTIONS, act_weights, k=1)[0]
+                
         
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -270,6 +263,8 @@ class Royale(commands.Cog):
                 message = await channel.fetch_message(payload.message_id)
                 user = guild.get_member(payload.user_id)
                 cache = self.get_cache(guild)
+                if message.id != cache['registrer_msg']:
+                    return
                 if cache['players']:
                     if user.id in [p.user.id for p in cache['players']]:
                         return

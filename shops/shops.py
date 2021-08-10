@@ -81,7 +81,7 @@ class Shops(commands.Cog):
         logs = await self.config.guild(guild).GlobalLogs()
         for l in logs:
             if 'expiration_date' in logs[l]:
-                if logs[l]['expiration_date'] > time.time():
+                if logs[l]['expiration_date'] < time.time():
                     await self.config.guild(guild).GlobalLogs.clear_raw(l)
 
     async def get_log_ticket(self, guild: discord.Guild, logid: str) -> discord.Embed:
@@ -103,7 +103,7 @@ class Shops(commands.Cog):
             return ticket
         return None
     
-    async def get_contract_info(self, guild: discord.Guild, con_id: str):
+    async def get_contract_info(self, guild: discord.Guild, con_id: str) -> discord.Embed:
         await self.clear_expired_contracts(guild)
         logs = await self.config.guild(guild).GlobalLogs()
         if con_id in logs:
@@ -596,7 +596,7 @@ class Shops(commands.Cog):
         timeout = time.time() + 300
         while time.time() <= timeout and not all([lm[i] for i in lm]):
             lm_emojis = [(ctx.guild.get_member(i), '✅' if lm[i] else '❎') for i in lm]
-            resume = f"__**Objet du contrat :**__ {content}\n**__Crédits concernés :__** {creditssum if creditssum else 'N.R.'}{curr}\n**__Expire le :__** {exp_txt}"
+            resume = f"__**Objet du contrat :**__ {content}\n**__Crédits concernés :__** {creditssum if creditssum else '0'}{curr}\n**__Expire le :__** {exp_txt}"
             em = discord.Embed(title=f"Résumé du contrat créé",
                             description=resume,
                             color=discord.Color.dark_gray())
@@ -624,12 +624,13 @@ class Shops(commands.Cog):
             return await ctx.send("**Contrat annulé** • Toutes les parties au contrat n'ont pas accepté dans les temps (5 minutes).")
         
         lm_emojis = [(ctx.guild.get_member(i), '✅' if lm[i] else '❎') for i in lm]
-        resume = f"__**Objet du contrat :**__ {content}\n**__Crédits concernés :__** {creditssum if creditssum else 'N.R.'}{curr}\n**__Expire le :__** {exp_txt}"
+        resume = f"__**Objet du contrat :**__ {content}\n**__Crédits concernés :__** {creditssum if creditssum else '0'}{curr}\n**__Expire le :__** {exp_txt}"
         em = discord.Embed(title=f"Résumé du contrat créé",
                         description=resume,
                         color=discord.Color.green())
         em.add_field(name="Parties au contrat", value=box(tabulate(lm_emojis, headers=('Membre', 'Accepté ?'))))
         em.set_footer(text="Toutes les parties ont accepté le contrat")
+        await msg.edit(embed=em)
         
         contract = {'members': members, 'content': content, 'expiration_date': expiration_date, 'credits': creditssum if creditssum else None}
         uid = await self.log_contract(ctx.guild, **contract)

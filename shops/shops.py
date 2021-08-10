@@ -539,6 +539,10 @@ class Shops(commands.Cog):
         eco = self.bot.get_cog('AltEco')
         curr = await eco.get_currency(ctx.guild)
         
+        if len(members) < 2:
+            return await ctx.reply(f"**Aucune partie au contrat** • Vous devez accompagner la commande des mentions (ou liste de pseudos exactes, entre guillemets) des parties au contrat, y compris vous-même si vous en êtes une", mention_author=False)
+        
+        
         await ctx.reply(f"**Processus de création d'un contrat** • Vous allez être guidé à travers les différentes étapes de création d'un contrat. En cas d'erreur, vous devrez refaire la commande et refaire chaque étape.\nVous pouvez dire 'stop' à tout moment pour arrêter.", mention_author=False)
         await asyncio.sleep(3)
         
@@ -585,6 +589,8 @@ class Shops(commands.Cog):
             return await ctx.send("**Date invalide** • Suivez le format `JJ/MM/AAAA`, ex. 07/08/2021")
         else:
             expiration_date = expiration_date.timestamp()
+            if expiration_date >= time.time() + 3600:
+                return await ctx.send("**Date invalide** • Impossible de mettre une date trop proche (<1h avec maintenant) ou déjà passée")
         await asyncio.sleep(0.5)
         
         lm = {m.id : False for m in members}

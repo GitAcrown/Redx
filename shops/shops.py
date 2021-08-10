@@ -114,7 +114,7 @@ class Shops(commands.Cog):
             
             em = discord.Embed(title=f"**Contrat** · `${con_id}`", color=discord.Color.dark_grey(), timestamp=datetime.utcfromtimestamp(log['timestamp']))
             em.description = f"{log['content']}"
-            em.add_field(name="Membres concernés", value="\n".join((f"{members.index(m) + 1}. {m.mention}" for m in members)))
+            em.add_field(name="Membres concernés", value="\n".join((f"{members.index(m) + 1}. {m.mention if m else '???'}" for m in members)))
             if log.get('credits', None):
                 em.add_field(name="Somme concernée", value=box(log['credits'], lang='css'))
             date = datetime.now().fromtimestamp(log['expiration_date']).strftime('%d/%m/%Y')

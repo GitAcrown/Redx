@@ -546,7 +546,7 @@ class Shops(commands.Cog):
                 return None
             return resp.content
         
-        content = await query_value("**A. Objet du contrat :** Vous devez décrire précisement l'objet du contrat et les conditions fixées pour les différentes parties au contrat (Max. 1000 caractères).\nSi le contrat concerne une somme de crédits, vous pourrez la préciser à la prochaine étape.", 600)
+        content = await query_value("**A. Objet du contrat :** Vous devez décrire précisement l'objet du contrat et les conditions fixées pour les différentes parties au contrat (Max. 1000 caractères).\nSi le contrat concerne une somme de crédits, vous pourrez la préciser à la prochaine étape.\n\nAstuce : dans la preuve de contrat, les membres ont un numéro assigné en fonction de la place de la mention dans la commande, vous pouvez donc référer à eux avec leur chiffre au cas où ils changent de pseudo.", 600)
         if not content:
             return await ctx.send("Création du contrat annulée")
         elif len(content) > 1000:

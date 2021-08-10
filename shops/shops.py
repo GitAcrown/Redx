@@ -1,19 +1,12 @@
 import logging
-import random
 import asyncio
 import time
-import string
-from copy import copy
-from datetime import datetime, timedelta
-import re
+from datetime import datetime
 
 import discord
-from discord import relationship
-from discord.errors import HTTPException
-from typing import Union, List, Literal
+from typing import List
 
-from redbot.core import Config, commands, checks
-from redbot.core.utils import AsyncIter
+from redbot.core import Config, commands
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 from redbot.core.utils.chat_formatting import box, humanize_number
 from redbot.core.utils.menus import start_adding_reactions
@@ -33,7 +26,8 @@ class Shops(commands.Cog):
         default_member = {'Shop': {},
                           'ManualIDs': {}}
 
-        default_guild = {'GlobalLogs': {}}
+        default_guild = {'GlobalLogs': {},
+                         'TempContracts': {}}
         
         self.config.register_member(**default_member)
         self.config.register_guild(**default_guild)
@@ -75,13 +69,30 @@ class Shops(commands.Cog):
         await self.config.guild(buyer.guild).GlobalLogs.set_raw(uid, value=log)
         return uid
     
+    async def log_contract(self, members: List[discord.Member], content: str, expiration_date: float, credits: int = None, **info):
+        """Log un contrat manuel"""
+        guild = members[0].guild
+        uid = str(int(time.time() * 100))
+        log = {'members': [m.id for m in members], 'content': content, 'expiration_date': expiration_date, 'credits': credits, 'timestamp': time.time()}
+        log.update(info)
+        
+        await self.config.guild(guild).GlobalLogs.set_raw(uid, value=log)
+        return uid
+    
+    async def clear_expired_contracts(self, guild: discord.Guild):
+        logs = await self.config.guild(guild).GlobalLogs()
+        for l in logs:
+            if 'expiration_date' in logs[l]:
+                if logs[l]['expiration_date'] > time.time():
+                    await self.config.guild(guild).GlobalLogs.clear_raw(l)
+
     async def get_log_ticket(self, guild: discord.Guild, logid: str) -> discord.Embed:
         logs = await self.config.guild(guild).GlobalLogs()
         if logid in logs:
             log = logs[logid]
             buyer = guild.get_member(log['buyer'])
             seller, item = await self.get_shop_item(guild, log['item'])
-            ticket = discord.Embed(title=f"Preuve d'achat · `${logid}`", color=buyer.color if buyer else None,
+            ticket = discord.Embed(title=f"**Preuve d'achat** · `${logid}`", color=buyer.color if buyer else None,
                                    timestamp=datetime.utcfromtimestamp(log['timestamp']))
             ticket.description = f"Vente réalisée entre {seller.name if seller else '???'} (Vendeur) et {buyer.name if buyer else '???'} (Acheteur)"
             if item:
@@ -92,6 +103,24 @@ class Shops(commands.Cog):
                 ticket.add_field(name="Item concerné", value=f"Anciennement `{log['item']}`")
             ticket.add_field(name="Quantité", value=box('x' + str(log['qte'])))
             return ticket
+        return None
+    
+    async def get_contract_info(self, guild: discord.Guild, con_id: str):
+        await self.clear_expired_contracts(guild)
+        logs = await self.config.guild(guild).GlobalLogs()
+        if con_id in logs:
+            log = logs[con_id]
+            members = [guild.get_member(m) for m in log['members']]
+            
+            em = discord.Embed(title=f"**Contrat** · `${con_id}`", color=discord.Color.dark_grey(), timestamp=datetime.utcfromtimestamp(log['timestamp']))['']
+            em.description = f"{log['content']}"
+            em.add_field(name="Membres concernés", value="\n".join((f"{members.index(m) + 1}. {m.mention}" for m in members)))
+            if log.get('credits', None):
+                em.add_field(name="Somme concernée", value=box(log['credits'], lang='css'))
+            date = datetime.now().fromtimestamp(log['expiration_date']).strftime('%d/%m/%Y')
+            em.add_field(name="Expire le", value=box(date))
+            em.set_footer(name=f"Garanti par {self.bot.user.name}")
+            return em
         return None
 
 
@@ -381,7 +410,7 @@ class Shops(commands.Cog):
             img = False
         await asyncio.sleep(0.5)
         
-        resume = f"__Nom :__ {name}\n__Description :__ {desc if len(desc) < 50 else desc[:50] + '...'}\n__Quantité vendue :__ {qte if qte > 0 else 'Indefinie'}\n__Mode de vente :__ {sellmode.title()}\n__Prix à l'unité :__ {value}{curr}/u\n__URL de l'image :__ {img if img else 'Aucune'}"
+        resume = f"**__Nom :__** {name}\n**__Description :__** {desc if len(desc) < 50 else desc[:50] + '...'}\n**__Quantité vendue :__** {qte if qte > 0 else 'Indefinie'}\n**__Mode de vente :__** {sellmode.title()}\n**__Prix à l'unité :__** {value}{curr}/u\n**__URL de l'image :__** {img if img else 'Aucune'}"
         em = discord.Embed(title=f"Résumé › `{itemid}`",
                            description=resume,
                            color=author.color)
@@ -427,8 +456,8 @@ class Shops(commands.Cog):
             return await ctx.reply(f"**Action impossible** • Cet item n'est pas dénombrable. Si vous voulez qu'il soit quantifié, vous devez l'effacer avec `;shop remove` et le refaire avec `;shop new`", mention_author=False)
         
         await self.config.member(user).Shop.set_raw(itemid, 'qte', value=item['qte'] + qte)
-        await ctx.reply(f"**Ajout effectué** • L'item `{itemid}` est désormais disponible en x{item['qte'] + qte} exemplaires", mention_author=False)
-        
+        await ctx.reply(f"**Ajout effectué** • L'item `{itemid}` est désormais disponible en x{item['qte'] + qte} exemplaires", mention_author=False)    
+    
     @member_shop_commands.command(name='remove', aliases=['rem'])
     async def remove_shop_item(self, ctx, itemid: str, qte: int = None):
         """Retirer un item de sa boutique par son identifiant
@@ -479,6 +508,120 @@ class Shops(commands.Cog):
         if ope:
             await ctx.reply(embed=ope, mention_author=False)
         else:
-            await ctx.reply("**Erreur** • Cet identifiant est invalide ou la durée maximale de conservation de ce ticket a été atteinte")&p
+            await ctx.reply("**Erreur** • Cet identifiant est invalide ou la durée maximale de conservation de ce ticket a été atteinte")
     
     
+    @commands.group(name='contract', aliases=['contrat'], invoke_without_command=True)
+    @commands.guild_only()
+    async def contracts_commands(self, ctx, contract_id: str):
+        """Voir et créer des contrats manuels entre plusieurs membres"""
+        if ctx.invoked_subcommand is None:
+            return await ctx.invoke(self.show_contract, contract_id = contract_id)
+    
+    @contracts_commands.command(name="show")
+    async def show_contract(self, ctx, contract_id: str):
+        """Affiche les détails d'un contrat conclu entre plusieurs membres à partir de son identifiant unique
+        
+        Ne pas saisir le symbole $ au début de l'ID"""
+        con = await self.get_contract_info(ctx.guild, contract_id)
+        if con:
+            await ctx.reply(embed=con, mention_author=False)
+        else:
+            await ctx.reply("**Erreur** • Cet identifiant est invalide ou la durée maximale de conservation de ce contrat a été atteinte")
+        
+    @contracts_commands.command(name="new")
+    async def create_contract(self, ctx, members: commands.Greedy[discord.Members]):
+        """Créer un nouveau contrat entre ces membres
+        
+        Vous devez vous mentionner vous-même pour vous inclure au contrat
+        Cette commande démarre un processus étape par étape de création d'un contrat"""
+        author = ctx.author
+        eco = self.bot.get_cog('AltEco')
+        curr = await eco.get_currency(ctx.guild)
+        
+        await ctx.reply(f"**Processus de création d'un contrat** • Vous allez être guidé à travers les différentes étapes de création d'un contrat. En cas d'erreur, vous devrez refaire la commande et refaire chaque étape.\nVous pouvez dire 'stop' à tout moment pour arrêter.", mention_author=False)
+        await asyncio.sleep(3)
+        
+        async def query_value(desc: str, timeout_delay: int = 30):
+            qem = discord.Embed(description=desc, color = author.color)
+            qem.set_footer(text=f"››› Entrez l'élement ci-dessous ({timeout_delay}s)")
+            await ctx.send(embed=qem)
+            try:
+                resp = await self.bot.wait_for('message',
+                                               timeout=timeout_delay,
+                                               check=lambda m: m.author == ctx.author and m.channel == ctx.channel)
+            except asyncio.TimeoutError:
+                return None
+            if resp.content.lower() in ('stop', 'annuler', 'quitter', 'aucun', 'aucune', 'rien'):
+                return None
+            return resp.content
+        
+        content = await query_value("**A. Objet du contrat :** Vous devez décrire précisement l'objet du contrat et les conditions fixées pour les différentes parties au contrat (Max. 1000 caractères).\nSi le contrat concerne une somme de crédits, vous pourrez la préciser à la prochaine étape.", 600)
+        if not content:
+            return await ctx.send("Création du contrat annulée")
+        elif len(content) > 1000:
+            return await ctx.send("**Objet du contrat invalide** • Celui-ci ne peut faire plus de 1000 caractères")
+        await asyncio.sleep(0.5)
+        
+        creditssum = await query_value("**B. Somme de crédits :** Somme concernée par le contrat.\nS'il n'y a aucune somme concernée ou si vous ne désirez pas la préciser, entrez '0'.", 60)
+        if not creditssum:
+            return await ctx.send("Création du contrat annulée")
+        try:
+            creditssum = int(creditssum)
+            if creditssum < 0:
+                return await ctx.send("**Somme invalide** • Le nombre est invalide car négatif")
+        except:
+            return await ctx.send("**Somme invalide** • Nombre introuvable dans votre réponse")
+        await asyncio.sleep(0.5)
+        
+        expiration_date = await query_value("**C. Date limite :** Date à laquelle le contrat ne sera plus valide, qu'il aura expiré.\nElle doit être au format `JJ/MM/AAAA`.\nCette date est obligatoire même si elle est lointaine, après cette date le contrat sera supprimé des données du bot.", 120)
+        
+        if not expiration_date:
+            return await ctx.send("Création du contrat annulée")
+        try:
+            exp_txt = expiration_date
+            expiration_date = datetime.strptime(expiration_date, '%d/%m/%Y')
+        except:
+            return await ctx.send("**Date invalide** • Suivez le format `JJ/MM/AAAA`, ex. 07/08/2021")
+        else:
+            expiration_date = expiration_date.timestamp()
+        await asyncio.sleep(0.5)
+        
+        lm = {m.id : False for m in members}
+        msg = None
+        timeout = time.time() + 300
+        while timeout <= time.time() and not all([lm[i] for i in lm]):
+            lm_emojis = [(ctx.guild.get_member(i), '✅' if lm[i] else '❎') for i in lm]
+            resume = f"__**Objet du contrat :**__ {content}\n**__Crédits concernés :__** {creditssum if creditssum else 'N.R.'}{curr}\n**__Expire le :__** {exp_txt}"
+            em = discord.Embed(title=f"Résumé du contrat créé",
+                            description=resume,
+                            color=author.color)
+            em.add_field(name="Parties au contrat", value=box(tabulate(lm_emojis, headers=('Membre', 'Accepté ?'))))
+            em.set_footer(text="››› En attente de la confirmation de chaque membre partie au contrat [Valide 5m]")
+            if not msg:
+                msg = await ctx.send(embed=em)
+                start_adding_reactions(msg, ['✅'])
+            else:
+                await msg.edit(embed=em)
+            
+            try:
+                react, ruser = await self.bot.wait_for("reaction_add",
+                                                check=lambda m, u: u in members and m.message.id == msg.id,
+                                                timeout=300)
+            except asyncio.TimeoutError:
+                continue
+            
+            if react.emoji == '✅':
+                if not lm[ruser.id]:
+                    lm[ruser.id] = True
+        
+        if not all([lm[i] for i in lm]):
+            await msg.delete()
+            return await ctx.send("**Contrat annulé** • Toutes les parties au contrat n'ont pas accepté dans les temps (5 minutes).")
+        
+        contract = {'members': members, 'content': content, 'expiration_date': expiration_date, 'credits': creditssum if creditssum else None}
+        uid = await self.log_contract(**contract)
+        await ctx.send(f"✅ **Succès** • Le contrat `${uid}` a été créé et pourra être consulté en entrant la commande `;contract {uid}`", 
+                       embed=await self.get_contract_info(ctx.guild, uid))
+        
+        

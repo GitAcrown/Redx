@@ -504,7 +504,7 @@ class Shops(commands.Cog):
     @commands.command(name="preuve", aliases=['proof'])
     @commands.guild_only()
     async def get_operation_proof(self, ctx, logid: str):
-        """Récupérer la preuve de paiement à partir de son identifiant"""
+        """Récupérer une preuve de paiement ou un contrat à partir de son identifiant"""
         ope = await self.get_log_ticket(ctx.guild, logid)
         if not ope:
             ope = await self.get_contract_info(ctx.guild, logid)
@@ -622,7 +622,7 @@ class Shops(commands.Cog):
         
         contract = {'members': members, 'content': content, 'expiration_date': expiration_date, 'credits': creditssum if creditssum else None}
         uid = await self.log_contract(ctx.guild, **contract)
-        await ctx.send(f"✅ **Succès** • Le contrat `${uid}` a été créé et pourra être consulté en entrant la commande `;contract {uid}`", 
+        await ctx.send(f"✅ **Succès** • Le contrat `${uid}` a été créé et pourra être consulté en entrant la commande `;proof {uid}`", 
                        embed=await self.get_contract_info(ctx.guild, uid))
         
         

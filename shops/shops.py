@@ -599,7 +599,7 @@ class Shops(commands.Cog):
             try:
                 react, ruser = await self.bot.wait_for("reaction_add",
                                                 check=lambda m, u: u in members and m.message.id == msg.id,
-                                                timeout=300)
+                                                timeout=60)
             except asyncio.TimeoutError:
                 continue
             

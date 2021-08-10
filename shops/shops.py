@@ -596,7 +596,7 @@ class Shops(commands.Cog):
         lm = {m.id : False for m in members}
         msg = None
         timeout = time.time() + 300
-        while timeout <= time.time() and not all([lm[i] for i in lm]):
+        while time.time <= timeout and not all([lm[i] for i in lm]):
             lm_emojis = [(ctx.guild.get_member(i), '✅' if lm[i] else '❎') for i in lm]
             resume = f"__**Objet du contrat :**__ {content}\n**__Crédits concernés :__** {creditssum if creditssum else 'N.R.'}{curr}\n**__Expire le :__** {exp_txt}"
             em = discord.Embed(title=f"Résumé du contrat créé",

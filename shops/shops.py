@@ -26,8 +26,7 @@ class Shops(commands.Cog):
         default_member = {'Shop': {},
                           'ManualIDs': {}}
 
-        default_guild = {'GlobalLogs': {},
-                         'TempContracts': {}}
+        default_guild = {'GlobalLogs': {}}
         
         self.config.register_member(**default_member)
         self.config.register_guild(**default_guild)
@@ -69,9 +68,8 @@ class Shops(commands.Cog):
         await self.config.guild(buyer.guild).GlobalLogs.set_raw(uid, value=log)
         return uid
     
-    async def log_contract(self, members: List[discord.Member], content: str, expiration_date: float, credits: int = None, **info):
+    async def log_contract(self, guild: discord.Guild, members: List[discord.Member], content: str, expiration_date: float, credits: int = None, **info):
         """Log un contrat manuel"""
-        guild = members[0].guild
         uid = str(int(time.time() * 100))
         log = {'members': [m.id for m in members], 'content': content, 'expiration_date': expiration_date, 'credits': credits, 'timestamp': time.time()}
         log.update(info)
@@ -547,7 +545,7 @@ class Shops(commands.Cog):
         await asyncio.sleep(3)
         
         async def query_value(desc: str, timeout_delay: int = 30):
-            qem = discord.Embed(description=desc, color = author.color)
+            qem = discord.Embed(description=desc, color = discord.Color.dark_gray())
             qem.set_footer(text=f"››› Entrez l'élement ci-dessous ({timeout_delay}s)")
             await ctx.send(embed=qem)
             try:
@@ -601,7 +599,7 @@ class Shops(commands.Cog):
             resume = f"__**Objet du contrat :**__ {content}\n**__Crédits concernés :__** {creditssum if creditssum else 'N.R.'}{curr}\n**__Expire le :__** {exp_txt}"
             em = discord.Embed(title=f"Résumé du contrat créé",
                             description=resume,
-                            color=author.color)
+                            color=discord.Color.dark_gray())
             em.add_field(name="Parties au contrat", value=box(tabulate(lm_emojis, headers=('Membre', 'Accepté ?'))))
             em.set_footer(text="››› En attente de la confirmation de chaque membre partie au contrat [Valide 5m]")
             if not msg:
@@ -625,8 +623,16 @@ class Shops(commands.Cog):
             await msg.delete()
             return await ctx.send("**Contrat annulé** • Toutes les parties au contrat n'ont pas accepté dans les temps (5 minutes).")
         
+        lm_emojis = [(ctx.guild.get_member(i), '✅' if lm[i] else '❎') for i in lm]
+        resume = f"__**Objet du contrat :**__ {content}\n**__Crédits concernés :__** {creditssum if creditssum else 'N.R.'}{curr}\n**__Expire le :__** {exp_txt}"
+        em = discord.Embed(title=f"Résumé du contrat créé",
+                        description=resume,
+                        color=discord.Color.green())
+        em.add_field(name="Parties au contrat", value=box(tabulate(lm_emojis, headers=('Membre', 'Accepté ?'))))
+        em.set_footer(text="Toutes les parties ont accepté le contrat")
+        
         contract = {'members': members, 'content': content, 'expiration_date': expiration_date, 'credits': creditssum if creditssum else None}
-        uid = await self.log_contract(**contract)
+        uid = await self.log_contract(ctx.guild, **contract)
         await ctx.send(f"✅ **Succès** • Le contrat `${uid}` a été créé et pourra être consulté en entrant la commande `;contract {uid}`", 
                        embed=await self.get_contract_info(ctx.guild, uid))
         

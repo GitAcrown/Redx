@@ -110,7 +110,7 @@ class Shops(commands.Cog):
             log = logs[con_id]
             members = [guild.get_member(m) for m in log['members']]
             
-            em = discord.Embed(title=f"**Contrat** · `${con_id}`", color=discord.Color.dark_grey(), timestamp=datetime.utcfromtimestamp(log['timestamp']))['']
+            em = discord.Embed(title=f"**Contrat** · `${con_id}`", color=discord.Color.dark_grey(), timestamp=datetime.utcfromtimestamp(log['timestamp']))
             em.description = f"{log['content']}"
             em.add_field(name="Membres concernés", value="\n".join((f"{members.index(m) + 1}. {m.mention}" for m in members)))
             if log.get('credits', None):
@@ -538,7 +538,10 @@ class Shops(commands.Cog):
         curr = await eco.get_currency(ctx.guild)
         
         if len(members) < 2:
-            return await ctx.reply(f"**Aucune partie au contrat** • Vous devez accompagner la commande des mentions (ou liste de pseudos exactes, entre guillemets) des parties au contrat, y compris vous-même si vous en êtes une", mention_author=False)
+            return await ctx.reply(f"**Manque de parties au contrat** • Vous devez accompagner la commande des mentions (ou liste de pseudos exactes, entre guillemets) des parties au contrat, y compris vous-même si vous en êtes une", mention_author=False)
+        
+        if self.bot.user in members:
+            return await ctx.reply(f"**Partie au contrat invalide** • {self.bot.user.name} refuse vos contrats, il n'a pas le droit de toute manière.", mention_author=False)
         
         
         await ctx.reply(f"**Processus de création d'un contrat** • Vous allez être guidé à travers les différentes étapes de création d'un contrat. En cas d'erreur, vous devrez refaire la commande et refaire chaque étape.\nVous pouvez dire 'stop' à tout moment pour arrêter.", mention_author=False)

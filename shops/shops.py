@@ -88,6 +88,8 @@ class Shops(commands.Cog):
         logs = await self.config.guild(guild).GlobalLogs()
         if logid in logs:
             log = logs[logid]
+            if not 'buyer' in log:
+                return None
             buyer = guild.get_member(log['buyer'])
             seller, item = await self.get_shop_item(guild, log['item'])
             ticket = discord.Embed(title=f"**Preuve d'achat** · `${logid}`", color=buyer.color if buyer else None,
@@ -500,40 +502,23 @@ class Shops(commands.Cog):
         await ctx.reply("**Reset effectué** • Tous les items de votre boutique ont été retirés.")
         
     @commands.command(name="preuve", aliases=['proof'])
+    @commands.guild_only()
     async def get_operation_proof(self, ctx, logid: str):
         """Récupérer la preuve de paiement à partir de son identifiant"""
         ope = await self.get_log_ticket(ctx.guild, logid)
-        if ope:
-            await ctx.reply(embed=ope, mention_author=False)
-        else:
-            await ctx.reply("**Erreur** • Cet identifiant est invalide ou la durée maximale de conservation de ce ticket a été atteinte")
-    
-    
-    @commands.group(name='contract', aliases=['contrat'], invoke_without_command=True)
+        if not ope:
+            ope = await self.get_contract_info(ctx.guild, logid)
+            if not ope: 
+                await ctx.reply("**Erreur** • Cet identifiant est invalide ou la durée maximale de conservation de ce ticket/contrat a été atteinte")
+        await ctx.reply(embed=ope, mention_author=False)
+ 
+    @commands.command(name="contrat", aliases=['contract'])
     @commands.guild_only()
-    async def contracts_commands(self, ctx, contract_id: str):
-        """Voir et créer des contrats manuels entre plusieurs membres"""
-        if ctx.invoked_subcommand is None:
-            return await ctx.invoke(self.show_contract, contract_id = contract_id)
-    
-    @contracts_commands.command(name="show")
-    async def show_contract(self, ctx, contract_id: str):
-        """Affiche les détails d'un contrat conclu entre plusieurs membres à partir de son identifiant unique
-        
-        Ne pas saisir le symbole $ au début de l'ID"""
-        con = await self.get_contract_info(ctx.guild, contract_id)
-        if con:
-            await ctx.reply(embed=con, mention_author=False)
-        else:
-            await ctx.reply("**Erreur** • Cet identifiant est invalide ou la durée maximale de conservation de ce contrat a été atteinte")
-        
-    @contracts_commands.command(name="new")
     async def create_contract(self, ctx, members: commands.Greedy[discord.Member]):
         """Créer un nouveau contrat entre ces membres
         
         Vous devez vous mentionner vous-même pour vous inclure au contrat
         Cette commande démarre un processus étape par étape de création d'un contrat"""
-        author = ctx.author
         eco = self.bot.get_cog('AltEco')
         curr = await eco.get_currency(ctx.guild)
         

@@ -530,7 +530,7 @@ class Shops(commands.Cog):
             await ctx.reply("**Erreur** • Cet identifiant est invalide ou la durée maximale de conservation de ce contrat a été atteinte")
         
     @contracts_commands.command(name="new")
-    async def create_contract(self, ctx, members: commands.Greedy[discord.Members]):
+    async def create_contract(self, ctx, members: commands.Greedy[discord.Member]):
         """Créer un nouveau contrat entre ces membres
         
         Vous devez vous mentionner vous-même pour vous inclure au contrat

@@ -589,7 +589,7 @@ class Shops(commands.Cog):
             return await ctx.send("**Date invalide** • Suivez le format `JJ/MM/AAAA`, ex. 07/08/2021")
         else:
             expiration_date = expiration_date.timestamp()
-            if expiration_date >= time.time() + 3600:
+            if expiration_date <= time.time() + 3600:
                 return await ctx.send("**Date invalide** • Impossible de mettre une date trop proche (<1h avec maintenant) ou déjà passée")
         await asyncio.sleep(0.5)
         

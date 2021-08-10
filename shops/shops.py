@@ -117,7 +117,7 @@ class Shops(commands.Cog):
                 em.add_field(name="Somme concernée", value=box(log['credits'], lang='css'))
             date = datetime.now().fromtimestamp(log['expiration_date']).strftime('%d/%m/%Y')
             em.add_field(name="Expire le", value=box(date))
-            em.set_footer(name=f"Garanti par {self.bot.user.name}")
+            em.set_footer(text=f"Garanti par {self.bot.user.name}")
             return em
         return None
 

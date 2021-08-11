@@ -6,7 +6,7 @@ from datetime import datetime
 import discord
 from typing import List
 
-from redbot.core import Config, commands
+from redbot.core import Config, commands, checks
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 from redbot.core.utils.chat_formatting import box, humanize_number
 from redbot.core.utils.menus import start_adding_reactions
@@ -647,6 +647,7 @@ class Shops(commands.Cog):
     
     @commands.command(name="delcontrat", aliases=['delcontract'])
     @commands.guild_only()
+    @checks.admin_or_permissions(manage_messages=True)
     async def delete_contract(self, ctx, id: str):
         """Supprimer un contrat manuellement"""
         logs = await self.config.guild(ctx.guild).GlobalLogs()

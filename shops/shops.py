@@ -656,11 +656,11 @@ class Shops(commands.Cog):
                 return await ctx.reply(f"**Erreur** • Cet ID ne provient pas d'un contrat et ne peut donc être supprimé manuellement de cette façon", mention_author=False)
             
             em = await self.get_contract_info(ctx.guild, id)
-            msg = await ctx.send("Voulez-vous supprimer ce contrat ?", embed=em)
+            msg = await ctx.send("**Voulez-vous supprimer ce contrat ?**", embed=em)
             start_adding_reactions(msg, ['✅', '❎'])
             try:
                 react, ruser = await self.bot.wait_for("reaction_add",
-                                                check=lambda m, u: u in members and m.message.id == msg.id,
+                                                check=lambda m, u: u == ctx.author and m.message.id == msg.id,
                                                 timeout=60)
             except asyncio.TimeoutError:
                 await msg.delete()

@@ -625,4 +625,52 @@ class Shops(commands.Cog):
         await ctx.send(f"✅ **Succès** • Le contrat `${uid}` a été créé et pourra être consulté en entrant la commande `;proof {uid}`", 
                        embed=await self.get_contract_info(ctx.guild, uid))
         
+    @commands.command(name="contrats", aliases=['contracts'])
+    @commands.guild_only()
+    async def get_contracts(self, ctx, member: discord.Member = None):
+        """Affiche les ID de tous les contrats dont vous, ou le membre mentionné, est partie"""
+        user = member if member else ctx.author
+        logs = await self.config.guild(ctx.guild).GlobalLogs()
+        ids = []
+        for l in [i for i in logs if 'expiration_date' in logs[i]]:
+            ids.append((l, logs[l]['content'] if len(logs[l]['content']) <= 50 else logs[l]['content'][:50] + '...'))
         
+        if ids:
+            em = discord.Embed(title=f"Contrats de **{user.name}**", 
+                            description=box(tabulate(ids[-30:], headers=('ID', 'Contenu'))),
+                            color=discord.Color.dark_grey())
+            em.set_footer(text="*30 plus anciens seulement")
+            
+            await ctx.reply(embed=em, mention_author=False)
+        else:
+            return await ctx.reply(f"**Vide** • {user.name} n'est partie à aucun contrat.", mention_author=False)
+    
+    @commands.command(name="delcontrat", aliases=['delcontract'])
+    @commands.guild_only()
+    async def delete_contract(self, ctx, id: str):
+        """Supprimer un contrat manuellement"""
+        logs = await self.config.guild(ctx.guild).GlobalLogs()
+        if id in logs:
+            if not logs[id].get('expiration_date', False):
+                return await ctx.reply(f"**Erreur** • Cet ID ne provient pas d'un contrat et ne peut donc être supprimé manuellement de cette façon", mention_author=False)
+            
+            em = await self.get_contract_info(ctx.guild, id)
+            msg = await ctx.send("Voulez-vous supprimer ce contrat ?", embed=em)
+            start_adding_reactions(msg, ['✅', '❎'])
+            try:
+                react, ruser = await self.bot.wait_for("reaction_add",
+                                                check=lambda m, u: u in members and m.message.id == msg.id,
+                                                timeout=60)
+            except asyncio.TimeoutError:
+                await msg.delete()
+                return
+            
+            if react.emoji == '✅':
+                await self.config.guild(ctx.guild).GlobalLogs.clear_raw(id)
+                return await ctx.send(f"**Succès** • Le contrat `${id}` a été supprimé")
+            else:
+                await msg.delete()
+                return
+        else:
+            return await ctx.reply(f"**Erreur** • Cet ID n'existe pas ou le contrat lié a déjà expiré de lui-même", mention_author=False)
+            

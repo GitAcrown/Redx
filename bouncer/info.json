@@ -1,0 +1,11 @@
+{
+    "author": ["Acrone"],
+	"description": "Surveille les allées et venus des utilisateurs du serveur",
+	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help Bouncer` pour voir les commandes disponibles",
+	"short": "Videur de serveur",
+	"tags": ["community", "utility"],
+    "requirements" : [],
+    "required_cogs": {},
+	"type": "COG",
+	"end_user_data_statement": "This cog does not store personal data."
+}

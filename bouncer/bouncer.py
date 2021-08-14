@@ -135,7 +135,7 @@ class Bouncer(commands.Cog):
             embeds = []
             for i in msglist:
                 chunk = f'{n}. {i}'
-                if len('\n'.join(txt)) + chunk > 2000:
+                if len('\n'.join(txt)) + len(chunk) > 2000:
                     em = discord.Embed(title="Messages de départ personnalisés", description=box('\n'.join(txt)))
                     em.set_footer(text=f"Page n°{len(embeds) + 1}")
                     embeds.append(em)
@@ -190,7 +190,7 @@ class Bouncer(commands.Cog):
         embeds = []
         for i in msglist:
             chunk = f'{n}. {i}'
-            if len('\n'.join(txt)) + chunk > 2000:
+            if len('\n'.join(txt)) + len(chunk) > 2000:
                 em = discord.Embed(title="Messages de départ personnalisés", description=box('\n'.join(txt)))
                 em.set_footer(text=f"Page n°{len(embeds) + 1}")
                 embeds.append(em)

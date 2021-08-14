@@ -144,6 +144,11 @@ class Bouncer(commands.Cog):
                 txt.append(chunk)
                 n += 1
                 
+            if txt:
+                em = discord.Embed(title="Messages de départ personnalisés", description=box('\n'.join(txt)))
+                em.set_footer(text=f"Page n°{len(embeds) + 1}")
+                embeds.append(em)
+                
             if embeds:
                 await menu(ctx, embeds, DEFAULT_CONTROLS)
             else:
@@ -198,7 +203,12 @@ class Bouncer(commands.Cog):
                 
             txt.append(chunk)
             n += 1
-            
+        
+        if txt:
+            em = discord.Embed(title="Messages de départ personnalisés", description=box('\n'.join(txt)))
+            em.set_footer(text=f"Page n°{len(embeds) + 1}")
+            embeds.append(em)
+        
         if embeds:
             await menu(ctx, embeds, DEFAULT_CONTROLS)
         else:

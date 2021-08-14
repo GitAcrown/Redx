@@ -97,7 +97,7 @@ class Bouncer(commands.Cog):
         """Modifier les messages de départ aléatoires"""
         
     @edit_leave_msgs.command(name='add')
-    async def add_leave_msg(self, ctx, msg: str):
+    async def add_leave_msg(self, ctx, *, msg: str):
         """Ajouter un message de départ personnalisé aléatoire
         
         __Balises :__

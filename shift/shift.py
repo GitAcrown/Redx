@@ -24,7 +24,16 @@ from tabulate import tabulate
 
 logger = logging.getLogger("red.RedX.Shift")
 
+VERSION = 'V1.0'
+
 SHIFT_COLOR, SHIFT_ICON = 0xFEFEFE, ''
+
+HUMANIZE_TAGS = {
+    'ore': "minerai",
+    'food': "consommable",
+    'equipment': "equipement",
+    'misc': "divers"
+}
     
     
 class ShiftError(Exception):
@@ -47,8 +56,16 @@ class ShiftItem:
         
         self.id = item_id
         self.name = self._raw['name']
+        
         self.value = self._raw.get('value', None)
         self.tags = self._raw.get('tags', [])
+        self.details = self._raw.get('details', [])
+        self.lore = self._raw.get('lore', '')
+        self.img = self._raw.get('img', None)
+        
+        self.default_config = self._raw.get('config', {})
+        self.on_use = self._raw.get('on_use', None)
+        self.on_equip = self._raw.get('on_equip', None)
         
     def __str__(self):
         return self.name
@@ -60,17 +77,8 @@ class ShiftItem:
     def equipable(self):
         return 'equipment' in self.tags
     
-    @property
-    def default_config(self):
-        return self._raw.get('config', {})
-    
-    @property
-    def on_use(self):
-        return self._raw.get('on_use', None)
-    
-    @property
-    def on_equip(self):
-        return self._raw.get('on_equip', None)
+    async def guild_value(self, guild: discord.Guild):
+        return await self._cog.item_guild_value(guild, self)
     
 
 class Shift(commands.Cog):
@@ -91,7 +99,8 @@ class Shift(commands.Cog):
         
         default_global = {
             'DefaultInventorySlots': 100,
-            'DefaultStaminaLimit': 100
+            'DefaultStaminaLimit': 100,
+            'MaxValueVariance': 0.20
         }
         
         self.config.register_member(**default_member)
@@ -143,6 +152,21 @@ class Shift(commands.Cog):
 
         return None
     
+    async def item_guild_value(self, guild: discord.Guild, item: ShiftItem):
+        if not item.value:
+            raise ValueError(f"L'item {item} n'est pas vendable")
+        
+        minvar = round(item.value * (1 - await self.config.MaxValueVariance()))
+        varbase = 0.998 if len(str(item.value)) < 3 else 0.996
+        value = item.value
+        holders = await self.all_inventories_with(guild, item)
+        if not holders:
+            return value
+        
+        itempool = sum([self.inventory_get(h, item) for h in holders])
+        valuevar = varbase**(itempool / len(holders))
+        value = round(value * valuevar)
+        return max(minvar, value)
     
 # INVENTAIRE _________________________
 
@@ -202,6 +226,19 @@ class Shift(commands.Cog):
         if item:
             return inv.get(item.id, 0)
         return inv
+    
+    async def all_inventories_with(self, guild: discord.Guild, item: ShiftItem, *, minimal_amount: int = 0):
+        users = await self.config.all_members(guild)
+        result = []
+        for u in users:
+            if item.id in users[u]['Inventory']:
+                if users[u]['Inventory'][item.id] < minimal_amount:
+                    continue
+                
+                m = guild.get_member(u)
+                if m:
+                    result.append(m)
+        return result
     
     async def inventory_operation_dialog(self, ctx, item: ShiftItem, amount: int, *, user: discord.Member = None) -> bool:
         user = user if user else ctx.author
@@ -350,3 +387,117 @@ class Shift(commands.Cog):
                     effects[e] = []
                 effects[e].append(item.on_equip[e])
         return effects
+
+
+# COMMANDES ______________________________
+
+    @commands.command(name='inventory', aliases=['inv'])
+    @commands.guild_only()
+    async def display_inventory(self, ctx):
+        """Affiche son inventaire"""
+        user, guild = ctx.author, ctx.guild
+        eco = self.bot.get_cog('AltEco')
+        currency = await eco.get_currency(guild)
+        account = await eco.get_account(user)
+        
+        inv = await self.inventory_get(user)
+        invsum = sum([inv[i] for i in inv])
+        invcap = await self.inventory_capacity(user)
+        stamina = await self.config.member(user).Stamina()
+        stamina_limit = await self.stamina_limit(user)
+        stamina_level, stamina_color = await self.stamina_level(user), await self.stamina_level_color(user)
+        
+        stats_txt = f"⚡ **Energie** · {stamina}/{stamina_limit} ({stamina_level}%)\n"
+        stats_txt += f"💶 **Solde** · {account.balance}{currency}\n"
+        stats_txt += f"🎒 **Capacité d'inventaire** · {invsum}/{invcap}"
+        
+        items = sorted([(self.get_item(i), inv[i]['name']) for i in inv], key=operator.itemgetter(1))
+        items = [i[0] for i in items]
+        
+        tabls = []
+        tabl = []
+        for item in items:
+            if len(tabl) < 30:
+                tabl.append((item.name, await self.inventory_get(user, item)))
+            else:
+                tabls.append(tabl)
+                tabl = []
+        if tabl:
+            tabls.append(tabl)
+            
+        if not tabls:
+            em = discord.Embed(description=stats_txt, color=await self.stamina_level_color(user))
+            em.set_footer(text=f'Shift {VERSION}', icon_url=SHIFT_ICON)
+            em.add_field(name=f'Inventaire', value=box("Inventaire vide"))
+            return await ctx.reply(embed=em, mention_author=False)
+            
+        p = 0
+        msg = None
+        while True:
+            em = discord.Embed(description=stats_txt, color=await self.stamina_level_color(user))
+            em.set_footer(text=f'Shift {VERSION}', icon_url=SHIFT_ICON)
+            em.add_field(name=f'Inventaire ({p + 1}/{len(tabls)})', value=box(tabulate(tabl[p], headers=('Item', 'Qte'))))
+            
+            if not msg:
+                msg = await ctx.reply(embed=em, mention_author=False)
+                start_adding_reactions(msg, ['◀️', '⏹️', '▶️'])
+            else:
+                await msg.edit(embed=em)
+            
+            try:
+                react, _ = await self.bot.wait_for("reaction_add", 
+                                                   check=lambda m, u: u == ctx.author and m.message.id == msg.id, 
+                                                   timeout=60)
+            except asyncio.TimeoutError:
+                await msg.clear_reactions()
+                return
+            
+            if react.emoji == '◀️':
+                if p == 0:
+                    p = len(tabls) - 1
+                else:
+                    p -= 1
+                    
+            elif react.emoji == '▶️':
+                if p == len(tabls) - 1:
+                    p = 0
+                else:
+                    p += 1
+            
+            else:
+                await msg.clear_reactions()
+                return
+        
+    @commands.command(name='iteminfo')
+    @commands.guild_only()
+    async def display_item_infos(self, ctx, *, search: str):
+        """Afficher les informations détaillées sur un item"""
+        guild = ctx.guild
+        item = self.fetch_item(search)
+        if not item:
+            return await ctx.reply("**Item inconnu** · Vérifiez le nom ou fournissez directement son ID", mention_author=False)
+        
+        eco = self.bot.get_cog('AltEco')
+        currency = await eco.get_currency(guild)
+        
+        em = discord.Embed(title=f"**{item.name}** [`{item.id}`]", color=SHIFT_COLOR)
+        if item.lore:
+            em.description = f'*{item.lore}*'
+        
+        tags = ' '.join([f"`{HUMANIZE_TAGS.get(t, t)}`" for t in item.name])
+        em.add_field(name="Tags", value=tags)
+        
+        details = '\n'.join(item.details) if item.details else ''
+        if details:
+            em.add_field(name="Détails", value=details)
+        
+        if item.img:
+            em.set_thumbnail(url=item.img)
+        if item.value:
+            em.add_field(name='Valeur estimée', value=box(f'{await item.guild_value(guild)}{currency}' , lang='css'))
+            
+        em.set_footer(text=f'Shift {VERSION}')
+        
+        await ctx.send(embed=em)
+        
+    

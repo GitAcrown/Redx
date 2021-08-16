@@ -484,7 +484,7 @@ class Shift(commands.Cog):
         if item.lore:
             em.description = f'*{item.lore}*'
         
-        tags = ' '.join([f"`{HUMANIZE_TAGS.get(t, t)}`" for t in item.name])
+        tags = ' '.join([f"`{HUMANIZE_TAGS.get(t, t)}`" for t in item.tags])
         em.add_field(name="Tags", value=tags)
         
         details = '\n'.join(item.details) if item.details else ''

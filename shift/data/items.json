@@ -1,3 +1,16 @@
 {
-    
+    "stone": {
+        "name": "Pierre",
+        "tags": [
+            "ore"
+        ],
+        "value": 3
+    },
+    "copper": {
+        "name": "Cuivre",
+        "tags": [
+            "ore"
+        ],
+        "value": 6
+    }
 }

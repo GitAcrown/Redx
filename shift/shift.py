@@ -480,7 +480,7 @@ class Shift(commands.Cog):
         eco = self.bot.get_cog('AltEco')
         currency = await eco.get_currency(guild)
         
-        em = discord.Embed(title=f"**{item.name}** [`{item.id}`]", color=SHIFT_COLOR)
+        em = discord.Embed(title=f"**{item.name}** · `ID:{item.id}`", color=SHIFT_COLOR, timestamp=ctx.message.created_at)
         if item.lore:
             em.description = f'*{item.lore}*'
         
@@ -499,5 +499,7 @@ class Shift(commands.Cog):
         em.set_footer(text=f'Shift {VERSION}')
         
         await ctx.send(embed=em)
+        
+    
         
     

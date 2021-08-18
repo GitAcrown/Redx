@@ -797,8 +797,7 @@ class Spark(commands.Cog):
             return await ctx.reply(f"**Boutique indisponible** · Les marchands ne vendent qu'entre {shoprange[0]}h et {shoprange[1]}", mention_author=False)
         
         if not order:
-            em = discord.Embed(color=SPARK_COLOR)
-            em.set_author(name=f"Boutique {shop['name']}", icon_url=shop['img'])
+            em = discord.Embed(title=f"Boutique ***{shop['name']}***", color=SPARK_COLOR)
             sell = []
             for i in shopdata['selling']:
                 item = self.get_item(i)

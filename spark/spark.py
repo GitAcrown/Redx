@@ -1318,7 +1318,7 @@ class Spark(commands.Cog):
         desc = []
         desc.append(random.choice((f"{miner.mention} mine avec succès le gisement et repart avec x{qte} **{item}** !",
                               f"{miner.mention} remporte **{item}** x{qte} en minant ce gisement !",
-                              f"{miner.mention} gagne **{items}** x{qte} en minant le gisement !")))
+                              f"{miner.mention} gagne **{item}** x{qte} en minant le gisement !")))
         if not await self.inventory_check(miner, item, +qte):
             maxcap = await self.inventory_capacity(miner)
             minv = await self.config.member(miner).Inventory()

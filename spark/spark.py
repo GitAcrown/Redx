@@ -1084,7 +1084,7 @@ class Spark(commands.Cog):
         
     @commands.command(name="spawnitem")
     @checks.admin_or_permissions(manage_roles=True)
-    async def mod_spawn_item(self, ctx, target: discord.Guild, *order: str):
+    async def mod_spawn_item(self, ctx, target: discord.Member, *order: str):
         """Permet de donner un item choisi au membre
         
         Vous pouvez préciser le nombre dans le paramètre 'order'"""

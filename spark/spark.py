@@ -13,6 +13,7 @@ from discord.ext import tasks
 from discord.ext.commands import Greedy
 from fuzzywuzzy import process
 from redbot.core import commands, Config, checks
+from redbot.core.commands.commands import Command
 from redbot.core.data_manager import bundled_data_path
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS, start_adding_reactions
 from redbot.core.utils.chat_formatting import box
@@ -526,8 +527,8 @@ class Spark(commands.Cog):
         stats_txt += f"💶 **Solde** · {account.balance}{currency}\n"
         stats_txt += f"🎒 **Capacité d'inventaire** · {invsum}/{invcap}"
         
-        items = sorted([[i, inv[i]['name']] for i in inv], key=operator.itemgetter(1))
-        items = [self.get_item(i[0]) for i in items]
+        itemssort = sorted([(i, self.items[i]['name']) for i in inv], key=operator.itemgetter(1))
+        items = [self.get_item(i[0]) for i in itemssort]
         
         tabls = []
         tabl = []
@@ -776,6 +777,7 @@ class Spark(commands.Cog):
         
     @commands.command(name="buy", aliases=['achat'])
     @commands.guild_only()
+    @commands.max_concurrency(1, commands.BucketType.channel)
     async def buy_items(self, ctx, *order):
         """Acheter un item dans la boutique
         
@@ -871,9 +873,11 @@ class Spark(commands.Cog):
         
     @commands.command(name='sell', aliases=['vente'])
     @commands.guild_only()
-    @commands.cooldown(1, 10, commands.BucketType.member)
+    @commands.max_concurrency(1, commands.BucketType.channel)
     async def sell_items(self, ctx, *, item: str):
-        """Vendre un item au prix courant au bot"""
+        """Vendre un item au prix courant au bot
+        
+        Le prix est déterminé à partir du nombre d'items identiques déjà en circulation et d'un prix de base déterminé"""
         guild = ctx.guild
         user = ctx.author
         data = self.fetch_item(item, fuzzy_cutoff=70)
@@ -928,8 +932,11 @@ class Spark(commands.Cog):
             return await ctx.reply(f"**Quantité invalide** · Je n'ai pas reconnu de quantité d'item dans votre réponse", mention_author=False)
         
     @commands.command(name="giveitem")
+    @commands.cooldown(1, 10, commands.BucketType.member)
     async def give_item(self, ctx, to: discord.Member, *, item: str):
-        """Donner un item à un membre"""
+        """Donner un item à un membre
+        
+        Vous ne pouvez pas donner les items équipés"""
         guild = ctx.guild
         user = ctx.author
         data = self.fetch_item(item, fuzzy_cutoff=70)

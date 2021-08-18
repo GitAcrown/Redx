@@ -1327,6 +1327,8 @@ class Spark(commands.Cog):
         except:
             desc.append(f"💥 Impossible d'ajouter les items à votre inventaire, vous avez perdu votre butin.")
         
+        em = discord.Embed(color=SPARK_COLOR)
+        em.set_footer(text=f'Spark {VERSION} — Minage', icon_url=SPARK_ICON)
         em.description = '\n'.join(desc)
         await msg.edit(embed=em)
         await msg.delete(delay=30)

@@ -1445,6 +1445,7 @@ class Spark(commands.Cog):
                         elif expected_upper < time.time() - cache['last_event']:
                             cache['next_event'] = int((cache['next_event'] + 1) * 1.1)
                             
+                        cache['last_event'] = time.time()
                         cache['next_event_cooldown'] = time.time() + await self.config.guild(guild).Events.get_raw('events_cooldown')
                         cache['counter'] = 0
                         cache['event_ongoing'] = False

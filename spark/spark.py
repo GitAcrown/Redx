@@ -127,6 +127,7 @@ class Spark(commands.Cog):
         }
         
         default_global = {
+            'EventsExpectedDelay': 600,
             'DefaultInventorySlots': 100,
             'DefaultStaminaLimit': 100,
             'StaminaRegenDelay': 300,
@@ -1358,16 +1359,16 @@ class Spark(commands.Cog):
                             cache['event_ongoing'] = True
                             result = await self.event_mining_simple(channel)
                             
-                    # On adapte la vitesse d'apparition des events en fonction de l'activité sur le serveur
-                    expected_lower, expected_upper = await self.config.EVENTS_EXPECTED_DELAY() * 0.8, await self.config.EVENTS_EXPECTED_DELAY() * 1.2
-                    if expected_lower > time.time() - cache['last_event']:
-                        cache['next_event'] = int(cache['next_event'] * 0.9)
-                    elif expected_upper < time.time() - cache['last_event']:
-                        cache['next_event'] = int(cache['next_event'] * 1.1)
-                        
-                    cache['next_event_cooldown'] = time.time() + await self.config.guild(guild).Events.get_raw('events_cooldown')
-                    cache['counter'] = 0
-                    cache['event_ongoing'] = False
+                        # On adapte la vitesse d'apparition des events en fonction de l'activité sur le serveur
+                        expected_lower, expected_upper = await self.config.EventsExpectedDelay() * 0.8, await self.config.EventsExpectedDelay() * 1.2
+                        if expected_lower > time.time() - cache['last_event']:
+                            cache['next_event'] = int(cache['next_event'] * 0.9)
+                        elif expected_upper < time.time() - cache['last_event']:
+                            cache['next_event'] = int(cache['next_event'] * 1.1)
+                            
+                        cache['next_event_cooldown'] = time.time() + await self.config.guild(guild).Events.get_raw('events_cooldown')
+                        cache['counter'] = 0
+                        cache['event_ongoing'] = False
                     
             fire = await self.config.guild(guild).Fire()
             if fire >= 20:

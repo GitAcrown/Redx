@@ -620,11 +620,11 @@ class Spark(commands.Cog):
             if item.img:
                 em.set_thumbnail(url=item.img)
                 
-            if item.on_equip and await self.config.user(user).TechnicalMode():
+            if equip[item.id] and await self.config.user(user).TechnicalMode():
                 txt = ''
-                for k in item.on_equip:
-                    txt += f'{k}: {item.on_equip[k]}\n'
-                em.add_field(name="Infos techniques", value=box(txt))
+                for k in equip[item.id]:
+                    txt += f'{k}: {equip[item.id]}\n'
+                em.add_field(name="Infos techniques (Config)", value=box(txt))
                 
             em.set_footer(text=f'Spark {VERSION} — Equipement de {user.name}')
             n += 1
@@ -642,6 +642,10 @@ class Spark(commands.Cog):
         Les items équipés sont retirés de l'inventaire et ne peuvent donc être vendus ou donnés tant qu'ils sont équipés"""
         user = ctx.author
         eqm = self.fetch_item(item)
+        if not eqm:
+            return await ctx.reply("**Item inconnu** · Vérifiez le nom ou fournissez directement son ID", mention_author=False)
+        if await self.equipment_get(user, item):
+            return await ctx.reply("**Impossible** · Un item identique est déjà équipé, vous ne pouvez pas équiper deux fois un même item.", mention_author=False)
         try:
             await self.equipment_carry(user, eqm)
         except KeyError or InventoryError:
@@ -661,6 +665,8 @@ class Spark(commands.Cog):
         Les items équipés sont retirés de l'inventaire et ne peuvent donc être vendus ou donnés tant qu'ils sont équipés"""
         user = ctx.author
         eqm = self.fetch_item(item)
+        if not eqm:
+            return await ctx.reply("**Item inconnu** · Vérifiez le nom ou fournissez directement son ID", mention_author=False)
         try:
             await self.equipment_drop(user, eqm)
         except KeyError or InventoryError:

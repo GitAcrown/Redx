@@ -122,7 +122,8 @@ class Spark(commands.Cog):
             'GroupChests': {},
             'Events': {'channels': [],
                        'events_cooldown': 600,
-                       'starting_threshold': 150}
+                       'starting_threshold': 150,
+                       'fire_degradation': 1}
         }
         
         default_global = {
@@ -142,6 +143,7 @@ class Spark(commands.Cog):
         
         self.spark_loop.start()
         
+        
 # LOOP ____________________________________________________
 
     @tasks.loop(minutes=1.0)
@@ -154,13 +156,18 @@ class Spark(commands.Cog):
                 await self.update_shop(guild)
                 logger.info(f"Boutique de {guild.name} mise à jour")
                 await self.config.guild(guild).Shop.set_raw('timerange', value=timerange)
+                
+                firedeg = all_guilds[g]['Events'].get('fire_degradation', 1)
+                await self.config.guild(guild).Fire.set(max(0, all_guilds[g]['Fire'] - firedeg))
 
     @spark_loop.before_loop
     async def before_spark_loop(self):
         logger.info('Démarrage de la boucle spark_loop...')
         await self.bot.wait_until_ready()
         
-    
+        
+# DONNEES ____________________________
+
     # Se charge avec __init__.py au chargement du module
     def _load_bundled_data(self):
         items_path = bundled_data_path(self) / 'items.json'
@@ -734,8 +741,8 @@ class Spark(commands.Cog):
         if details:
             em.add_field(name="Détails", value=details)
                 
-        if item.img:
-            em.set_thumbnail(url=item.img)
+        if data.img:
+            em.set_thumbnail(url=data.img)
         
         conf, stop = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         msg = await ctx.reply(embed=em, mention_author=False)
@@ -780,7 +787,7 @@ class Spark(commands.Cog):
         em = discord.Embed(color=user.color)
         em.set_author(name=f"{user.name}", icon_url=user.avatar_url)
         em.set_footer(text=f'Spark {VERSION} — Utiliser un item', icon_url=SPARK_ICON)
-        em.description = f"{conf} **Item utilisé avec succès**"
+        em.description = f"{conf} **Item _{data}_ utilisé avec succès**"
         em.add_field(name="Effets obtenus", value='\n'.join(txt))
         await msg.clear_reactions()
         await msg.edit(embed=em)
@@ -1156,6 +1163,18 @@ class Spark(commands.Cog):
             ids = [c.id for c in channels]
             await self.config.guild(guild).Events.set_raw('channels', value=ids)
             return await ctx.send(f"Salons modifiés · Les évènements pourront apparaître sur les salons donnés.")
+        
+    @spark_settings.command(name='fire')
+    async def fire_degradation(self, ctx, value: int = 1):
+        """Modifie le % de dégradation du feu à chaque période d'une heure
+        
+        Certains évènements spéciaux peuvent accélérer cette dégradation
+        Par défaut 1%"""
+        guild = ctx.guild
+        if value < 0:
+            return await ctx.send("Erreur · La valeur ne peut être négative")
+        await self.config.guild(guild).Events.set_raw('fire_degradation', value=value)
+        await ctx.send(f"Modifié · Le feu baissera de {value}% chaque heure (sauf évènements spéciaux).")
         
     @spark_settings.command(name='eventscd')
     async def set_events_cooldown(self, ctx, value: int = 600):

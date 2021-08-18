@@ -1276,7 +1276,7 @@ class Spark(commands.Cog):
     
     async def event_mining_simple(self, channel: discord.TextChannel):
         items = self.get_items_by_tags('ore')
-        weighted = {i.id: i.tier for i in items}
+        weighted = {i.id: 4 - i.tier for i in items}
         select = random.choices(list(weighted.keys()), list(weighted.values()), k=1)[0]
         item = self.get_item(select)
         invtier = 4 - item.tier
@@ -1341,7 +1341,7 @@ class Spark(commands.Cog):
     
     async def event_find_item(self, channel: discord.TextChannel):
         items = self.get_items_by_tags('resource', 'equipment')
-        weighted = {i.id: i.tier for i in items}
+        weighted = {i.id: 4 - i.tier for i in items}
         select = random.choices(list(weighted.keys()), list(weighted.values()), k=1)[0]
         item = self.get_item(select)
         invtier = 4 - item.tier

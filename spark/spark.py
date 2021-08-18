@@ -151,6 +151,7 @@ class Spark(commands.Cog):
             if all_guilds[g]['Shop']['timerange'] != timerange:
                 guild = self.bot.get_guild(g)
                 await self.update_shop(guild)
+                logger.info(f"Boutique de {guild.name} mise à jour")
                 await self.config.guild(guild).Shop.set_raw('timerange', value=timerange)
 
     @spark_loop.before_loop
@@ -476,9 +477,9 @@ class Spark(commands.Cog):
         
         tagsell = self.get_items_by_tags(*shop['selling'])
         itemssell = [i.id for i in tagsell if i.value]
-        selling = random.sample(itemssell, k=min(len(itemssell), 4))
+        selling = rng.sample(itemssell, k=min(len(itemssell), 4))
         
-        shop_data = {'id': shopid, 'selling': selling, 'discount': round(random.uniform(*shop['price_range']), 2)}
+        shop_data = {'id': shopid, 'selling': selling, 'discount': round(rng.uniform(*shop['price_range']), 2)}
         await self.config.guild(guild).Shop.set_raw('data', value=shop_data)
         
     async def get_guild_shop(self, guild: discord.Guild):
@@ -1130,6 +1131,15 @@ class Spark(commands.Cog):
         await self.config.guild(guild).Events.set_raw('starting_threshold', value=value)
         await ctx.send(f"Modifié · Le premier objectif du counter sera désormais {value}.")
         
+    @spark_settings.command(name='shopupdate')
+    async def manual_shop_update(self, ctx):
+        """Mettre à jour manuelle la boutique disponible
+        
+        Elle ne s'affichera pas disponible si elle est fermée à cause de l'heure"""
+        guild = ctx.guild
+        await self.update_shop(guild)
+        await ctx.send(f"Succès · La boutique a été mise à jour pour ce serveur.")
+        
     
     @commands.group(name="sparksuperset", aliases=['sparkss'])
     @checks.is_owner()
@@ -1183,6 +1193,7 @@ class Spark(commands.Cog):
         
         await self.config.ShopUpdateRange.set([start, end])
         await ctx.send(f"Succès · Les boutiques ouvriront désormais entre {start} et {end}h")
+        
     
     
 # EVENTS ____________________________________

@@ -1275,7 +1275,7 @@ class Spark(commands.Cog):
         
         qte = random.randint(invtier, invtier * 3)
         stam_required = max(qte * (item.tier ** 2), 2)
-        timeout = 30 + (3 - item.get('tier', 1)) * 15
+        timeout = 30 + (3 - item.tier) * 15
         
         em = discord.Embed(color=SPARK_COLOR)
         em.set_footer(text=f'Spark {VERSION} — Minage', icon_url=SPARK_ICON)

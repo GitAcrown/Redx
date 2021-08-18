@@ -526,7 +526,7 @@ class Spark(commands.Cog):
         stats_txt += f"💶 **Solde** · {account.balance}{currency}\n"
         stats_txt += f"🎒 **Capacité d'inventaire** · {invsum}/{invcap}"
         
-        items = sorted([(i, inv[i]['name']) for i in inv], key=operator.itemgetter(1))
+        items = sorted([[i, inv[i]['name']] for i in inv], key=operator.itemgetter(1))
         items = [self.get_item(i[0]) for i in items]
         
         tabls = []
@@ -900,10 +900,12 @@ class Spark(commands.Cog):
         
         msg = await ctx.reply(embed=em, mention_author=False)
         try:
-            qte_str = await self.bot.wait_for('message', timeout=30, check=lambda m: m.author == user)
+            rep = await self.bot.wait_for('message', timeout=30, check=lambda m: m.author == user)
         except asyncio.TimeoutError:
             await msg.delete(delay=5)
             return await ctx.reply(f"{stop} **Commande annulée** · Revenez vendre vos items quand vous le voulez !", mention_author=False)
+        
+        qte_str = rep.content
         
         if qte_str.lower() in ('stop', '0'):
             await msg.delete(delay=5)
@@ -951,10 +953,12 @@ class Spark(commands.Cog):
         
         msg = await ctx.reply(embed=em, mention_author=False)
         try:
-            qte_str = await self.bot.wait_for('message', timeout=30, check=lambda m: m.author == user)
+            rep = await self.bot.wait_for('message', timeout=30, check=lambda m: m.author == user)
         except asyncio.TimeoutError:
             await msg.delete(delay=5)
             return await ctx.reply(f"{stop} **Action annulée** · Vous avez abandonné le don d'item", mention_author=False)
+        
+        qte_str = rep.content
         
         if qte_str.lower() in ('stop', '0'):
             await msg.delete(delay=5)
@@ -1045,10 +1049,12 @@ class Spark(commands.Cog):
         
         msg = await ctx.reply(embed=em, mention_author=False)
         try:
-            qte_str = await self.bot.wait_for('message', timeout=30, check=lambda m: m.author == user)
+            rep = await self.bot.wait_for('message', timeout=30, check=lambda m: m.author == user)
         except asyncio.TimeoutError:
             await msg.delete(delay=5)
             return await ctx.reply(f"{stop} **Action annulée** · N'oubliez pas de revenir alimenter le feu avant qu'il ne s'éteigne !", mention_author=False)
+        
+        qte_str = rep.content
         
         if qte_str.lower() in ('stop', '0'):
             await msg.delete(delay=5)

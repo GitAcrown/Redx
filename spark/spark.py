@@ -782,6 +782,9 @@ class Spark(commands.Cog):
         guild = ctx.guild
         user = ctx.author
         shopdata = await self.get_guild_shop(guild)
+        if not shopdata:
+            return await ctx.reply(f"**Boutique indisponible** · Aucune boutique n'est disponible actuellement", mention_author=False)
+            
         shop = self.shops[shopdata['id']]
         eco = self.bot.get_cog('AltEco')
         currency = await eco.get_currency(guild)
@@ -999,8 +1002,8 @@ class Spark(commands.Cog):
                 color, text, img = levels[k]
                 break
         
-        em = discord.Embed(title="Feu de camp", color=color)
-        em.add_field(name="Etat du feu", value=f'**{text}** ({fire}%)')
+        em = discord.Embed(title="🔥 Feu de camp", color=color)
+        em.add_field(name="Etat du feu", value=box(f'{text} ({fire}%)'))
         em.set_thumbnail(url=img)
         
         if fire < 25:

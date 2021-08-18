@@ -421,7 +421,7 @@ class Spark(commands.Cog):
     async def equipment_get(self, user: discord.Member, item: SparkItem = None) -> dict:
         equip = await self.config.member(user).Equipment()
         if item:
-            return equip.get(item.id, None)
+            return item.id in equip
         return equip
 
     async def equipment_carry(self, user: discord.Member, item: SparkItem) -> dict:

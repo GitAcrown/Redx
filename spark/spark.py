@@ -1071,7 +1071,7 @@ class Spark(commands.Cog):
     async def spark_user_settings(self, ctx):
         """Paramètres personnels de Spark"""
         
-    @spark_user_settings.comamnd(name="techmode")
+    @spark_user_settings.command(name="techmode")
     async def toggle_techmode(self, ctx):
         """Active/désactive le mode 'Technique' qui permet d'obtenir des informations supplémentaires sur certains 
         

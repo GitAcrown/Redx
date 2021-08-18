@@ -394,6 +394,13 @@ class Spark(commands.Cog):
                 return colors[k]
         return colors[0]
     
+    async def users_stamina(self, guild: discord.Guild) -> dict:
+        members = await self.config.all_members(guild)
+        staminas = {}
+        for m in members:
+            staminas[m] = members[m]['Stamina']
+        return staminas
+    
 # EQUIPMENT ____________________________
 
     async def equipment_get(self, user: discord.Member, item: SparkItem = None) -> dict:
@@ -1202,11 +1209,13 @@ class Spark(commands.Cog):
                                      f"Il semblerait que personne n'ait miné **{item}**... Tant pis.",
                                      f"Personne n'a pu miner **{item}** à temps, les minerais ont été volés par un brigand.",
                                      f"Allo ? Personne n'a miné les minerais de **{item}** ? Dommage."))
+    
+        preloadstam = await self.users_stamina(channel.guild)
         
         msg = await channel.send(embed=em)
         start_adding_reactions(msg, ['⛏️'])
         try:
-            react, miner = await self.bot.wait_for("reaction_add", check=lambda m, u: await self.stamina_check(u, stam_required) and m.message.id == msg.id, timeout=timeout)
+            react, miner = await self.bot.wait_for("reaction_add", check=lambda m, u: preloadstam[m.id] >= stam_required and m.message.id == msg.id, timeout=timeout)
         except asyncio.TimeoutError:
             await msg.clear_reactions()
             em.description = notminedmsg

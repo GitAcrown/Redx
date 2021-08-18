@@ -626,7 +626,7 @@ class Spark(commands.Cog):
                     txt += f'{k}: {equip[item.id]}\n'
                 em.add_field(name="Infos techniques (Config)", value=box(txt))
                 
-            em.set_footer(text=f'Spark {VERSION} — Equipement de {user.name}')
+            em.set_footer(text=f'Spark {VERSION} — Equipement de {user.name} ({n}/{len(equip)})')
             n += 1
             embeds.append(em)
             

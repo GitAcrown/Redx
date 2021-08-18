@@ -17,7 +17,7 @@
             "*Allez et dégage maintenant, ces minerais se minent pas tout seuls !*",
             "*Vous êtes le bienvenue dans ma boutique, vous et votre argent.*"
         ],
-        "selling": ["ore"],
+        "selling": ["ore", "resource"],
         "price_range": [0.90, 1.15],
         "img": "https://i.ibb.co/6YVHhSM/crimson.gif"
     },

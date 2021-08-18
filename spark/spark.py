@@ -1430,7 +1430,7 @@ class Spark(commands.Cog):
                     channel = guild.get_channel(channelid)
                     if channel:
                         cache['event_ongoing'] = True
-                        event = random.choices(('mining_simple', 'find_item'), weights=(1, 0.25), k=1)[0]
+                        event = random.choices(('mining_simple', 'find_item'), weights=(1, 0.2), k=1)[0]
                         rdm_time = random.randint(1, 10)
                         await asyncio.sleep(rdm_time)
                         if event == 'mining_simple':

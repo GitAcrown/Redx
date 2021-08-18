@@ -669,7 +669,7 @@ class Spark(commands.Cog):
             return await ctx.reply("**Equipement plein** · Vous ne pouvez pas équiper plus de 3 items en même temps\nRetirez un équipement avec `;equip drop`", mention_author=False)
         else:
             rappel = '' if random.randint(0, 2) != 0 else "\n__Rappel :__ Vous ne pouvez pas vendre ou donner un item si celui-ci est équipé, vous devrez d'abord le retirer de votre équipement"
-            await ctx.reply(f"**Item équipé** › L'item **{item}** a été placé dans un emplacement d'équipement (et retiré de votre inventaire){rappel}", mention_author=False)
+            await ctx.reply(f"**Item équipé** › L'item **{eqm}** a été placé dans un emplacement d'équipement (et retiré de votre inventaire){rappel}", mention_author=False)
         
     @member_equipment.command(name="drop")
     async def drop_equipment(self, ctx, *, item: str):
@@ -687,7 +687,7 @@ class Spark(commands.Cog):
         except InventoryError:
             return await ctx.reply("**Erreur** · Impossible de récupérer l'item dans votre inventaire", mention_author=False)
         else:
-            await ctx.reply(f"**Item retiré de l'équipement** › L'item **{item}** a été replacé dans votre inventaire", mention_author=False)
+            await ctx.reply(f"**Item retiré de l'équipement** › L'item **{eqm}** a été replacé dans votre inventaire", mention_author=False)
         
         
     @commands.command(name='iteminfo')

@@ -1010,7 +1010,7 @@ class Spark(commands.Cog):
         
         await ctx.send(embed=em)
         
-    @firepit_commands.command(name="status")
+    @firepit_commands.command(name="fuel")
     async def fuel_firepit(self, ctx, *, item: str):
         """Alimenter le feu
         

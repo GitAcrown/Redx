@@ -798,7 +798,7 @@ class Spark(commands.Cog):
         
         if not order:
             em = discord.Embed(color=SPARK_COLOR)
-            em.set_author(name=f"{shop['name']}", icon_url=shop['img'])
+            em.set_author(name=f"Boutique {shop['name']}", icon_url=shop['img'])
             sell = []
             for i in shopdata['selling']:
                 item = self.get_item(i)
@@ -808,6 +808,7 @@ class Spark(commands.Cog):
             
             em.description = random.choice(shop['welcome'])
             em.add_field(name="En vente", value=box(tabulate(sell, headers=("Item", "Prix"))))
+            em.set_thumbnail(url=shop['img'])
             em.set_footer(text=f'Spark {VERSION} — Boutique', icon_url=SPARK_ICON)
             return await ctx.send(embed=em)
 
@@ -826,7 +827,7 @@ class Spark(commands.Cog):
         
         price_item = round(item.value * shopdata['discount'])
         total_cost = price_item * qte
-        if not await eco.enough_credits(user, total_cost):
+        if not await eco.check_balance(user, total_cost):
             return await ctx.reply(f"**Solde insuffisant** · Vous n'avez pas assez de crédits pour cette opération, vous avez besoin de **{total_cost}**{currency}.", 
                                    mention_author=False)
         

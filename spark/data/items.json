@@ -152,7 +152,7 @@
     },
     "mediumbag": {
         "name": "Sac à dos",
-        "lore": "Un simple sac à doc qui pourra vous accompagner dans toutes vos aventures, vous, votre singe et votre carte qui parle.",
+        "lore": "Un simple sac à dos qui pourra vous accompagner dans toutes vos aventures, vous, votre singe et votre carte qui parle.",
         "tags": [
             "equipment"
         ],

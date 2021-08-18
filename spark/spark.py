@@ -1297,7 +1297,7 @@ class Spark(commands.Cog):
         msg = await channel.send(embed=em)
         start_adding_reactions(msg, ['⛏️'])
         try:
-            react, miner = await self.bot.wait_for("reaction_add", check=lambda m, u: preloadstam[u.id] >= stam_required and m.message.id == msg.id, timeout=timeout)
+            react, miner = await self.bot.wait_for("reaction_add", check=lambda m, u: preloadstam[u.id] >= stam_required and m.message.id == msg.id and u.bot is False, timeout=timeout)
         except asyncio.TimeoutError:
             await msg.clear_reactions()
             em.description = notminedmsg

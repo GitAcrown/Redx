@@ -644,7 +644,7 @@ class Spark(commands.Cog):
         eqm = self.fetch_item(item)
         if not eqm:
             return await ctx.reply("**Item inconnu** · Vérifiez le nom ou fournissez directement son ID", mention_author=False)
-        if await self.equipment_get(user, item):
+        if await self.equipment_get(user, eqm):
             return await ctx.reply("**Impossible** · Un item identique est déjà équipé, vous ne pouvez pas équiper deux fois un même item.", mention_author=False)
         try:
             await self.equipment_carry(user, eqm)

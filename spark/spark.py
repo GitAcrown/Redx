@@ -466,7 +466,7 @@ class Spark(commands.Cog):
     async def equipment_effects(self, user: discord.Member) -> dict:
         equip = await self.equipment_get(user)
         effects = {}
-        for item in [self.get_item(i) for i in equip if 'on_equip' in equip[i]]:
+        for item in [self.get_item(i) for i in equip if 'on_equip' in self.items[i]]:
             for e in item.on_equip:
                 if e not in effects:
                     effects[e] = []

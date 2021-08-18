@@ -224,7 +224,7 @@ class Spark(commands.Cog):
         
         holders = await self.all_inventories_with(guild, item)
         for h in holders:
-            itempool += await self.inventory_get(h, item.id)
+            itempool += await self.inventory_get(h, item)
             
         if not itempool:
             return value
@@ -526,8 +526,8 @@ class Spark(commands.Cog):
         stats_txt += f"💶 **Solde** · {account.balance}{currency}\n"
         stats_txt += f"🎒 **Capacité d'inventaire** · {invsum}/{invcap}"
         
-        items = sorted([(self.get_item(i), inv[i]['name']) for i in inv], key=operator.itemgetter(1))
-        items = [i[0] for i in items]
+        items = sorted([(i, inv[i]['name']) for i in inv], key=operator.itemgetter(1))
+        items = [self.get_item(i[0]) for i in items]
         
         tabls = []
         tabl = []

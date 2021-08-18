@@ -795,7 +795,7 @@ class Spark(commands.Cog):
         em = discord.Embed(color=user.color)
         em.set_author(name=f"{user.name}", icon_url=user.avatar_url)
         em.set_footer(text=f'Spark {VERSION} — Utiliser un item', icon_url=SPARK_ICON)
-        em.description = f"{conf} **Item _{data}_ utilisé avec succès**"
+        em.description = f"{conf} **Item _{data}_ utilisé avec succès**" if not data.text_on_use else f'{conf} {data.text_on_use}'
         em.add_field(name="Effets obtenus", value='\n'.join(txt))
         await msg.clear_reactions()
         await msg.edit(embed=em)
@@ -823,7 +823,7 @@ class Spark(commands.Cog):
         hour = datetime.now().hour
         shoprange = await self.config.ShopUpdateRange()
         if not shoprange[0] <= hour <= shoprange[1]:
-            return await ctx.reply(f"**Boutique indisponible** · Les marchands ne vendent qu'entre {shoprange[0]}h et {shoprange[1]}", mention_author=False)
+            return await ctx.reply(f"**Boutique indisponible** · Les marchands ne vendent qu'entre {shoprange[0]}h et {shoprange[1] + 1}h", mention_author=False)
         
         if not order:
             em = discord.Embed(title=f"Boutique ***{shop['name']}***", color=SPARK_COLOR)
@@ -964,7 +964,6 @@ class Spark(commands.Cog):
         """Donner un item à un membre
         
         Vous ne pouvez pas donner les items équipés"""
-        guild = ctx.guild
         user = ctx.author
         data = self.fetch_item(item, fuzzy_cutoff=70)
         if not item:

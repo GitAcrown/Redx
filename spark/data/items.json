@@ -321,6 +321,22 @@
             "Régénère 15 pts d'énergie"
         ]
     },
+    "cookie": {
+        "name": "Cookie",
+        "lore": "Un simple cookie fait avec amour et l'aide d'un KitchenAid™.",
+        "tags": [
+            "food"
+        ],
+        "value": 12,
+        "tier": 1,
+        "on_use": {
+            "increase_stamina": 12
+        },
+        "details": [
+            "Régénère 12 pts d'énergie"
+        ],
+        "text_on_use": "Ce délicieux cookie vous remplit l'estomac !"
+    },
     "barrenrj": {
         "name": "Barre énergétique",
         "lore": "Un produit créé à l'origine pour les sportifs, comme vous (?)",

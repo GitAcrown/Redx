@@ -1311,7 +1311,7 @@ class Spark(commands.Cog):
         desc.append(random.choice((f"{miner.mention} mine avec succès le gisement et repart avec x{qte} **{item}** !",
                               f"{miner.mention} remporte **{item}** x{qte} en minant ce gisement !",
                               f"{miner.mention} gagne **{items}** x{qte} en minant le gisement !")))
-        if not await self.inventory_check(miner, select, +qte):
+        if not await self.inventory_check(miner, item, +qte):
             maxcap = await self.inventory_capacity(miner)
             minv = await self.config.member(miner).Inventory()
             invsum = sum([minv[i] for i in minv])
@@ -1320,7 +1320,7 @@ class Spark(commands.Cog):
             desc.append(f"⚠️ Certains items (x{old_qte}) ont été détruits en raison du manque de place dans votre inventaire.")
             
         try:
-            await self.inventory_add(miner, select, qte)
+            await self.inventory_add(miner, item, qte)
         except:
             desc.append(f"💥 Impossible d'ajouter les items à votre inventaire, vous avez perdu votre butin.")
         

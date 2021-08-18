@@ -204,7 +204,7 @@ class Spark(commands.Cog):
         # Fuzzy avec le nom des items
         fuzzy = process.extractOne(search, [items[n]['name'].lower() for n in items], score_cutoff=fuzzy_cutoff)
         if fuzzy:
-            return self.get_item([n for n in items if items[n]['name'] == fuzzy[0]][0])
+            return self.get_item([n for n in items if items[n]['name'].lower() == fuzzy[0]][0])
 
         # Fuzzy avec l'ID
         fuzzyid = process.extractOne(search, list(items.keys()), score_cutoff=fuzzy_cutoff)

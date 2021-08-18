@@ -1352,11 +1352,11 @@ class Spark(commands.Cog):
 
                     channel = guild.get_channel(channelid)
                     if channel:
+                        cache['event_ongoing'] = True
                         event = 'mining_simple'
                         rdm_time = random.randint(1, 10)
                         await asyncio.sleep(rdm_time)
                         if event == 'mining_simple':
-                            cache['event_ongoing'] = True
                             result = await self.event_mining_simple(channel)
                             
                         # On adapte la vitesse d'apparition des events en fonction de l'activité sur le serveur

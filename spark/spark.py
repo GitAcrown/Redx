@@ -552,7 +552,7 @@ class Spark(commands.Cog):
         while True:
             em = discord.Embed(description=stats_txt, color=stamina_color)
             em.set_footer(text=f'Spark {VERSION} — {user.name}', icon_url=SPARK_ICON)
-            em.add_field(name=f'Inventaire ({p + 1}/{len(tabls)})', value=box(tabulate(tabl[p], headers=('Item', 'Qte'))))
+            em.add_field(name=f'Inventaire ({p + 1}/{len(tabls)})', value=box(tabulate(tabls[p], headers=('Item', 'Qte'))))
             
             if not msg:
                 msg = await ctx.reply(embed=em, mention_author=False)

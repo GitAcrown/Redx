@@ -1,0 +1,36 @@
+{
+    "indigo": {
+        "name": "Indigo",
+        "welcome": [
+            "*Lamp oil, rope, bombs, you want it? It's yours my friend, as long as you have enough rubies.*",
+            "*Got some RARE things on sale... stranger.*",
+            "Vous avez besoin d'aide pour porter tout ça ?"
+        ],
+        "selling": ["equipment"],
+        "price_range": [0.95, 1.05],
+        "img": "https://i.ibb.co/GvvP2d0/indigo.gif"
+    },
+    "crimson": {
+        "name": "Carmin",
+        "welcome": [
+            "Patron de la mafia à temps partiel",
+            "*Allez et dégage maintenant, ces minerais se minent pas tout seuls !*",
+            "*Vous êtes le bienvenue dans ma boutique, vous et votre argent.*"
+        ],
+        "selling": ["ore"],
+        "price_range": [0.90, 1.10],
+        "img": "https://i.ibb.co/6YVHhSM/crimson.gif"
+    },
+    "emerald": {
+        "name": "Emeraude",
+        "welcome": [
+            "Le marchand vous fixe d'un regard vide, ne poussant qu'un léger soupir : *Hunh*",
+            "*Vous trouvez ce que vous voulez ?*",
+            "*Je vous ai à l'oeil, étranger !*"
+        ],
+        "selling": ["food", "resource"],
+        "price_range": [0.92, 1.15],
+        "img": "https://i.ibb.co/9pnFnVG/emeraude.gif"
+    }
+
+}

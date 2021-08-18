@@ -676,8 +676,10 @@ class Spark(commands.Cog):
             return await ctx.reply("**Item inconnu** · Vérifiez le nom ou fournissez directement son ID", mention_author=False)
         try:
             await self.equipment_drop(user, eqm)
-        except KeyError or InventoryError:
+        except KeyError:
             return await ctx.reply("**Item non équipé** · Consultez vos items équipés avec `;equip`", mention_author=False)
+        except InventoryError:
+            return await ctx.reply("**Erreur** · Impossible de récupérer l'item dans votre inventaire", mention_author=False)
         else:
             await ctx.reply(f"**Item retiré de l'équipement** › L'item **{item}** a été replacé dans votre inventaire", mention_author=False)
         

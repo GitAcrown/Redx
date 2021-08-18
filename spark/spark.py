@@ -699,7 +699,7 @@ class Spark(commands.Cog):
         if item.value:
             em.add_field(name='Valeur estimée', value=box(f'{await item.guild_value(guild)}{currency}' , lang='css'))
             
-        em.set_footer(text=f'Spark {VERSION}')
+        em.set_footer(text=f'Spark {VERSION}', icon_url=SPARK_ICON)
         
         await ctx.send(embed=em)
         

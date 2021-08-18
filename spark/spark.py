@@ -123,7 +123,7 @@ class Spark(commands.Cog):
             'Events': {'channels': [],
                        'events_cooldown': 600,
                        'starting_threshold': 150,
-                       'fire_degradation': 1}
+                       'fire_degradation': 2}
         }
         
         default_global = {
@@ -1165,11 +1165,11 @@ class Spark(commands.Cog):
             return await ctx.send(f"Salons modifiés · Les évènements pourront apparaître sur les salons donnés.")
         
     @spark_settings.command(name='fire')
-    async def fire_degradation(self, ctx, value: int = 1):
+    async def fire_degradation(self, ctx, value: int = 2):
         """Modifie le % de dégradation du feu à chaque période d'une heure
         
         Certains évènements spéciaux peuvent accélérer cette dégradation
-        Par défaut 1%"""
+        Par défaut 2%"""
         guild = ctx.guild
         if value < 0:
             return await ctx.send("Erreur · La valeur ne peut être négative")
@@ -1269,7 +1269,7 @@ class Spark(commands.Cog):
     async def event_mining_simple(self, channel: discord.TextChannel):
         items = self.get_items_by_tags('ore')
         weighted = {i.id: i.tier for i in items}
-        select = random.choices(list(weighted.keys()), list(weighted.values()), k=1)
+        select = random.choices(list(weighted.keys()), list(weighted.values()), k=1)[0]
         item = self.get_item(select)
         invtier = 4 - item.tier
         
@@ -1350,10 +1350,10 @@ class Spark(commands.Cog):
                     channel = guild.get_channel(channelid)
                     if channel:
                         event = 'mining_simple'
-                        cache['event_ongoing'] = True
-
-                        await asyncio.sleep(random.randint(1, 10))
+                        rdm_time = random.randint(1, 10)
+                        await asyncio.sleep(rdm_time)
                         if event == 'mining_simple':
+                            cache['event_ongoing'] = True
                             result = await self.event_mining_simple(channel)
                             
                     # On adapte la vitesse d'apparition des events en fonction de l'activité sur le serveur

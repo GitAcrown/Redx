@@ -534,7 +534,7 @@ class Spark(commands.Cog):
         tabl = []
         for item in items:
             if len(tabl) < 30:
-                tabl.append((item.name, await self.inventory_get(user, item)))
+                tabl.append((f"{item.name}{'[E]' if item.equipable else ''}", await self.inventory_get(user, item)))
             else:
                 tabls.append(tabl)
                 tabl = []
@@ -781,6 +781,7 @@ class Spark(commands.Cog):
     async def buy_items(self, ctx, *order):
         """Acheter un item dans la boutique
         
+        Préciser le nombre d'items dans le paramètre 'order'
         Si aucun ordre d'achat n'est donné, renvoie des informations sur la boutique"""
         guild = ctx.guild
         user = ctx.author
@@ -1079,6 +1080,28 @@ class Spark(commands.Cog):
                 return await ctx.reply(f"**Action impossible** · Vous n'avez pas cette quantité de **{data}**", mention_author=False)
         else:
             return await ctx.reply(f"**Quantité invalide** · Je n'ai pas reconnu de quantité dans votre réponse", mention_author=False)
+        
+        
+    @commands.command(name="spawnitem")
+    @checks.admin_or_permissions(manage_roles=True)
+    async def mod_spawn_item(self, ctx, target: discord.Guild, *order: str):
+        """Permet de donner un item choisi au membre
+        
+        Vous pouvez préciser le nombre dans le paramètre 'order'"""
+        qte = 1
+        itemname = ' '.join(order)
+        for e in order:
+            if e.isdigit():
+                qte = int(e)
+                itemname.replace(e, '').strip()
+                break
+        
+        item = self.fetch_item(itemname)
+        if not await self.inventory_check(target, item, qte):
+            return await ctx.reply(f"**Action impossible** · Le membre n'a pas assez d'emplacements d'inventaire", mention_author=False)
+
+        await self.inventory_add(target, item, qte)
+        await ctx.reply(f"**Don effectué** · {target.mention} a reçu x{qte} **{item}**", mention_author=False)
         
         
 # PARAMETRES _________________

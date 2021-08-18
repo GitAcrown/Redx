@@ -202,9 +202,14 @@ class Spark(commands.Cog):
             return self.get_item(strict_name[0])
 
         # Fuzzy avec le nom des items
-        fuzzy = process.extractOne(search, [items[n]['name'] for n in items], score_cutoff=fuzzy_cutoff)
+        fuzzy = process.extractOne(search, [items[n]['name'].lower() for n in items], score_cutoff=fuzzy_cutoff)
         if fuzzy:
             return self.get_item([n for n in items if items[n]['name'] == fuzzy[0]][0])
+
+        # Fuzzy avec l'ID
+        fuzzyid = process.extractOne(search, list(items.keys()), score_cutoff=fuzzy_cutoff)
+        if fuzzyid:
+            return self.get_item(fuzzy[0])
 
         return None
     
@@ -534,7 +539,7 @@ class Spark(commands.Cog):
         tabl = []
         for item in items:
             if len(tabl) < 30:
-                tabl.append((f"{item.name}{'[E]' if item.equipable else ''}", await self.inventory_get(user, item)))
+                tabl.append((f"{item.name}{' [E]' if item.equipable else ''}", await self.inventory_get(user, item)))
             else:
                 tabls.append(tabl)
                 tabl = []
@@ -1097,6 +1102,8 @@ class Spark(commands.Cog):
                 break
         
         item = self.fetch_item(itemname)
+        if not item:
+            return await ctx.reply(f"**Item inconnu** · Vérifiez le nom ou donnez directement l'ID de l'item désiré", mention_author=False)
         if not await self.inventory_check(target, item, qte):
             return await ctx.reply(f"**Action impossible** · Le membre n'a pas assez d'emplacements d'inventaire", mention_author=False)
 

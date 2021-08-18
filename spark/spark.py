@@ -1389,7 +1389,7 @@ class Spark(commands.Cog):
         desc = []
         desc.append(random.choice((f"{reclam.mention} obtient avec succès x{qte} **{item}** !",
                               f"{reclam.mention} remporte **{item}** x{qte} en échange d'un peu d'énergie !",
-                              f"{reclam.mention} gagne **{items}** x{qte} !")))
+                              f"{reclam.mention} gagne **{item}** x{qte} !")))
         if not await self.inventory_check(reclam, item, +qte):
             maxcap = await self.inventory_capacity(reclam)
             minv = await self.config.member(reclam).Inventory()
@@ -1430,7 +1430,7 @@ class Spark(commands.Cog):
                     channel = guild.get_channel(channelid)
                     if channel:
                         cache['event_ongoing'] = True
-                        event = random.choices(('mining_simple', 'find_item'), weights=(3, 1), k=1)[0]
+                        event = random.choices(('mining_simple', 'find_item'), weights=(1, 0.25), k=1)[0]
                         rdm_time = random.randint(1, 10)
                         await asyncio.sleep(rdm_time)
                         if event == 'mining_simple':

@@ -510,7 +510,7 @@ class Spark(commands.Cog):
                 'counter': 0,
                 'event_ongoing': False,
                 'next_event': await self.config.guild(guild).Events.get_raw('starting_threshold'),
-                'last_event': 0,
+                'last_event': time.time(),
                 'next_event_cooldown': time.time(),
                 
                 'stamina_regen': {}

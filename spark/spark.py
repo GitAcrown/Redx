@@ -547,7 +547,12 @@ class Spark(commands.Cog):
         tabl = []
         for item in items:
             if len(tabl) < 30:
-                tabl.append((f"{item.name}{' [E]' if item.equipable else ''}", await self.inventory_get(user, item)))
+                typehint = ''
+                if item.equipable:
+                    typehint += ' [E]'
+                if item.on_use:
+                    typehint += ' [U]'
+                tabl.append((f"{item.name}{typehint}", await self.inventory_get(user, item)))
             else:
                 tabls.append(tabl)
                 tabl = []
@@ -1364,9 +1369,9 @@ class Spark(commands.Cog):
                         # On adapte la vitesse d'apparition des events en fonction de l'activité sur le serveur
                         expected_lower, expected_upper = await self.config.EventsExpectedDelay() * 0.8, await self.config.EventsExpectedDelay() * 1.2
                         if expected_lower > time.time() - cache['last_event']:
-                            cache['next_event'] = int(cache['next_event'] * 0.9)
+                            cache['next_event'] = int((cache['next_event'] - 1)  * 0.9)
                         elif expected_upper < time.time() - cache['last_event']:
-                            cache['next_event'] = int(cache['next_event'] * 1.1)
+                            cache['next_event'] = int((cache['next_event'] + 1) * 1.1)
                             
                         cache['next_event_cooldown'] = time.time() + await self.config.guild(guild).Events.get_raw('events_cooldown')
                         cache['counter'] = 0

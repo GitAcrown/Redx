@@ -690,7 +690,7 @@ class Spark(commands.Cog):
             await ctx.reply(f"**Item retiré de l'équipement** › L'item **{eqm}** a été replacé dans votre inventaire", mention_author=False)
         
         
-    @commands.command(name='iteminfo')
+    @commands.command(name='iteminfo', aliases=['infoitem'])
     @commands.guild_only()
     async def display_item_infos(self, ctx, *, search: str):
         """Afficher les informations détaillées sur un item"""

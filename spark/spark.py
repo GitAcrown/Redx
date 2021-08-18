@@ -600,7 +600,7 @@ class Spark(commands.Cog):
         embeds = []
         for itemid in equip:
             item = self.get_item(itemid)
-            em = discord.Embed(title=f"**{item.name}** `id:{item.id}`", 
+            em = discord.Embed(title=f"**{item.name}** `{item.id}`", 
                                color=user.color)
             
             if item.lore:
@@ -674,7 +674,7 @@ class Spark(commands.Cog):
         eco = self.bot.get_cog('AltEco')
         currency = await eco.get_currency(guild)
         
-        em = discord.Embed(title=f"**{item.name}** `id:{item.id}`", color=SPARK_COLOR, timestamp=ctx.message.created_at)
+        em = discord.Embed(title=f"**{item.name}** `{item.id}`", color=SPARK_COLOR, timestamp=ctx.message.created_at)
         if item.lore:
             em.description = f'*{item.lore}*'
         

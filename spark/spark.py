@@ -1338,7 +1338,77 @@ class Spark(commands.Cog):
         await msg.edit(embed=em)
         await msg.delete(delay=30)
         return True
+    
+    async def event_find_item(self, channel: discord.TextChannel):
+        items = self.get_items_by_tags('resource', 'equipment')
+        weighted = {i.id: i.tier for i in items}
+        select = random.choices(list(weighted.keys()), list(weighted.values()), k=1)[0]
+        item = self.get_item(select)
+        invtier = 4 - item.tier
+        if 'equipment' in item.tags or item.tier == 3:
+            qte = 1
+        else:
+            qte = random.randint(1, invtier * 2)
         
+        stam_required = random.randint(item.tier * 3, item.tier * 6)
+        timeout = 30 + (3 - item.tier) * 15
+        
+        em = discord.Embed(color=SPARK_COLOR)
+        em.set_footer(text=f'Spark {VERSION} — Evènement', icon_url=SPARK_ICON)
+        discovery_txt = random.choice((f"En fouillant un peu le camp, vous déterrez **{item}** !",
+                                       f"Un chien errant a ramené **{item}** sur le camp !",
+                                       f"En fouillant un peu près du feu, vous apercevez ce qui semblerait être **{item}** !",
+                                       f"Quelqu'un semble avoir fait tomber **{item}**...",
+                                       f"En trébuchant sur une racine, vous tombez nez à nez avec **{item}** !",
+                                       f"Un individu étrange vous propose **{item}** en échange d'un petit service..."))
+        em.description = discovery_txt + f'\n__Cliquez sur 🤲 en premier pour réclamer cette trouvaille !__ ({timeout}s)'
+        em.add_field(name="Energie nécessaire", value=box(str(stam_required) + '⚡', lang='fix'))
+        if item.img:
+            em.set_thumbnail(url=item.img)
+            
+        notreclamdmsg = random.choice((f"Personne n'est intéressé par **{item}** ? Dommage.",
+                                     f"Il semblerait que personne n'ait réclamé **{item}**... Tant pis.",
+                                     f"Personne n'a pu réclamer **{item}** à temps, l'item s'est envolé, emporté par le vent...",
+                                     f"Allo ? Personne **{item}** n'intéresse personne ? Dommage."))
+    
+        preloadstam = await self.users_stamina(channel.guild)
+        
+        msg = await channel.send(embed=em)
+        start_adding_reactions(msg, ['🤲'])
+        try:
+            react, reclam = await self.bot.wait_for("reaction_add", check=lambda m, u: preloadstam[u.id] >= stam_required and m.message.id == msg.id and u.bot is False, timeout=timeout)
+        except asyncio.TimeoutError:
+            await msg.clear_reactions()
+            em.description = notreclamdmsg
+            await msg.edit(embed=em)
+            await msg.delete(delay=20)
+            return False
+        
+        await msg.clear_reactions()
+        await self.stamina_decrease(reclam, stam_required)
+        desc = []
+        desc.append(random.choice((f"{reclam.mention} obtient avec succès x{qte} **{item}** !",
+                              f"{reclam.mention} remporte **{item}** x{qte} en échange d'un peu d'énergie !",
+                              f"{reclam.mention} gagne **{items}** x{qte} !")))
+        if not await self.inventory_check(reclam, item, +qte):
+            maxcap = await self.inventory_capacity(reclam)
+            minv = await self.config.member(reclam).Inventory()
+            invsum = sum([minv[i] for i in minv])
+            old_qte = copy(qte)
+            qte = maxcap - invsum
+            desc.append(f"⚠️ Certains items (x{old_qte}) ont été détruits en raison du manque de place dans votre inventaire.")
+            
+        try:
+            await self.inventory_add(reclam, item, qte)
+        except:
+            desc.append(f"💥 Impossible d'ajouter les items à votre inventaire, vous avez perdu votre butin.")
+        
+        em = discord.Embed(color=SPARK_COLOR)
+        em.set_footer(text=f'Spark {VERSION} — Evènement', icon_url=SPARK_ICON)
+        em.description = '\n'.join(desc)
+        await msg.edit(embed=em)
+        await msg.delete(delay=30)
+        return True
         
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -1360,11 +1430,13 @@ class Spark(commands.Cog):
                     channel = guild.get_channel(channelid)
                     if channel:
                         cache['event_ongoing'] = True
-                        event = 'mining_simple'
+                        event = random.choices(('mining_simple', 'find_item'), weights=(3, 1), k=1)[0]
                         rdm_time = random.randint(1, 10)
                         await asyncio.sleep(rdm_time)
                         if event == 'mining_simple':
                             result = await self.event_mining_simple(channel)
+                        elif event == 'find_item':
+                            result = await self.event_find_item(channel)
                             
                         # On adapte la vitesse d'apparition des events en fonction de l'activité sur le serveur
                         expected_lower, expected_upper = await self.config.EventsExpectedDelay() * 0.8, await self.config.EventsExpectedDelay() * 1.2

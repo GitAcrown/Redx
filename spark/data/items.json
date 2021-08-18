@@ -127,6 +127,7 @@
             "equipment"
         ],
         "value": 600,
+        "tier": 2,
         "on_equip": {
             "extend_inventory": 50
         },
@@ -141,6 +142,7 @@
             "equipment"
         ],
         "value": 850,
+        "tier": 2,
         "on_equip": {
             "extend_inventory": 75
         },
@@ -155,6 +157,7 @@
             "equipment"
         ],
         "value": 1250,
+        "tier": 2,
         "on_equip": {
             "extend_inventory": 150
         },
@@ -169,6 +172,7 @@
             "equipment"
         ],
         "value": 2000,
+        "tier": 3,
         "on_equip": {
             "extend_inventory": 300
         },
@@ -184,6 +188,7 @@
             "equipment"
         ],
         "value": 1025,
+        "tier": 3,
         "on_equip": {
             "extend_inventory": 90,
             "enhance_stamina": 10
@@ -201,6 +206,7 @@
             "equipment"
         ],
         "value": 430,
+        "tier": 3,
         "on_equip": {
             "enhance_stamina": 25
         },
@@ -215,6 +221,7 @@
             "equipment"
         ],
         "value": 80,
+        "tier": 1,
         "on_equip": {
             "enhance_stamina": 5
         },
@@ -229,6 +236,7 @@
             "equipment"
         ],
         "value": 270,
+        "tier": 2,
         "on_equip": {
             "enhance_stamina": 15
         },
@@ -243,6 +251,7 @@
             "equipment"
         ],
         "value": 960,
+        "tier": 3,
         "on_equip": {
             "enhance_stamina": 50
         },
@@ -258,6 +267,7 @@
             "food"
         ],
         "value": 55,
+        "tier": 2,
         "on_use": {
             "increase_stamina": 25
         },
@@ -272,6 +282,7 @@
             "food"
         ],
         "value": 8,
+        "tier": 1,
         "on_use": {
             "increase_stamina": 5
         },
@@ -286,6 +297,7 @@
             "food"
         ],
         "value": 10,
+        "tier": 1,
         "on_use": {
             "increase_stamina": 10
         },
@@ -301,6 +313,7 @@
             "fuel"
         ],
         "value": 20,
+        "tier": 1,
         "on_use": {
             "increase_stamina": 15
         },
@@ -315,6 +328,7 @@
             "food"
         ],
         "value": 40,
+        "tier": 2,
         "on_use": {
             "increase_stamina": 30
         },
@@ -329,6 +343,7 @@
             "food"
         ],
         "value": 75,
+        "tier": 2,
         "on_use": {
             "boost_stamina": 25
         },
@@ -344,6 +359,7 @@
             "food"
         ],
         "value": 105,
+        "tier": 3,
         "on_use": {
             "boost_stamina": 50
         },
@@ -359,6 +375,7 @@
             "food"
         ],
         "value": 180,
+        "tier": 3,
         "on_use": {
             "restore_stamina": 0
         },

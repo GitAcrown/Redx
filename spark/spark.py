@@ -149,7 +149,7 @@ class Spark(commands.Cog):
         all_guilds = await self.config.all_guilds()
         timerange = datetime.now().strftime('%H%j')
         for g in all_guilds:
-            if all_guilds[g]['Shop']['timerange'] != timerange:
+            if all_guilds[g]['Shop'].get('timerange', '') != timerange:
                 guild = self.bot.get_guild(g)
                 await self.update_shop(guild)
                 logger.info(f"Boutique de {guild.name} mise à jour")

@@ -1335,9 +1335,12 @@ class Spark(commands.Cog):
         if message.guild:
             guild = message.guild
             author = message.author
-            cache = await self.get_cache(guild)
+            if author.bot:
+                return
             
-            cache['counter'] += random.randint(0, 1)
+            cache = await self.get_cache(guild)
+            if random.randint(0, 2) != 0:
+                cache['counter'] += 1
             
             if cache['counter'] >= cache['next_event']:
                 if cache['next_event_cooldown'] <= time.time() and cache['event_ongoing'] is False:

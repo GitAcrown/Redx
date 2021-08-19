@@ -83,7 +83,7 @@ class AltEco(commands.Cog):
                               'bonus_base': '',
                               'bonus_boost': '',
                               'bonus_beginner': '',
-                              'beginner_givelimit': ''
+                              'beginner_givelimit': time.time(),
                               },
                           }
 
@@ -466,10 +466,13 @@ class AltEco(commands.Cog):
             total += bonus['boost']
             txt += f"+{bonus['boost']} · Revenu lié au statut de booster du serveur\n"
             
-        userconfig= await self.config.member(author).config()
+        givelimit = account.config.get('beginner_givelimit', 0)
+        if type(givelimit) is str:
+            givelimit = 0
+            
         if account.balance <= (bonus['base'] * 5) and account.config['bonus_beginner'] != today:
-            if userconfig.get('beginner_givelimit', time.time()) > time.time(): 
-                txt += f"+0 · Aide aux soldes faibles (Tempo. refusé à cause d'un don important)\n"
+            if givelimit > time.time(): 
+                txt += f"+0 · Aide aux soldes faibles (Refusé à cause d'un don dans les dernières 72h)\n"
             else:
                 await self.config.member(author).config.set_raw('bonus_beginner', value=today)
                 total += round(bonus['base'] / 2)

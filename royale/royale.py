@@ -30,6 +30,9 @@ PASSIVES = {
 
 COMMENTATEURS = ('***Caligula***', '***Auguste***')
 
+OBJECTS = {}
+PLACES = {}
+
 class RoyalePlayer:
     def __init__(self, user: discord.Member, champion_data: dict):
         self.user, self.guild = user, user.guild
@@ -46,6 +49,7 @@ class RoyalePlayer:
         
         self.last_action = None
         self.passive_status = 0
+        self.partners = []
                 
     def __str__(self):
         return f'**{self.user.display_name}**'
@@ -98,6 +102,7 @@ class RoyaleIA:
         
         self.last_action = None
         self.passive_status = 0
+        self.partners = []
                 
     def __str__(self):
         return f'**{self.name} [IA]**'
@@ -217,7 +222,6 @@ class Royale(commands.Cog):
                 'neutral': 1,
                 'atk':  1,
                 'coop_2': 0.5,
-                'coop_3': 0.3,
                 'explo': 1,
                 'find_obj': 0.5,
                 'find_place': 0.5,
@@ -235,10 +239,6 @@ class Royale(commands.Cog):
         if player.last_action == 'explo':
             ACTIONS['find_obj'] *= 3
             ACTIONS['find_place'] *= 3
-        elif player.last_action == 'coop_2':
-            ACTIONS['coop_3'] /= 2
-        elif player.last_action == 'coop_3':
-            ACTIONS['coop_2'] /= 2
         elif player.last_action == 'atk':
             ACTIONS['rest'] *= 2
 
@@ -381,10 +381,9 @@ class Royale(commands.Cog):
                         txts.append(f"👑 KING : {player} veut en finir (Stats d'attaque et de défense de base multipliés par 2)")
                 
                 if alive < 3:
-                    actions.update({'coop_2': 0, 'coop_3': 0})
+                    actions['coop_2'] = 0
                     actions['atk'] *= 1.5
                 elif alive < 4:
-                    actions.update({'coop_3': 0})
                     actions['coop_2'] /= 2
                     
                 event = random.choices(list(actions.keys()), list(actions.values()), k=1)[0]
@@ -402,6 +401,8 @@ class Royale(commands.Cog):
                     
                 elif event == 'atk': # ---- ATTAQUER (SOLO)
                     possibles_targets = [p for p in other_players if not (p.passive == 'house' and p.last_action == 'rest')]
+                    targets_weights = [1 if p not in player.partners else 0.5]
+                    
                     if not possibles_targets:
                         options = (f"{player} se préparait à attaquer mais sa cible a disparue...",
                                    f"{player} voulait attaquer un autre concurrent mais s'est pris les pieds dans une racine",
@@ -410,7 +411,7 @@ class Royale(commands.Cog):
                         txts.append(random.choice(options))
                         
                     else:
-                        target = random.choice(possibles_targets)
+                        target = random.choices(possibles_targets, targets_weights, k=1)[0]
                         
                         is_crit = random.randint(0, 5)
                         if is_crit == 0:
@@ -419,34 +420,171 @@ class Royale(commands.Cog):
                             player_atk = random.randint(5, 20)
                         player_atk *= player.atk
                         subtxt = []
-                        subtxt.append(random.choice((f"> {player} se lance violemment sur {target} !",
-                                                     f"> {player} tombe soudainement sur {target} et décide de l'attaquer !",
-                                                     f"> {target} voit {player} lui tomber dessus violemment !",
-                                                     f"> {player} se décide à attaquer {target} !\n")))
+                        subtxt.append(random.choice((f"{player} se lance violemment sur {target} !",
+                                                     f"{player} tombe soudainement sur {target} et décide de l'attaquer !",
+                                                     f"{target} voit {player} lui tomber dessus violemment !",
+                                                     f"{player} se décide à attaquer {target} !")))
                         
                         dmg = round(player_atk / target.dfs)
-                        subtxt += f"> ⚔️ {player} inflige **{dmg} DMGs** à {target}\n"
+                        subtxt.append(f"> ⚔️ {player} inflige **{dmg} DMGs** à {target}")
+                        
+                        if target.partners:
+                            tpart = target.partners[0]
+                            dmg /= tpart.dfs 
+                            subtxt.append(f"> 🛡️👥 {tpart} défend {target} et réduit les dommages à **{dmg} DMGs**")
+                                
                         return_dmg = random.randint(0, 5)
                         if return_dmg == 0:
                             returned = dmg / 3
                             dmg -= returned
                             subtxt.append(f"> 🛡️ {target} se défend et renvoie **{returned} DMGs** à {player}")
-                        
-                        player.get_damaged(returned)
+                            player.get_damaged(returned)
+                            
                         if player.status == 0:
-                            subtxt += f"> ☠️ {player} __{random.choice(('est décédé', 'est mort', 'a succombé'))}__"
+                            subtxt.append(f"> ☠️ {player} __{random.choice(('est décédé', 'est mort', 'a succombé'))}__")
                             
                         target.get_damaged(dmg)
                         if target.status == 0:
-                            subtxt += f"> ☠️ {target} __{random.choice(('est décédé', 'est mort', 'a succombé'))}__"
+                            subtxt.append(f"> ☠️ {target} __{random.choice(('est décédé', 'est mort', 'a succombé'))}__")
                             if player.status != 0 and target.passive == 'ragequit':
                                 player.status = 2
-                                subtxt += f"> 🧪 RAGEQUIT de {target} : {player} est désormais __empoisonné__ (-5% de PV chaque heure)"
+                                subtxt.append(f"🧪 RAGEQUIT de {target} : {player} est désormais __empoisonné__ (-5% de PV chaque heure)")
                         
                         txts.append('\n'.join(subtxt))
                         
+                elif event == 'coop_2':  # ---- COOP (2 JOUEURS)
+                    partner = random.choice(other_players)
+                    player.partners = [partner]
+                    partner.partners = [player]
+                    
+                    coop_action = random.choices(('neutral', 'atk', 'help'), (1, 1, 0.5), k=1)[0]
+                    if coop_action == 'neutral': # NEUTRE
+                        options = (f"{player} et {partner} décident de traîner un peu ensemble",
+                                   f"{player} et {partner} décident de collaborer temporairement",
+                                   f"{player} et {partner} se posent pour observer le ciel ensemble",
+                                   f"{partner} remarque {player}, ils décident de s'allier temporairement")
+                        txts.append(random.choice(options))
                         
+                    elif coop_action == 'atk': # COMBAT
+                        possibles_targets = [p for p in other_players if not (p.passive == 'house' and p.last_action == 'rest' and player not in p.partners)]
                         
+                        if not possibles_targets:
+                            options = (f"{player} et {partner} se préparaient à attaquer mais leur cible a disparue...",
+                                    f"{player} et {partner} voulaient attaquer un autre concurrent mais ils l'ont perdu dans la forêt dense",
+                                    f"{player} et {partner} décident d'abandonner leur cible lâchement")
+                            txts.append(random.choice(options))
+                            
+                        else:
+                            target = random.choice(possibles_targets)
+                            
+                            is_crit = random.randint(0, 6)
+                            if is_crit == 0:
+                                players_atk = random.randint(20, 60)
+                            else:
+                                players_atk = random.randint(5, 20)
+                            players_atk *= (player.atk + partner.atk) / 2
+                            players_atk *= 1.25
+                            subtxt = []
+                            subtxt.append(random.choice((f"{player} et {partner} se lancent violemment sur {target} !",
+                                                        f"{player} tombe soudainement sur {target} et {partner} et décident de l'attaquer !",
+                                                        f"{target} et {partner} prennent {player} en embuscade !",
+                                                        f"{player} et {partner} se décident à attaquer {target} !")))
+                            
+                            dmg = round(players_atk / target.dfs)
+                            subtxt.append(f"> ⚔️ {player} & {partner} infligent **{dmg} DMGs** à {target}\n")
+                            
+                            if target.partners:
+                                tpart = target.partners[0]
+                                dmg /= tpart.dfs 
+                                subtxt.append(f"> 🛡️👥 {tpart} défend {target} et réduit les dommages à **{dmg} DMGs**")
+                            
+                            return_dmg = random.randint(0, 4)
+                            if return_dmg == 0:
+                                returned = dmg / 3
+                                dmg -= returned
+                                subtxt.append(f"> 🛡️ {target} se défend et renvoie **{returned} DMGs** à {player} (-{returned / 2}) et {partner} (-{returned / 2})")
+                                player.get_damaged(returned / 2)
+                                partner.get_damaged(returned / 2)
+                                
+                            if player.status == 0:
+                                subtxt.append(f"> ☠️ {player} __{random.choice(('est décédé', 'est mort', 'a succombé'))}__")
+                            if partner.status == 0:
+                                subtxt.append(f"> ☠️ {partner} __{random.choice(('est décédé', 'est mort', 'a succombé'))}__")
+                                
+                            target.get_damaged(dmg)
+                            if target.status == 0:
+                                subtxt += f"> ☠️ {target} __{random.choice(('est décédé', 'est mort', 'a succombé'))}__"
+                                if target.passive == 'ragequit':
+                                    if player.status != 0:
+                                        player.status = 2
+                                        subtxt.append(f"🧪 RAGEQUIT de {target} : {player} est désormais __empoisonné__ (-5% de PV chaque heure)")
+                                    if partner.status != 0:
+                                        partner.status = 2
+                                        subtxt.append(f"🧪 RAGEQUIT de {target} : {partner} est désormais __empoisonné__ (-5% de PV chaque heure)")
+                            
+                            txts.append('\n'.join(subtxt))
+                            
+                    else: # AIDE MUTUELLE
+                        options = (f"{player} et {partner} décident de se partager de l'équipement",
+                                   f"{player} et {partner} décident de penser leurs blessures ensemble",
+                                   f"{player} et {partner} s'échangent des trouvailles...",
+                                   f"{player} et {partner} se reposent ensemble")
+                        subtxt = [random.choice(options)]
+                        
+                        if random.randint(0, 1) == 0: # SOINS
+                            if player.hp < 100:
+                                heal = random.randint(1, 20)
+                                player.hp = min(100, player.hp + heal)
+                                subtxt.append(f"🩹 Soins de {partner} : **+{heal} PV** (={player.hp} PV)")
+                            if partner.hp < 100:
+                                heal = random.randint(1, 20)
+                                partner.hp = min(100, partner.hp + heal)
+                                subtxt.append(f"🩹 Soins de {player} : **+{heal} PV** (={partner.hp} PV)")
+                        else: # ARMURE
+                            armorbonus = random.randint(5, 20)
+                            player.armor += armorbonus
+                            partner.armor += armorbonus
+                            subtxt.append(f"🔧 Restauration et amélioration d'équipement : {player} & {partner} **+{armorbonus} ARMURE**")
+                        
+                        txts.append('\n'.join(subtxt))
+                        
+                    if player.passive == 'simp':
+                        heal = round(0.15 * player.hp)
+                        player.hp = min(100, player.hp + heal)
+                        txts.append(f"😳 SIMP de {player} : **+{heal} PV** (={player.hp} PV)")
+                    if partner.passive == 'simp':
+                        heal = round(0.15 * partner.hp)
+                        player.hp = min(100, partner.hp + heal)
+                        txts.append(f"😳 SIMP de {partner} : **+{heal} PV** (={partner.hp} PV)")
+                
+                elif event == 'explo': # ------ EXPLORATION
+                    explotype = random.randint(0, 2)
+
+                    if explotype == 0:
+                        if random.randint(0, 2) == 0: # Empoisonnement / Maladie
+                            options = (f"{player} se fait mordre par une étrange créature et se sent désormais malade...",
+                                    f"{player} se prend le pied dans une racine et tombe sur un tas de plantes toxiques !",
+                                    f"{player} est allergique au pollen des plantes environnantes !",
+                                    f"{player}, affamé, a ingéré un fruit qui était en réalité toxique...")
+                            player.status = random.randint(2, 3)
+                            txts.append("🤢" + random.choice(options) + f" ({'MALADE' if player.status == 3 else 'EMPOISONNE'})")
+                        else: # Blessure classique
+                            options = (f"{player} se blesse en cherchant un abris...",
+                                    f"{player} tombe dans un ravin et s'écorche les jambes",
+                                    f"{player} se fait attaquer par une créature lors de son exploration !")
+                            dmg = random.randint(1, 10)
+                            player.get_damaged(dmg)
+                            txts.append(random.choice(options) + f" **-{dmg} DMG** ((={player.hp} PV)")
+                            if player.status == 0:
+                                subtxt.append(f"☠️ {player} __{random.choice(('est décédé', 'est mort', 'a succombé'))}__")
+                    else:
+                        options = (f"{player} décide d'explorer les recoins...",
+                               f"{player} monte dans un arbre pour observer les alentours",
+                               f"{player} explore le coin à la recherche de choses utiles")
+                        txts.append(random.choice(options) + " (Aug. des chances de trouver un lieu/équipement)")
+                
+                elif event == 'find_obj':
+                    
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):

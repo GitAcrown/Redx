@@ -386,6 +386,8 @@ class AltEco(commands.Cog):
         guild = ctx.guild
         currency = await self.get_currency(guild)
         
+        beginbalance = await self.get_balance(author)
+        
         try:
             await self.withdraw_credits(author, sum, desc=f'Don à {member.name}')
         except:
@@ -395,7 +397,7 @@ class AltEco(commands.Cog):
             await ctx.reply(f"**Don effectué** • {member.mention} a reçu {sum}{currency} de votre part")
             
         bonus = await self.config.guild(ctx.guild).DailyBonus()
-        if await self.get_balance(author) <= (bonus['base'] * 5):
+        if await self.get_balance(author) <= (bonus['base'] * 5) and beginbalance > (bonus['base'] * 5):
             cd = time.time() + 2*86400
             await self.config.member(author).config.set_raw('beginner_givelimit', value=cd)
             

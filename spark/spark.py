@@ -1030,7 +1030,7 @@ class Spark(commands.Cog):
         levels = {
             100: (0x43aa8b, "Excellent", 'https://i.imgur.com/Rj2aIrs.png'),
             80: (0x90be6d, "Bon", 'https://i.imgur.com/GUJHuNJ.png'),
-            60: (0xf9c74f, "Correcte", 'https://i.imgur.com/nGeLVQk.png'),
+            60: (0xf9c74f, "Correct", 'https://i.imgur.com/nGeLVQk.png'),
             40: (0xf8961e, "Moyen", 'https://i.imgur.com/NCHPBOa.png'),
             20: (0xf3722c, "Mauvais", 'https://i.imgur.com/mhbuOuP.png'),
             0: (0xf94144, "Médiocre", 'https://i.imgur.com/Z2JzszU.png')
@@ -1040,7 +1040,7 @@ class Spark(commands.Cog):
                 color, text, img = levels[k]
                 break
         
-        em = discord.Embed(title="🔥 Feu de camp", color=color)
+        em = discord.Embed(title="Feu de camp 🔥", color=color)
         em.add_field(name="Etat du feu", value=box(f'{text} ({fire}%)'))
         em.set_thumbnail(url=img)
         

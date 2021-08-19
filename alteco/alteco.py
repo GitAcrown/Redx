@@ -82,7 +82,8 @@ class AltEco(commands.Cog):
                               'variation_period': 86400,
                               'bonus_base': '',
                               'bonus_boost': '',
-                              'bonus_beginner': ''
+                              'bonus_beginner': '',
+                              'beginner_givelimit': ''
                               },
                           }
 
@@ -392,6 +393,12 @@ class AltEco(commands.Cog):
         else:
             await self.deposit_credits(member, sum, desc=f'Don reçu de {author.name}' if not reason else f'{author.name} > {reason}')
             await ctx.reply(f"**Don effectué** • {member.mention} a reçu {sum}{currency} de votre part")
+            
+        bonus = await self.config.guild(ctx.guild).DailyBonus()
+        if await self.get_balance(author) <= (bonus['base'] * 5):
+            cd = time.time() + 3*86400
+            await self.config.member(author).config.set_raw('beginner_givelimit', value=cd)
+            
                 
     @commands.command(name="operations", aliases=['opes'])
     @commands.guild_only()
@@ -459,10 +466,14 @@ class AltEco(commands.Cog):
             total += bonus['boost']
             txt += f"+{bonus['boost']} · Revenu lié au statut de booster du serveur\n"
             
+        userconfig= await self.config.member(author).config()
         if account.balance <= (bonus['base'] * 5) and account.config['bonus_beginner'] != today:
-            await self.config.member(author).config.set_raw('bonus_beginner', value=today)
-            total += round(bonus['base'] / 2)
-            txt += f"+{round(bonus['base'] / 2)} · Revenu supp. d'aide aux soldes faibles\n"
+            if userconfig.get('beginner_givelimit', time.time()) > time.time(): 
+                txt += f"+0 · Aide aux soldes faibles (Tempo. refusé à cause d'un don important)\n"
+            else:
+                await self.config.member(author).config.set_raw('bonus_beginner', value=today)
+                total += round(bonus['base'] / 2)
+                txt += f"+{round(bonus['base'] / 2)} · Aide aux soldes faibles\n"
         
         if total: 
             txt += f'————————————\n= {total}{currency}'

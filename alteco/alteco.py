@@ -396,7 +396,7 @@ class AltEco(commands.Cog):
             
         bonus = await self.config.guild(ctx.guild).DailyBonus()
         if await self.get_balance(author) <= (bonus['base'] * 5):
-            cd = time.time() + 2*86400
+            cd = time.time() + 3*86400
             await self.config.member(author).config.set_raw('beginner_givelimit', value=cd)
             
                 

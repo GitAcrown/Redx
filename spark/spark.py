@@ -1246,7 +1246,7 @@ class Spark(commands.Cog):
                 n = 1
                 for name, value in effects.items():
                     if name == 'steal_stamina':
-                        users = await self.config.all_channels(ctx.guild)
+                        users = await self.config.all_members(ctx.guild)
                         for u in users:
                             if users[u]['Stamina'] >= value:
                                 target = ctx.guild.get_member(u)

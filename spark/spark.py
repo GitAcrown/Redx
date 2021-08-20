@@ -1088,7 +1088,8 @@ class Spark(commands.Cog):
             await ctx.reply(f"{conf} **Vente réalisée** › Vous avez vendu vos items pour une somme totale de {total_selled}{currency}", mention_author=False)
         
         if failed:
-            await ctx.reply(f"⚠️ **Info** · Certains items n'ont pas pu être vendus en raison d'un problème d'inventaire :\n{'\n'.join(failed)}")
+            failedtxt = '\n'.join(failed)
+            await ctx.reply(f"⚠️ **Info** · Certains items n'ont pas pu être vendus en raison d'un problème d'inventaire :\n{failedtxt}")
         
     @commands.command(name="giveitem")
     @commands.cooldown(1, 10, commands.BucketType.member)

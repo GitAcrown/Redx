@@ -254,7 +254,7 @@ class Spark(commands.Cog):
     def get_all_tags(self) -> dict:
         tags = {}
         for i in self.items:
-            for t in i.get('tags', []):
+            for t in self.items[i].get('tags', []):
                 if t not in tags:
                     tags[t] = [t]
         for en in HUMANIZE_TAGS:

@@ -1014,7 +1014,7 @@ class Spark(commands.Cog):
             return await ctx.reply(f"**Quantité invalide** · Je n'ai pas reconnu de quantité d'item dans votre réponse", mention_author=False)
         
     @sell_items_actions.command(name='all')
-    async def sell_all(self, ctx, item_tag: str = NONE):
+    async def sell_all(self, ctx, item_tag: str):
         """Vendre tous les items vendables possédant le tag associé
         
         Pour consulter les tags des items, utilisez `;iteminfo`

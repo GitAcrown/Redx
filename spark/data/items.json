@@ -261,8 +261,8 @@
     },
 
     "conserve": {
-        "name": "Conserve surprise",
-        "lore": "Une boîte de conserve dont l'étiquette a été arrachée. Vous saurez ce qu'il y a dedans à l'ouverture.",
+        "name": "Conserve",
+        "lore": "Une boîte de conserve dont l'étiquette a été partiellement arrachée. Sûrement comestible tout de même.",
         "tags": [
             "food"
         ],
@@ -276,12 +276,12 @@
         ]
     },
     "conservep": {
-        "name": "Conserve surprise périmée",
-        "lore": "Une boîte de conserve dont l'étiquette a été arrachée. Vous saurez ce qu'il y a dedans à l'ouverture. Périmée.",
+        "name": "Conserve périmée",
+        "lore": "Une boîte de conserve dont l'étiquette a été partiellement arrachée. Elle est périmée.",
         "tags": [
             "food"
         ],
-        "value": 8,
+        "value": 5,
         "tier": 1,
         "on_use": {
             "increase_stamina": 5
@@ -397,6 +397,39 @@
         },
         "details": [
             "Restaure entièrement votre énergie (100%)"
+        ]
+    },
+    "conservespr": {
+        "name": "Conserve surprise",
+        "lore": "Une boîte de conserve dont on semble en avoir extrait le contenu puis refermée. Je me demande ce qu'elle contient.",
+        "tags": [
+            "misc"
+        ],
+        "value": 25,
+        "tier": 2,
+        "on_use": {
+            "give_random_item": ["food"]
+        },
+        "details": [
+            "Donne un item consommable au hasard"
+        ]
+    },
+    "voodoo": {
+        "name": "Poupée vaudou",
+        "lore": "Une poupée vaudou qui semble représenter un membre du serveur, mais vous n'arrivez pas à voir qui...",
+        "tags": [
+            "misc",
+            "fuel"
+        ],
+        "value": 150,
+        "tier": 3,
+        "on_burn": {
+            "steal_stamina": 25
+        },
+        "details": [
+            "Provoque un effet indésirable sur un membre aléatoire du serveur",
+            "Vous procure un bonus proportionnel à l'effet subi par le membre cible",
+            "L'effet peut se produire seulement si une cible est trouvée"
         ]
     }
 }

@@ -1,7 +1,9 @@
 import json
 import logging
 import operator
+from pickle import NONE
 import random
+from re import T
 import time
 import asyncio
 from datetime import datetime
@@ -21,7 +23,7 @@ from tabulate import tabulate
 
 logger = logging.getLogger("red.RedX.Spark")
 
-VERSION = 'BETA'
+VERSION = 'v1.0'
 
 SPARK_COLOR, SPARK_ICON = 0xFFF859, 'https://i.imgur.com/ks2gkzd.png'
 
@@ -35,7 +37,8 @@ HUMANIZE_TAGS = {
 FUEL_VALUES = {
     'coal': 20,
     'wood': 7,
-    'banane': 3
+    'banane': 3,
+    'voodoo': 5
 }
 
 TIER_NAMES = {
@@ -79,6 +82,7 @@ class SparkItem:
         self.on_use = self._raw.get('on_use', None)
         self.text_on_use = self._raw.get('text_on_use', None)
         self.on_equip = self._raw.get('on_equip', None)
+        self.on_burn = self._raw.get('on_burn', None)
         
     def __str__(self):
         return self.name
@@ -221,7 +225,7 @@ class Spark(commands.Cog):
 
         return None
     
-    async def item_guild_value(self, guild: discord.Guild, item: SparkItem):
+    async def item_guild_value(self, guild: discord.Guild, item: SparkItem) -> int:
         if not item.value:
             raise ValueError(f"L'item {item} n'est pas vendable")
         
@@ -247,6 +251,16 @@ class Spark(commands.Cog):
         value = round(value * valuevar)
         return max(minvar, value)
 
+    def get_all_tags(self) -> dict:
+        tags = {}
+        for i in self.items:
+            for t in i.get('tags', []):
+                if t not in tags:
+                    tags[t] = [t]
+        for en in HUMANIZE_TAGS:
+            tags[en].append(HUMANIZE_TAGS[en])
+    
+        return tags
     
 # INVENTAIRE _________________________
 
@@ -724,6 +738,14 @@ class Spark(commands.Cog):
         
         await ctx.send(embed=em)
         
+    async def fetch_inspirobot_quote(self):
+        """Récupère une image quote d'Inspirobot.me"""
+        try:
+            async with self.session.request("GET", "http://inspirobot.me/api?generate=true") as page:
+                pic = await page.text(encoding="utf-8")
+                return pic
+        except Exception as e:
+            return None
         
     @commands.command(name="use")
     async def user_use_item(self, ctx, *, item: str):
@@ -742,7 +764,11 @@ class Spark(commands.Cog):
         
         em = discord.Embed(color=user.color)
         em.set_author(name=f"{user.name}", icon_url=user.avatar_url)
-        em.set_footer(text=f'Spark {VERSION} — Utiliser un item', icon_url=SPARK_ICON)
+        
+        if 'give_items' in data.on_use:
+            em.set_footer(text=f"Spark {VERSION} — Utiliser un item\n⚠️ Vérifiez que vous avez l'espace nécessaire pour recevoir des items", icon_url=SPARK_ICON)
+        else:
+            em.set_footer(text=f'Spark {VERSION} — Utiliser un item', icon_url=SPARK_ICON)
         em.description = f"Voulez-vous utiliser **{data}** ?"
         
         details = '\n'.join(data.details) if data.details else ''
@@ -787,9 +813,30 @@ class Spark(commands.Cog):
             elif name == 'decrease_stamina':
                 await self.stamina_decrease(user, value)
                 txt.append(f"{n}. `Energie -{value}`")
+                
             elif name == 'remove_parasite' and userstatus == 2:
                 await self.config.member(user).Status.set(1)
                 txt.append(f"{n}. `Parasite retiré`")
+                
+            elif name == 'give_random_item':
+                items = self.get_items_by_tags(*value)
+                items = [i for i in items if i.tier < 3]
+                item = random.choice(items)
+                if await self.inventory_check(user, item, 1):
+                    txt.append(f"{n}. `Item {item} x1 obtenu`")
+                else:
+                    txt.append(f"{n}. `Item {item} x1 perdu`")
+            elif name == 'give_items':
+                items = []
+                for k in value:
+                    item = self.get_item(k[0])
+                    qte = int(k[1])
+                    if await self.inventory_check(user, item, qte):
+                        await self.inventory_add(user, item, qte)
+                        txt.append(f"{n}. `Item {item} x{qte} obtenu`")
+                    else:
+                        txt.append(f"{n}. `Item {item} x{qte} perdu (Inv. plein)`")
+                    n += 1
             n += 1
         
         em = discord.Embed(color=user.color)
@@ -898,9 +945,17 @@ class Spark(commands.Cog):
             await msg.delete(delay=5)
             return await ctx.reply(f"{stop} **Commande annulée** · ***{shop['name']}*** vous remercie pour votre visite.", mention_author=False)
         
-    @commands.command(name='sell', aliases=['vente'])
+    @commands.group(name='sell', aliases=['vente'], invoke_without_command=True)
     @commands.guild_only()
     @commands.max_concurrency(1, commands.BucketType.channel)
+    async def sell_items_actions(self, ctx, *, item: str):
+        """Vendre un ou plusieurs items au prix courant au bot
+        
+        Le prix est déterminé à partir du nombre d'items identiques déjà en circulation et d'un prix de base déterminé"""
+        if ctx.invoked_subcommand is None:
+            return await ctx.invoke(self.sell_items, item=item) 
+    
+    @sell_items_actions.command(name='item')
     async def sell_items(self, ctx, *, item: str):
         """Vendre un item au prix courant au bot
         
@@ -957,6 +1012,83 @@ class Spark(commands.Cog):
         else:
             await msg.delete(delay=5)
             return await ctx.reply(f"**Quantité invalide** · Je n'ai pas reconnu de quantité d'item dans votre réponse", mention_author=False)
+        
+    @sell_items_actions.command(name='all')
+    async def sell_all(self, ctx, item_tag: str = NONE):
+        """Vendre tous les items vendables possédant le tag associé
+        
+        Pour consulter les tags des items, utilisez `;iteminfo`
+        
+        **__Exemples__**:
+        `;sell all minerai | ore` = Vendre tous les minerais possédés
+        `;sell all consommable | food` = Vendre tous les consommables possédés"""
+        guild = ctx.guild
+        user = ctx.author
+        eco = self.bot.get_cog('AltEco')
+        currency = await eco.get_currency(guild)
+        
+        tag = None
+        all_tags = self.get_all_tags()
+        for t in all_tags:
+            if item_tag.lower() in all_tags[t]:
+                tag = t
+        
+        if not tag:
+            return await ctx.reply("**Tag inconnu** · Vérifiez que les items ciblés possèdent bien un tag appelé comme ça avec `;iteminfo`")
+
+        tabl = []
+        to_sell = []
+        full_total = 0
+        items = self.get_items_by_tags(tag)
+        for item in [p for p in items if p.value]:
+            qte = await self.inventory_get(user, item)
+            if qte > 0:
+                total_price = await item.guild_value(guild) * qte
+                tabl.append((item.name, qte, total_price))
+                full_total += total_price
+                to_sell.append((item, qte, total_price))
+        
+        if not tabl:
+            return await ctx.reply(f"**Inutile** · Vous ne possédez aucun item possédant le tag *{tag}*")
+            
+        em = discord.Embed(color=user.color)
+        em.set_author(name=f"{user.name}", icon_url=user.avatar_url)
+        
+        em.set_footer(text=f"Spark {VERSION} — Vente de plusieurs items", icon_url=SPARK_ICON)
+        em.description = f"Confirmez-vous vendre tout ça pour le prix proposé ?"
+
+        em.add_field(name="Items concernés", value=box(tabulate(tabl, headers=('Item', 'Qte vendue', 'Total item'))))
+        em.add_field(name="Total de la vente", value=box(f'{full_total}{currency}' ,lang='css'))
+        
+        conf, stop = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
+        msg = await ctx.reply(embed=em, mention_author=False)
+        start_adding_reactions(msg, [conf, stop])
+        try:
+            react, _ = await self.bot.wait_for("reaction_add", check=lambda m, u: u == ctx.author and m.message.id == msg.id, timeout=30)
+        except asyncio.TimeoutError:
+            await msg.delete(delay=5)
+            return await ctx.reply(f"{stop} **Annulé** · Les items n'ont pas été vendus.", mention_author=False)
+        if react.emoji == stop:
+            await msg.delete(delay=5)
+            return await ctx.reply(f"{stop} **Annulé** · Les items n'ont pas été vendus.", mention_author=False)
+        
+        failed = []
+        total_selled = 0
+        for i in to_sell:
+            try:
+                await self.inventory_remove(user, i[0], i[1])
+            except:
+                failed.append(f'**{i[0].name}**')
+            else:
+                total_selled += i[2]
+        
+        if total_selled:
+            await eco.deposit_credits(user, total_selled, reason="Vente d'items (par tags)")
+            await msg.delete(delay=8)
+            await ctx.reply(f"{conf} **Vente réalisée** › Vous avez vendu vos items pour une somme totale de {total_selled}{currency}", mention_author=False)
+        
+        if failed:
+            await ctx.reply(f"⚠️ **Info** · Certains items n'ont pas pu être vendus en raison d'un problème d'inventaire :\n{'\n'.join(failed)}")
         
     @commands.command(name="giveitem")
     @commands.cooldown(1, 10, commands.BucketType.member)
@@ -1069,7 +1201,6 @@ class Spark(commands.Cog):
         
         if not 'fuel' in data.tags:
             return await ctx.reply(f"**Impossible** · Seul les items dotés d'un tag `fuel` peuvent alimenter le feu", mention_author=False)
-            
         
         em = discord.Embed(color=SPARK_COLOR)
         em.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
@@ -1077,6 +1208,10 @@ class Spark(commands.Cog):
         em.add_field(name=f"Quantité possédée", value=box(f'x{qte_poss}', lang='css'))
         em.add_field(name=f"Etat actuel du feu", value=box(f'{fire}%'))
         em.description = f"Combien voulez-vous en mettre ? ['0' pour annuler]"
+        
+        if data.on_burn and data.details:
+            em.add_field(name="Détails", value='\n'.join(data.details))
+        
         em.set_footer(text=f'Spark {VERSION} — Alimenter le feu', icon_url=SPARK_ICON)
         conf, stop = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         
@@ -1101,6 +1236,39 @@ class Spark(commands.Cog):
                 new_fire = min(100, fire + restore)
                 await self.config.guild(guild).Fire.set(new_fire)
                 await ctx.send(f"{conf} **Feu restauré** › Le feu est désormais à {new_fire}% grâce à vous ! Vous avez utilisé x{qte} **{data}**.")
+                
+                if not data.on_burn:
+                    return
+                
+                txt = []
+                n = 1
+                for name, value in data.on_burn:
+                    if name == 'steal_stamina':
+                        users = await self.config.all_channels(ctx.guild)
+                        for u in users:
+                            if users[u]['Stamina'] >= value:
+                                target = ctx.guild.get_member(u)
+                                if target:
+                                    try:
+                                        await self.stamina_decrease(target, value)
+                                    except:
+                                        continue
+                                    else:
+                                        await self.stamina_increase(user, value, allow_excess=True)
+                                        txt.append(f"{n}. `{value} points d'énergie volés à {target.name}`")
+                                        break
+                                    
+                    n += 1
+                
+                if txt:
+                    await asyncio.sleep(0.5)
+                    em = discord.Embed(color=user.color)
+                    em.set_author(name=f"{user.name}", icon_url=user.avatar_url)
+                    em.set_footer(text=f"Spark {VERSION} — Effets d'item brûlé", icon_url=SPARK_ICON)
+                    em.description = f"En brûlant **{data}** vous avez provoqué certains effets"
+                    em.add_field(name="Effets provoqués", value='\n'.join(txt))
+                    await ctx.reply(embed=em)
+                
             else:
                 return await ctx.reply(f"**Action impossible** · Vous n'avez pas cette quantité de **{data}**", mention_author=False)
         else:
@@ -1339,7 +1507,7 @@ class Spark(commands.Cog):
         return True
     
     async def event_find_item(self, channel: discord.TextChannel):
-        items = self.get_items_by_tags('resource', 'equipment')
+        items = self.get_items_by_tags('resource', 'equipment', 'misc')
         weighted = {i.id: 4 - i.tier for i in items}
         select = random.choices(list(weighted.keys()), list(weighted.values()), k=1)[0]
         item = self.get_item(select)

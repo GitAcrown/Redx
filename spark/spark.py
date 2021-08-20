@@ -964,7 +964,7 @@ class Spark(commands.Cog):
         user = ctx.author
         data = self.fetch_item(item, fuzzy_cutoff=70)
         if not item:
-            return await ctx.reply("**Item inconnu** · Vérifiez le nom ou fournissez directement son ID")
+            return await ctx.reply("**Item inconnu** · Vérifiez le nom ou fournissez directement son ID", mention_author=False)
 
         eco = self.bot.get_cog('AltEco')
         currency = await eco.get_currency(guild)
@@ -1242,8 +1242,9 @@ class Spark(commands.Cog):
                     return
                 
                 txt = []
+                effects = data.on_burn
                 n = 1
-                for name, value in data.on_burn:
+                for name, value in effects.items():
                     if name == 'steal_stamina':
                         users = await self.config.all_channels(ctx.guild)
                         for u in users:

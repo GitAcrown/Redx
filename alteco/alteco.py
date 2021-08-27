@@ -128,7 +128,7 @@ class AltEco(commands.Cog):
         return await self.config.guild(guild).Currency.get_raw('string') #TODO : Support de l'emoji
     
     async def get_leaderboard(self, guild: discord.Guild, top_cutoff: int = None) -> List[AltEcoAccount]:
-        """Renvoie le top des membres les plus riches du serveur (liste d'objets AltEcoAccount)
+        """Renvoie le top des membres les plus riches du serveur (liste d'objets AltEcoAccount) des plus riches aux moins riches
 
         Renvoie une liste vide si aucun top n'est générable"""
         users = await self.config.all_members(guild)
@@ -497,15 +497,23 @@ class AltEco(commands.Cog):
 
         Vous pouvez modifier la longueur du top en précisant le paramètre `top`"""
         lbd = await self.get_leaderboard(ctx.guild, top)
+        n_medals = {
+            1: '🥇',
+            2: '🥈',
+            3: '🥉'
+        }
         if lbd:
             tbl = []
             found = False
+            mn = 1
             for acc in lbd:
-                tbl.append([str(acc.member.display_name), acc.balance])
+                rankn = str(mn) if mn not in n_medals else n_medals[mn]
+                tbl.append([rankn, str(acc.member.display_name), acc.balance])
                 if acc.member == ctx.author:
                     found = True
+                mn += 1
             em = discord.Embed(color=await self.bot.get_embed_color(ctx.channel),
-                               description=box(tabulate(tbl, headers=["Membre", "Solde"])))
+                               description=box(tabulate(tbl, headers=["Rang", "Membre", "Solde"])))
             if not found:
                 em.add_field(name="Votre rang",
                              value=box("#" + str(await self.get_leaderboard_member_rank(ctx.author)) +

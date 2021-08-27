@@ -36,7 +36,7 @@ class Bouncer(commands.Cog):
         
         self.config.register_guild(**default_guild)
         
-        self.default_leave_emoji = self.bot.get_emoji(875929277604982825)
+        self.default_leave_emoji = 875929277604982825
         
     @commands.group(name="leaveset")
     @checks.admin_or_permissions(manage_messages=True)
@@ -67,7 +67,7 @@ class Bouncer(commands.Cog):
             await ctx.send(f"**Emoji customisé** • L'emoji {emoji} sera utilisé au début des messages de départ des membres")
         else:
             await self.config.guild(guild).CustomLeaveEmoji.set(None)
-            await ctx.send(f"**Emoji retiré** • L'emoji par défaut {self.default_leave_emoji} sera utilisé au début des messages de départ des membres")
+            await ctx.send(f"**Emoji retiré** • L'emoji par défaut {self.bot.get_emoji(self.default_leave_emoji)} sera utilisé au début des messages de départ des membres")
             
     @leavemsg_set.command(name='webhook')
     async def set_webhook(self, ctx, webhook_url: str = None):
@@ -232,7 +232,7 @@ class Bouncer(commands.Cog):
             
             custom_list = settings['CustomLeaveMsg']
             custom_emoji = settings['CustomLeaveEmoji']
-            emoji = self.bot.get_emoji(custom_emoji) if custom_emoji else self.default_leave_emoji
+            emoji = self.bot.get_emoji(custom_emoji) if custom_emoji else self.bot.get_emoji(self.default_leave_emoji)
             msg = random.choice(custom_list) if custom_list else "{user.name} a quitté le serveur"
             msg = f'{emoji} ' + msg.format(user=user, guild=guild)
             

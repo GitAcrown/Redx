@@ -507,7 +507,7 @@ class AltEco(commands.Cog):
             found = False
             mn = 1
             for acc in lbd:
-                rankn = str(mn) if mn not in n_medals else n_medals[mn]
+                rankn = str(mn) if mn not in n_medals else f'{mn} {n_medals[mn]}'
                 tbl.append([rankn, str(acc.member.display_name), acc.balance])
                 if acc.member == ctx.author:
                     found = True

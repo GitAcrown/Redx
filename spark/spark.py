@@ -1594,8 +1594,9 @@ class Spark(commands.Cog):
         weathertype = random.choice(('rain', 'storm'))
         if weathertype == 'rain':
             cache = await self.get_cache(guild)
+            stamregenval = await self.config.StaminaRegenDelay()
             for p in cache['stamina_regen']: # On cherche les gens qui ont interagi récemment (< 15m)
-                if cache['stamina_regen'][p] > time.time() - 900:
+                if cache['stamina_regen'][p] - stamregenval > time.time() - 900:
                     user = guild.get_member(p)
                     if user:
                         equipeff = await self.equipment_effects(user)

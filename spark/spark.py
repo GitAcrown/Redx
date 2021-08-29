@@ -568,9 +568,11 @@ class Spark(commands.Cog):
             if len(tabl) < 30:
                 typehint = ''
                 if item.equipable:
-                    typehint += ' [E]'
+                    typehint += 'ᴇ'
                 if item.on_use:
-                    typehint += ' [U]'
+                    typehint += 'ᴜ'
+                if item.on_burn:
+                    typehint += 'ʙ'
                 tabl.append((f"{item.name}{typehint}", await self.inventory_get(user, item)))
             else:
                 tabls.append(tabl)

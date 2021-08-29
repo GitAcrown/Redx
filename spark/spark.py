@@ -1181,7 +1181,7 @@ class Spark(commands.Cog):
         
         if degboost > time.time():
             db_string = humanize_timedelta(seconds=int(degboost - time.time()))
-            em.add_field(name="Dégradation aug.", value=box(db_string, lang='fix'))
+            em.add_field(name="Dégradation aug. jusqu'à", value=box(db_string, lang='fix'))
         
         if fire < 25:
             em.set_footer(text="Réalimentez le feu avec ';fire fuel'")

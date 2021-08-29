@@ -18,7 +18,7 @@ from redbot.core import commands, Config, checks
 from redbot.core.commands.commands import Command
 from redbot.core.data_manager import bundled_data_path
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS, start_adding_reactions
-from redbot.core.utils.chat_formatting import box
+from redbot.core.utils.chat_formatting import box, humanize_timedelta
 from tabulate import tabulate
 
 logger = logging.getLogger("red.RedX.Spark")
@@ -31,7 +31,8 @@ HUMANIZE_TAGS = {
     'ore': "minerai",
     'food': "consommable",
     'equipment': "equipement",
-    'misc': "divers"
+    'misc': "divers",
+    'fuel': "combustible"
 }
     
 FUEL_VALUES = {
@@ -127,7 +128,8 @@ class Spark(commands.Cog):
             'Events': {'channels': [],
                        'events_cooldown': 600,
                        'starting_threshold': 150,
-                       'fire_degradation': 2}
+                       'fire_degradation': 2,
+                       'fire_deg_boost': 0}
         }
         
         default_global = {
@@ -163,6 +165,9 @@ class Spark(commands.Cog):
                 await self.config.guild(guild).Shop.set_raw('timerange', value=timerange)
                 
                 firedeg = all_guilds[g]['Events'].get('fire_degradation', 1)
+                degboost = all_guilds[g]['Events'].get('fire_deg_boost', 0)
+                if degboost > time.time():
+                    firedeg *= 2
                 await self.config.guild(guild).Fire.set(max(0, all_guilds[g]['Fire'] - firedeg))
 
     @spark_loop.before_loop
@@ -738,14 +743,6 @@ class Spark(commands.Cog):
         
         await ctx.send(embed=em)
         
-    async def fetch_inspirobot_quote(self):
-        """Récupère une image quote d'Inspirobot.me"""
-        try:
-            async with self.session.request("GET", "http://inspirobot.me/api?generate=true") as page:
-                pic = await page.text(encoding="utf-8")
-                return pic
-        except Exception as e:
-            return None
         
     @commands.command(name="use")
     async def user_use_item(self, ctx, *, item: str):
@@ -1172,10 +1169,19 @@ class Spark(commands.Cog):
             if k <= fire:
                 color, text, img = levels[k]
                 break
+            
+        try:
+            degboost = await self.config.guild(guild).Events.get_raw('fire_deg_boost')
+        except KeyError:
+            degboost = 0
         
         em = discord.Embed(title="Feu de camp 🔥", color=color)
-        em.add_field(name="Etat du feu", value=box(f'{text} ({fire}%)'))
+        em.add_field(name="État du feu", value=box(f'{text} ({fire}%)'))
         em.set_thumbnail(url=img)
+        
+        if degboost > time.time():
+            db_string = humanize_timedelta(seconds=int(degboost - time.time()))
+            em.add_field(name="Dégradation aug.", value=box(db_string, lang='fix'))
         
         if fire < 25:
             em.set_footer(text="Réalimentez le feu avec ';fire fuel'")
@@ -1188,7 +1194,7 @@ class Spark(commands.Cog):
     async def fuel_firepit(self, ctx, *, item: str):
         """Alimenter le feu
         
-        Seuls les items avec un tag 'fuel' permettent d'alimenter le feu"""
+        Seuls les items avec un tag 'fuel' / 'combustible' permettent d'alimenter le feu"""
         guild = ctx.guild
         user = ctx.author
         data = self.fetch_item(item)
@@ -1207,7 +1213,7 @@ class Spark(commands.Cog):
         em.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
         em.add_field(name=f"% Restauration par unité", value=box(f'{FUEL_VALUES[data.id]}', lang='fix'))
         em.add_field(name=f"Quantité possédée", value=box(f'x{qte_poss}', lang='css'))
-        em.add_field(name=f"Etat actuel du feu", value=box(f'{fire}%'))
+        em.add_field(name=f"État actuel du feu", value=box(f'{fire}%'))
         em.description = f"Combien voulez-vous en mettre ? ['0' pour annuler]"
         
         if data.on_burn and data.details:
@@ -1460,7 +1466,7 @@ class Spark(commands.Cog):
                                        f"Un gisement de **{item}** a été trouvé juste en dehors du camp !",
                                        f"Des minerais de **{item}** ont été découverts sur le camp !"))
         em.description = discovery_txt + f'\n__Cliquez sur ⛏️ en premier pour obtenir ces minerais !__ ({timeout}s)'
-        em.add_field(name="Energie nécessaire", value=box(str(stam_required) + '⚡', lang='fix'))
+        em.add_field(name="Énergie nécessaire", value=box(str(stam_required) + '⚡', lang='fix'))
         if item.img:
             em.set_thumbnail(url=item.img)
         
@@ -1523,7 +1529,7 @@ class Spark(commands.Cog):
         timeout = 30 + (3 - item.tier) * 15
         
         em = discord.Embed(color=SPARK_COLOR)
-        em.set_footer(text=f'Spark {VERSION} — Evènement', icon_url=SPARK_ICON)
+        em.set_footer(text=f'Spark {VERSION} — Trouvaille', icon_url=SPARK_ICON)
         discovery_txt = random.choice((f"En fouillant un peu le camp, vous déterrez **{item}** !",
                                        f"Un chien errant a ramené **{item}** sur le camp !",
                                        f"En fouillant un peu près du feu, vous apercevez ce qui semblerait être **{item}** !",
@@ -1531,7 +1537,7 @@ class Spark(commands.Cog):
                                        f"En trébuchant sur une racine, vous tombez nez à nez avec **{item}** !",
                                        f"Un individu étrange vous propose **{item}** en échange d'un petit service..."))
         em.description = discovery_txt + f'\n__Cliquez sur 🤲 en premier pour réclamer cette trouvaille !__ ({timeout}s)'
-        em.add_field(name="Energie nécessaire", value=box(str(stam_required) + '⚡', lang='fix'))
+        em.add_field(name="Énergie nécessaire", value=box(str(stam_required) + '⚡', lang='fix'))
         if item.img:
             em.set_thumbnail(url=item.img)
             
@@ -1573,11 +1579,71 @@ class Spark(commands.Cog):
             desc.append(f"💥 Impossible d'ajouter les items à votre inventaire, vous avez perdu votre butin.")
         
         em = discord.Embed(color=SPARK_COLOR)
-        em.set_footer(text=f'Spark {VERSION} — Evènement', icon_url=SPARK_ICON)
+        em.set_footer(text=f'Spark {VERSION} — Trouvaille', icon_url=SPARK_ICON)
         em.description = '\n'.join(desc)
         await msg.edit(embed=em)
         await msg.delete(delay=30)
         return True
+    
+    async def event_weather(self, channel: discord.TextChannel):
+        guild = channel.guild
+        
+        em = discord.Embed()
+        em.set_footer(text=f'Spark {VERSION} — Météo', icon_url=SPARK_ICON)
+        
+        weathertype = random.choice(('rain', 'storm'))
+        if weathertype == 'rain':
+            cache = self.get_cache(guild)
+            for p in cache['stamina_regen']: # On cherche les gens qui ont interagi récemment (< 15m)
+                if cache['stamina_regen'][p] > time.time() - 900:
+                    user = guild.get_member(p)
+                    if user:
+                        equipeff = await self.equipment_effects(user)
+                        if 'protect_against_rain' in list(equipeff.keys()):
+                            continue
+                        
+                        current = await self.config.member(user).Stamina()
+                        try:
+                            await self.stamina_decrease(user, round(current * 0.10))
+                        except:
+                            pass
+            
+            msg = random.choice((
+                "Il s'est mis à pleuvoir ! Tous les membres ayant interagi récemment perdent 10% d'énergie !",
+                "Oh non, il pleut ! Certains membres perdent le moral... (- 10% d'énergie)",
+                f"Vous sentez quelques gouttes... Oh non, il s'est mis à pleuvoir sur *{guild.name}* ! Vous perdez 10% de votre énergie..."
+            ))
+            em.description = msg
+            em.set_thumbnail(url='https://image.flaticon.com/icons/png/512/1146/1146858.png')
+            em.color = 0x2a75f7
+        
+        elif weathertype == 'storm':
+            current = await self.config.guild(guild).Fire()
+            if current > 0:
+                tm = time.time() + random.randint(7200, 21600)
+                await self.config.guild(guild).Events.set_raw('fire_deg_boost', value=tm)
+                tm_string = humanize_timedelta(seconds=int(tm - time.time()))
+                
+                msg = random.choice((
+                    "Une tempête arrive ! Le feu risque d'en subir les effets et se dégrader plus rapidement...",
+                    "Une tempête se prépare ! Le feu va se dégrader plus rapidement que d'habitude, n'oubliez pas d'ajouter du combustible !",
+                    "Le vent se lève... Oh non, une tempête ! Le feu va sûrement se dégrader plus vite qu'habituellement..."
+                ))
+                
+                em.add_field(name="Se termine dans", value=box(tm_string, lang='fix'))
+            else:
+                msg = random.choice((
+                    "On dirait qu'une tempête arrive... mais votre feu étant éteint, il risque pas d'être affecté.",
+                    "Le vent se lève... mais vous n'avez pas à vous inquiéter pour votre feu : il est déjà éteint..."
+                ))
+                
+            em.description = msg
+            em.set_thumbnail(url='https://image.flaticon.com/icons/png/512/1146/1146859.png')
+            em.color = 0xf7562a
+        
+        await channel.send(embed=em, delete_after=45)
+        return True
+        
         
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -1599,19 +1665,21 @@ class Spark(commands.Cog):
                     channel = guild.get_channel(channelid)
                     if channel:
                         cache['event_ongoing'] = True
-                        event = random.choices(('mining_simple', 'find_item'), weights=(1, 0.15), k=1)[0]
-                        rdm_time = random.randint(1, 10)
+                        event = random.choices(('mining_simple', 'find_item', 'weather'), weights=(1, 0.2, 0.1), k=1)[0]
+                        rdm_time = random.randint(2, 6)
                         await asyncio.sleep(rdm_time)
                         if event == 'mining_simple':
                             result = await self.event_mining_simple(channel)
                         elif event == 'find_item':
                             result = await self.event_find_item(channel)
+                        elif event == 'weather':
+                            result = await self.event_weather(channel)
                             
                         # On adapte la vitesse d'apparition des events en fonction de l'activité sur le serveur
-                        expected_lower, expected_upper = await self.config.EventsExpectedDelay() * 0.8, await self.config.EventsExpectedDelay() * 1.2
-                        if expected_lower > time.time() - cache['last_event']:
+                        expected = await self.config.EventsExpectedDelay()
+                        if expected < time.time() - cache['last_event']:
                             cache['next_event'] = int((cache['next_event'] - 1)  * 0.9)
-                        elif expected_upper < time.time() - cache['last_event']:
+                        elif expected > time.time() - cache['last_event']:
                             cache['next_event'] = int((cache['next_event'] + 1) * 1.1)
                             
                         cache['last_event'] = time.time()

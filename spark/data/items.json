@@ -259,6 +259,21 @@
             "Augmente la limite max. d'énergie que vous pouvez avoir de 40 points"
         ]
     },
+    "kway": {
+        "name": "Coupe-vent",
+        "lore": "Une protection efficace contre la pluie, même s'il n'est pas à votre taille.",
+        "tags": [
+            "equipment"
+        ],
+        "value": 960,
+        "tier": 3,
+        "on_equip": {
+            "protect_against_rain": 0
+        },
+        "details": [
+            "Immunise contre les effets de la pluie (aucun retrait d'énergie)"
+        ]
+    },
 
     "conserve": {
         "name": "Conserve",
@@ -337,13 +352,28 @@
         ],
         "text_on_use": "Ce délicieux cookie vous remplit l'estomac !"
     },
+    "pasta": {
+        "name": "Pâtes",
+        "lore": "L'ingrédient de base pour plein de plats. Pesto vendu séparément.",
+        "tags": [
+            "food"
+        ],
+        "value": 70,
+        "tier": 2,
+        "on_use": {
+            "increase_stamina": 32
+        },
+        "details": [
+            "Régénère 32 pts d'énergie"
+        ]
+    },
     "barrenrj": {
         "name": "Barre énergétique",
         "lore": "Un produit créé à l'origine pour les sportifs, comme vous (?)",
         "tags": [
             "food"
         ],
-        "value": 40,
+        "value": 50,
         "tier": 2,
         "on_use": {
             "increase_stamina": 30
@@ -399,6 +429,7 @@
             "Restaure entièrement votre énergie (100%)"
         ]
     },
+
     "conservespr": {
         "name": "Conserve surprise",
         "lore": "Une boîte de conserve dont on semble en avoir extrait le contenu puis refermée. Je me demande ce qu'elle contient.",

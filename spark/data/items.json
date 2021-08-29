@@ -265,8 +265,8 @@
         "tags": [
             "equipment"
         ],
-        "value": 960,
-        "tier": 3,
+        "value": 450,
+        "tier": 2,
         "on_equip": {
             "protect_against_rain": 0
         },

@@ -23,7 +23,7 @@ from tabulate import tabulate
 
 logger = logging.getLogger("red.RedX.Spark")
 
-VERSION = 'v1.0'
+VERSION = 'v1.1'
 
 SPARK_COLOR, SPARK_ICON = 0xFFF859, 'https://i.imgur.com/ks2gkzd.png'
 

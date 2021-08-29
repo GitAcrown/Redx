@@ -1593,7 +1593,7 @@ class Spark(commands.Cog):
         
         weathertype = random.choice(('rain', 'storm'))
         if weathertype == 'rain':
-            cache = self.get_cache(guild)
+            cache = await self.get_cache(guild)
             for p in cache['stamina_regen']: # On cherche les gens qui ont interagi récemment (< 15m)
                 if cache['stamina_regen'][p] > time.time() - 900:
                     user = guild.get_member(p)

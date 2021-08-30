@@ -1697,7 +1697,7 @@ class Spark(commands.Cog):
                             
                         cache['last_event'] = time.time()
                         cache['next_event_cooldown'] = time.time() + await self.config.guild(guild).Events.get_raw('events_cooldown')
-                        cache['counter'] = 0 if result else cache['counter'] = int(cache['counter'] / 2)
+                        cache['counter'] = 0 if result else int(cache['counter'] / 2)
                         cache['event_ongoing'] = False
                     
             fire = await self.config.guild(guild).Fire()

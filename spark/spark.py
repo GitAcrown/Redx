@@ -571,7 +571,7 @@ class Spark(commands.Cog):
                     typehint += 'ᵉ'
                 if item.on_use:
                     typehint += 'ᵘ'
-                if item.on_burn:
+                if item.on_burn or item.id in list(FUEL_VALUES.keys()):
                     typehint += 'ᶠ'
                 tabl.append((f"{item.name}{typehint}", await self.inventory_get(user, item)))
             else:
@@ -1407,6 +1407,15 @@ class Spark(commands.Cog):
         
         await self.config.DefaultInventorySlots.set(value)
         await ctx.send(f"Succès · Les membres ont désormais {value} slots de base")
+        
+    @spark_owner_settings.command(name='expected')
+    async def set_expected_delay(self, ctx, value: int):
+        """Modifie le temps en secondes visé pour le délai entre deux événements"""
+        if value <= 1:
+            return await ctx.send(f"Erreur · Le temps doit être supérieur ou égal à 1.")
+        
+        await self.config.EventsExpectedDelay.set(value)
+        await ctx.send(f"Succès · Le bot visera désormais un délai de {value}s entre deux événements")
     
     @spark_owner_settings.command(name='staminalimit')
     async def set_stamina_limit(self, ctx, value: int):
@@ -1618,7 +1627,7 @@ class Spark(commands.Cog):
             ))
             em.description = msg
             em.set_thumbnail(url='https://image.flaticon.com/icons/png/512/1146/1146858.png')
-            em.color = 0x2a75f7
+            em.color = 0xa0ecff
         
         elif weathertype == 'storm':
             current = await self.config.guild(guild).Fire()
@@ -1642,7 +1651,7 @@ class Spark(commands.Cog):
                 
             em.description = msg
             em.set_thumbnail(url='https://image.flaticon.com/icons/png/512/1146/1146859.png')
-            em.color = 0xf7562a
+            em.color = 0xfab03c
         
         await channel.send(embed=em, delete_after=45)
         return True
@@ -1668,7 +1677,7 @@ class Spark(commands.Cog):
                     channel = guild.get_channel(channelid)
                     if channel:
                         cache['event_ongoing'] = True
-                        event = random.choices(('mining_simple', 'find_item', 'weather'), weights=(1, 0.2, 0.1), k=1)[0]
+                        event = random.choices(('mining_simple', 'find_item', 'weather'), weights=(1, 0.15, 0.1), k=1)[0]
                         rdm_time = random.randint(2, 6)
                         await asyncio.sleep(rdm_time)
                         if event == 'mining_simple':
@@ -1680,14 +1689,15 @@ class Spark(commands.Cog):
                             
                         # On adapte la vitesse d'apparition des events en fonction de l'activité sur le serveur
                         expected = await self.config.EventsExpectedDelay()
+                        starting = await self.config.guild(guild).Events.get_raw('starting_threshold')
                         if expected < time.time() - cache['last_event']:
-                            cache['next_event'] = int((cache['next_event'] - 1)  * 0.9)
+                            cache['next_event'] = max(round(cache['next_event']  * 0.90), int(starting / 2))
                         elif expected > time.time() - cache['last_event']:
-                            cache['next_event'] = int((cache['next_event'] + 1) * 1.1)
+                            cache['next_event'] = min(round(cache['next_event'] * 1.10), int(starting * 2))
                             
                         cache['last_event'] = time.time()
                         cache['next_event_cooldown'] = time.time() + await self.config.guild(guild).Events.get_raw('events_cooldown')
-                        cache['counter'] = 0
+                        cache['counter'] = 0 if result else cache['counter'] = int(cache['counter'] / 2)
                         cache['event_ongoing'] = False
                     
             fire = await self.config.guild(guild).Fire()

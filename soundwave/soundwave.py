@@ -55,7 +55,7 @@ class Soundwave(commands.Cog):
             return None
     
     async def audio_to_video(self, audio_path: str, image_path: str, output_path: str):
-        com = ['ffmpeg', '-loop', '1', '-i', f'{image_path}', '-i', f'{audio_path}', '-c:v', 'libx264', '-tune', 'stillimage', '-c:a', 'aac', '-b:a', '192k', '-pix_fmt', 'yuv420p', '-shortest', f'{output_path}.mp4']
+        com = ['ffmpeg', '-loop', '1', '-i', f'{image_path}', '-vf', 'scale=360:-1', '-i', f'{audio_path}', '-c:v', 'libx264', '-tune', 'stillimage', '-c:a', 'aac', '-b:a', '192k', '-pix_fmt', 'yuv420p', '-shortest', f'{output_path}.mp4']
         pr = subprocess.Popen(com, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = pr.communicate()
         if pr.returncode != 0:

@@ -41,7 +41,6 @@ class Soundwave(commands.Cog):
         return output_path
             
     @commands.command(name="soundwave")
-    @commands.max_concurrency(1, commands.BucketType.guild())
     async def convert_audio(self, ctx, sound_url: str):
         """Convertir un audio en vidéo"""
         urlkey = sound_url.split("/")[-1]

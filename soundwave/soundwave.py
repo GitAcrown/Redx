@@ -6,6 +6,7 @@ import urllib.request
 from pathlib import Path
 
 import discord
+import requests
 from redbot.core import commands
 from redbot.core.data_manager import cog_data_path
 
@@ -24,6 +25,12 @@ class Soundwave(commands.Cog):
         self.temp = cog_data_path(self) / "temp"
         self.temp.mkdir(exist_ok=True, parents=True)
         
+    def _get_file_type(self, url):
+        h = requests.head(url, allow_redirects=True)
+        header = h.headers
+        content_type = header.get('content-type')
+        return content_type.split("/")[0]    
+    
     def download_mp3(self, url: str, filename: str) -> Path:
         path = self.temp / f"{filename}.mp3"
         try:
@@ -75,7 +82,7 @@ class Soundwave(commands.Cog):
         imagepath = path + "/avatar_{}.jpg".format(ctx.author)
         await ctx.author.avatar_url.save(imagepath)
         
-        outputpath = path + f'/{int(time.time())}_{urlkey}'
+        outputpath = path + f'/{int(time.time())}'
         
         await self.audio_to_video(audiopath, imagepath, outputpath)
         file = discord.File(outputpath)

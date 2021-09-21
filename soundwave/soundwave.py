@@ -66,6 +66,7 @@ class Soundwave(commands.Cog):
                 for attachment in message.attachments:
                     if AUDIO_LINKS.match(attachment.url):
                         audios.append(message)
+                        continue
         return audios
     
     async def audio_to_video(self, audio_path: str, image_path: str, output_path: str):
@@ -110,7 +111,8 @@ class Soundwave(commands.Cog):
         if message.attachments:
             audiopath = await self.download_attachment(message)
         else:
-            audiopath = await self.download_attachment(await self.search_for_audio_messages(ctx)[0])
+            messages = await self.search_for_audio_messages(ctx)
+            audiopath = await self.download_attachment(message[0])
             
         if not audiopath:
             return await ctx.send(f"**Aucun fichier valide** • Aucun fichier audio attaché au message ou fichier trop lourd")

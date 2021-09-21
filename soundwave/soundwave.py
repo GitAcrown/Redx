@@ -75,21 +75,26 @@ class Soundwave(commands.Cog):
             audiopath = await self.download_attachment(ctx.message)
             
         if not audiopath:
-            return await ctx.send(f"**Aucun fichier valide** • Aucun fichier vidéo attaché au message")
+            return await ctx.send(f"**Aucun fichier valide** • Aucun fichier audio attaché au message")
             
+        notif = await ctx.send("⏳ Veuillez patienter pendant la création de votre fichier vidéo...")
+        async with ctx.channel.typing():
         
-        path = str(self.temp)
-        imagepath = path + "/avatar_{}.jpg".format(ctx.author)
-        await ctx.author.avatar_url.save(imagepath)
+            path = str(self.temp)
+            imagepath = path + "/avatar_{}.jpg".format(ctx.author)
+            await ctx.author.avatar_url.save(imagepath)
+            
+            prepath = path + f'/{int(time.time())}'
+            output = await self.audio_to_video(audiopath, imagepath, prepath)
+            outputpath = output + '.mp4'
         
-        outputpath = path + f'/{int(time.time())}'
-        
-        output = await self.audio_to_video(audiopath, imagepath, outputpath)
-        file = discord.File(output + '.mp4')
+        file = discord.File(outputpath)
         try:
             await ctx.reply(file=file, mention_author=False)
         except Exception as e:
             await ctx.send(f"**Impossible** • Je n'ai pas réussi à upload le résultat de votre demandé\n`{e}`")
+        
+        await notif.delete()
         
         for f in (audiopath, imagepath, outputpath):
             os.remove(f)

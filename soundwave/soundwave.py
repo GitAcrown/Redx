@@ -63,7 +63,10 @@ class Soundwave(commands.Cog):
         audios = []
         async for message in ctx.channel.history(limit=10):
             if message.attachments:
-                audios.append(message)
+                for attachment in message.attachments:
+                    if AUDIO_LINKS.match(attachment.url):
+                        audios.append(message)
+                        continue
         return audios
     
     async def audio_to_video(self, audio_path: str, image_path: str, output_path: str):

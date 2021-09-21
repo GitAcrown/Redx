@@ -75,7 +75,7 @@ class Soundwave(commands.Cog):
             audiopath = await self.download_attachment(ctx.message)
             
         if not audiopath:
-            return await ctx.send(f"**Aucun fichier valide** • Aucun fichier audio attaché au message")
+            return await ctx.send(f"**Aucun fichier valide** • Aucun fichier audio attaché au message ou fichier trop lourd")
             
         notif = await ctx.send("⏳ Veuillez patienter pendant la création de votre fichier vidéo...")
         async with ctx.channel.typing():

@@ -62,7 +62,7 @@ class Soundwave(commands.Cog):
             raise ConversionError(f"Erreur lors de la conversion : {pr.returncode} {output} {error}")
         return output_path
             
-    @commands.command(name="soundwave")
+    @commands.command(name="soundwave", aliases=['getvid'])
     async def convert_audio(self, ctx, image_url = None):
         """Convertir un audio en vidéo
         
@@ -73,9 +73,14 @@ class Soundwave(commands.Cog):
         audiopath = None
         imagepath = None
         
+        user = ctx.author
         message = ctx.message
         if ctx.message.reference:
             message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+            user = message.author
+            if message.author == self.bot.user and message.reference:
+                refmsg_ref = await ctx.channel.fetch_message(message.reference.message_id)
+                user = refmsg_ref.author
         
         if image_url:
             if self._get_file_type(image_url) != 'image':
@@ -94,7 +99,6 @@ class Soundwave(commands.Cog):
             return await ctx.send(f"**Aucun fichier valide** • Aucun fichier audio attaché au message ou fichier trop lourd")
         
         if not imagepath:
-            user = message.author
             imagepath = path + "/avatar_{}.jpg".format(user.id)
             await user.avatar_url.save(imagepath)
             

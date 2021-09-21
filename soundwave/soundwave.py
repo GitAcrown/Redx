@@ -46,7 +46,7 @@ class Soundwave(commands.Cog):
     async def download_attachment(self, msg: discord.Message):
         path = str(self.temp)
         seed = str(int(time.time()))
-        if msg.attachments[0].size <= 2e6:
+        if msg.attachments[0].size <= 5e6:
             if self._get_file_type(msg.attachments[0].url) is 'audio':
                 filename = "{}_{}".format(seed, msg.attachments[0].filename)
                 filepath = "{}/{}".format(str(path), filename)
@@ -66,7 +66,7 @@ class Soundwave(commands.Cog):
     async def convert_audio(self, ctx, image_url = None):
         """Convertir un audio en vidéo
         
-        L'audio doit être uploadé avec la commande, ou la commande doit être utilisée en réponse à un message contenant de l'audio
+        L'audio (max. 5 Mo) doit être uploadé avec la commande, ou la commande doit être utilisée en réponse à un message contenant de l'audio
         
         L'image de la vidéo peut être personnalisé en donnant un URL d'image"""
         path = str(self.temp)

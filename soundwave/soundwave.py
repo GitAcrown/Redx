@@ -46,7 +46,7 @@ class Soundwave(commands.Cog):
     async def download_attachment(self, msg: discord.Message):
         path = str(self.temp)
         seed = str(int(time.time()))
-        if msg.attachments[0].size <= 5e6:
+        if msg.attachments[0].size <= 2e6:
             if msg.attachments[0].url.split('.')[-1] in ('mp3', 'wav', 'ogg', 'flac'):
                 filename = "{}_{}".format(seed, msg.attachments[0].filename)
                 filepath = "{}/{}".format(str(path), filename)

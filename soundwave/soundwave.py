@@ -5,12 +5,17 @@ import subprocess
 import time
 
 import aiohttp
+import re
 import discord
 import requests
 from redbot.core import commands
 from redbot.core.data_manager import cog_data_path
 
 logger = logging.getLogger("red.RedX.Soundwave")
+
+AUDIO_LINKS = re.compile(
+    r"(https?:\/\/[^\"\'\s]*\.(?:mp3|ogg|wav|flac)(\?size=[0-9]*)?)", flags=re.I
+)
 
 class ConversionError(Exception):
     """Problème lors de la conversion de l'audio vers la vidéo"""
@@ -54,6 +59,15 @@ class Soundwave(commands.Cog):
                 return filepath
         return None
     
+    async def search_for_audio_messages(self, ctx):
+        audios = []
+        async for message in ctx.channel.history(limit=10):
+            if message.attachments:
+                for attachment in message.attachments:
+                    if AUDIO_LINKS.match(attachment.url):
+                        audios.append(message)
+        return audios
+    
     async def audio_to_video(self, audio_path: str, image_path: str, output_path: str):
         com = ['ffmpeg', '-loop', '1', '-i', f'{image_path}', '-i', f'{audio_path}', '-c:v', 'libx264', '-tune', 'stillimage', '-c:a', 'aac', '-b:a', '192k', '-pix_fmt', 'yuv420p', '-shortest', '-vf', 'scale=360:-1', f'{output_path}.mp4']
         pr = subprocess.Popen(com, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -66,7 +80,7 @@ class Soundwave(commands.Cog):
     async def convert_audio(self, ctx, image_url = None):
         """Convertir un audio en vidéo
         
-        L'audio (max. 5 Mo) doit être uploadé avec la commande, ou la commande doit être utilisée en réponse à un message contenant de l'audio
+        L'audio (max. 2 Mo) doit être uploadé avec la commande, ou la commande doit être utilisée en réponse à un message contenant de l'audio
         
         L'image de la vidéo peut être personnalisé en donnant un URL d'image"""
         path = str(self.temp)
@@ -83,7 +97,7 @@ class Soundwave(commands.Cog):
                 user = refmsg_ref.author
         
         if image_url:
-            if self._get_file_type(image_url) != 'image':
+            if 'http' not in image_url or self._get_file_type(image_url) != 'image':
                 return await ctx.send(f"**Fichier image invalide** • L'URL doit contenir un fichier d'image (png, jpeg etc.)")
             
             urlkey = image_url.split("/")[-1]
@@ -95,6 +109,9 @@ class Soundwave(commands.Cog):
         
         if message.attachments:
             audiopath = await self.download_attachment(message)
+        else:
+            audiopath = await self.download_attachment(await self.search_for_audio_messages(ctx)[0])
+            
         if not audiopath:
             return await ctx.send(f"**Aucun fichier valide** • Aucun fichier audio attaché au message ou fichier trop lourd")
         

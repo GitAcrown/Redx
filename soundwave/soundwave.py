@@ -29,7 +29,7 @@ class Soundwave(commands.Cog):
         h = requests.head(url, allow_redirects=True)
         header = h.headers
         content_type = header.get('content-type')
-        return content_type.split("/")[0]    
+        return content_type.split("/")[0]
     
     async def download_from_url(self, url: str, path: str):
         try:
@@ -47,7 +47,7 @@ class Soundwave(commands.Cog):
         path = str(self.temp)
         seed = str(int(time.time()))
         if msg.attachments[0].size <= 5e6:
-            if self._get_file_type(msg.attachments[0].url) is 'audio':
+            if msg.attachments[0].url.split('.')[-1] in ('mp3', 'wav', 'ogg', 'flac'):
                 filename = "{}_{}".format(seed, msg.attachments[0].filename)
                 filepath = "{}/{}".format(str(path), filename)
                 await msg.attachments[0].save(filepath)

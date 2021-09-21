@@ -62,6 +62,11 @@ class Soundwave(commands.Cog):
     async def convert_audio(self, ctx, url = None):
         """Convertir un audio en vidéo"""
         audiopath = None
+        message = ctx.message
+        
+        if ctx.message.reference:
+            message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+        
         if url:
             if self._get_file_type(url) != 'audio':
                 return await ctx.send(f"**Fichier invalide** • L'URL doit contenir un fichier audio (MP3)")
@@ -71,18 +76,19 @@ class Soundwave(commands.Cog):
                 audiopath = self.download_mp3(url, urlkey)
             except Exception as e:
                 return await ctx.send(f"**Erreur de téléchargement** : `{e}`")
-        elif ctx.message.attachments:
-            audiopath = await self.download_attachment(ctx.message)
+        elif message.attachments:
+            audiopath = await self.download_attachment(message)
             
         if not audiopath:
             return await ctx.send(f"**Aucun fichier valide** • Aucun fichier audio attaché au message ou fichier trop lourd")
             
         notif = await ctx.send("⏳ Veuillez patienter pendant la création de votre fichier vidéo...")
         async with ctx.channel.typing():
-        
+            
+            user = message.author
             path = str(self.temp)
-            imagepath = path + "/avatar_{}.jpg".format(ctx.author)
-            await ctx.author.avatar_url.save(imagepath)
+            imagepath = path + "/avatar_{}.jpg".format(user.id)
+            await user.avatar_url.save(imagepath)
             
             prepath = path + f'/{int(time.time())}'
             output = await self.audio_to_video(audiopath, imagepath, prepath)

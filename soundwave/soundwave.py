@@ -1,10 +1,10 @@
+import asyncio
 import logging
 import os
 import subprocess
 import time
-import urllib.request
-from pathlib import Path
 
+import aiohttp
 import discord
 import requests
 from redbot.core import commands
@@ -31,13 +31,17 @@ class Soundwave(commands.Cog):
         content_type = header.get('content-type')
         return content_type.split("/")[0]    
     
-    def download_mp3(self, url: str, filename: str) -> Path:
-        path = self.temp / f"{filename}.mp3"
+    async def download_from_url(self, url: str, path: str):
         try:
-            urllib.request.urlretrieve(url, path)
-        except:
-            raise
-        return str(path)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as resp:
+                    if resp.status == 200:
+                        data = await resp.read()
+                        with open(path, "wb") as f:
+                            f.write(data)
+                        return resp.headers.get("Content-type", "").lower()
+        except asyncio.TimeoutError:
+            return False
     
     async def download_attachment(self, msg: discord.Message):
         path = str(self.temp)
@@ -59,37 +63,42 @@ class Soundwave(commands.Cog):
         return output_path
             
     @commands.command(name="soundwave")
-    async def convert_audio(self, ctx, url = None):
-        """Convertir un audio en vidéo"""
-        audiopath = None
-        message = ctx.message
+    async def convert_audio(self, ctx, image_url = None):
+        """Convertir un audio en vidéo
         
+        L'audio doit être uploadé avec la commande, ou la commande doit être utilisée en réponse à un message contenant de l'audio
+        
+        L'image de la vidéo peut être personnalisé en donnant un URL d'image"""
+        path = str(self.temp)
+        audiopath = None
+        imagepath = None
+        
+        message = ctx.message
         if ctx.message.reference:
             message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
         
-        if url:
-            if self._get_file_type(url) != 'audio':
-                return await ctx.send(f"**Fichier invalide** • L'URL doit contenir un fichier audio (MP3)")
+        if image_url:
+            if self._get_file_type(image_url) != 'image':
+                return await ctx.send(f"**Fichier image invalide** • L'URL doit contenir un fichier d'image (png, jpeg etc.)")
             
-            urlkey = url.split("/")[-1]
+            urlkey = image_url.split("/")[-1]
             try:
-                audiopath = self.download_mp3(url, urlkey)
+                imagepath = self.download_from_url(image_url, path + f'/{urlkey}')
             except Exception as e:
-                return await ctx.send(f"**Erreur de téléchargement** : `{e}`")
-        elif message.attachments:
+                return await ctx.send(f"**Erreur de téléchargement de l'image** : `{e}`")
+        
+        if message.attachments:
             audiopath = await self.download_attachment(message)
-            
         if not audiopath:
             return await ctx.send(f"**Aucun fichier valide** • Aucun fichier audio attaché au message ou fichier trop lourd")
-            
-        notif = await ctx.send("⏳ Veuillez patienter pendant la création de votre fichier vidéo...")
-        async with ctx.channel.typing():
-            
+        
+        if not imagepath:
             user = message.author
-            path = str(self.temp)
             imagepath = path + "/avatar_{}.jpg".format(user.id)
             await user.avatar_url.save(imagepath)
             
+        notif = await ctx.send("⏳ Veuillez patienter pendant la création de votre fichier vidéo...")
+        async with ctx.channel.typing():
             prepath = path + f'/{int(time.time())}'
             output = await self.audio_to_video(audiopath, imagepath, prepath)
             outputpath = output + '.mp4'

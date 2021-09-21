@@ -113,7 +113,8 @@ class Soundwave(commands.Cog):
         else:
             messages = await self.search_for_audio_messages(ctx)
             if messages:
-                audiopath = await self.download_attachment(messages[0])
+                message = messages[0]
+                audiopath = await self.download_attachment(message)
             
         if not audiopath:
             return await ctx.send(f"**Aucun fichier valide** • Aucun fichier audio attaché au message ou fichier trop lourd")
@@ -130,7 +131,7 @@ class Soundwave(commands.Cog):
         
         file = discord.File(outputpath)
         try:
-            await ctx.reply(file=file, mention_author=False)
+            await message.reply(file=file, mention_author=False)
         except Exception as e:
             await ctx.send(f"**Impossible** • Je n'ai pas réussi à upload le résultat de votre demandé\n`{e}`")
         

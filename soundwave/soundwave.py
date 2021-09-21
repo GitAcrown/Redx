@@ -109,7 +109,8 @@ class Soundwave(commands.Cog):
             audiopath = await self.download_attachment(message)
         else:
             messages = await self.search_for_audio_messages(ctx)
-            audiopath = await self.download_attachment(messages[0])
+            if messages:
+                audiopath = await self.download_attachment(messages[0])
             
         if not audiopath:
             return await ctx.send(f"**Aucun fichier valide** • Aucun fichier audio attaché au message ou fichier trop lourd")

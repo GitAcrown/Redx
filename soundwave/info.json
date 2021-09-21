@@ -1,0 +1,11 @@
+{
+    "author": ["Acrone"],
+	"description": "Convertisseur Audio vers MP4 pour faciliter la lecture",
+	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help Soundwave` pour voir les commandes disponibles",
+	"short": "Convertisseur Audio vers MP4",
+	"tags": ["community", "utility", "audio"],
+    "requirements" : [],
+    "required_cogs": {},
+	"type": "COG",
+	"end_user_data_statement": "This cog does not store personal data."
+}

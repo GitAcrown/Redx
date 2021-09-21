@@ -85,7 +85,7 @@ class Soundwave(commands.Cog):
         outputpath = path + f'/{int(time.time())}'
         
         output = await self.audio_to_video(audiopath, imagepath, outputpath)
-        file = discord.File(output)
+        file = discord.File(output + '.mp4')
         try:
             await ctx.reply(file=file, mention_author=False)
         except Exception as e:

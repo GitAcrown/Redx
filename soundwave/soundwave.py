@@ -54,6 +54,7 @@ class Soundwave(commands.Cog):
     @commands.command(name="soundwave")
     async def convert_audio(self, ctx, url = None):
         """Convertir un audio en vidéo"""
+        audiopath = None
         if url:
             if self._get_file_type(url) != 'audio':
                 return await ctx.send(f"**Fichier invalide** • L'URL doit contenir un fichier audio (MP3)")
@@ -65,8 +66,10 @@ class Soundwave(commands.Cog):
                 return await ctx.send(f"**Erreur de téléchargement** : `{e}`")
         elif ctx.message.attachments:
             audiopath = await self.download_attachment(ctx.message)
-            if not audiopath:
-                return await ctx.send(f"**Aucun fichier valide** • Aucun fichier vidéo attaché au message")
+            
+        if not audiopath:
+            return await ctx.send(f"**Aucun fichier valide** • Aucun fichier vidéo attaché au message")
+            
         
         path = str(self.temp)
         imagepath = path + "/avatar_{}.jpg".format(ctx.author)

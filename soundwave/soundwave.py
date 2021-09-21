@@ -93,9 +93,6 @@ class Soundwave(commands.Cog):
         if ctx.message.reference:
             message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
             user = message.author
-            if message.author == self.bot.user and message.reference:
-                refmsg_ref = await ctx.channel.fetch_message(message.reference.message_id)
-                user = refmsg_ref.author
         
         if image_url:
             if 'http' not in image_url or self._get_file_type(image_url) != 'image':
@@ -118,6 +115,10 @@ class Soundwave(commands.Cog):
             
         if not audiopath:
             return await ctx.send(f"**Aucun fichier valide** • Aucun fichier audio attaché au message ou fichier trop lourd")
+        
+        if message.author == self.bot.user and message.reference:
+            refmsg_ref = await ctx.channel.fetch_message(message.reference.message_id)
+            user = refmsg_ref.author
         
         if not imagepath:
             imagepath = path + "/avatar_{}.jpg".format(user.id)

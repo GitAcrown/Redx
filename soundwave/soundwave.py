@@ -83,7 +83,8 @@ class Soundwave(commands.Cog):
             
             urlkey = image_url.split("/")[-1]
             try:
-                imagepath = self.download_from_url(image_url, path + f'/{urlkey}')
+                await self.download_from_url(image_url, path + f'/{urlkey}')
+                imagepath = path + f'/{urlkey}'
             except Exception as e:
                 return await ctx.send(f"**Erreur de téléchargement de l'image** : `{e}`")
         

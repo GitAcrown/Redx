@@ -32,6 +32,17 @@ class Soundwave(commands.Cog):
             raise
         return str(path)
     
+    async def download_attachment(self, msg: discord.Message):
+        path = str(self.temp)
+        seed = str(int(time.time()))
+        if msg.attachments[0].size <= 1e7:
+            filename = "{}_{}".format(seed, msg.attachments[0].filename)
+            filepath = "{}/{}".format(str(path), filename)
+            await msg.attachments[0].save(filepath)
+            return filepath
+        else:
+            return None
+    
     async def audio_to_video(self, audio_path: str, image_path: str, output_path: str):
         com = ['ffmpeg', '-loop', '1', '-i', f'{image_path}', '-i', f'{audio_path}', '-c:v', 'libx264', '-tune', 'stillimage', '-c:a', 'aac', '-b:a', '192k', '-pix_fmt', 'yuv420p', '-shortest', f'{output_path}.mp4']
         pr = subprocess.Popen(com, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -41,13 +52,21 @@ class Soundwave(commands.Cog):
         return output_path
             
     @commands.command(name="soundwave")
-    async def convert_audio(self, ctx, sound_url: str):
+    async def convert_audio(self, ctx, url = None):
         """Convertir un audio en vidéo"""
-        urlkey = sound_url.split("/")[-1]
-        try:
-            audiopath = self.download_mp3(sound_url, urlkey)
-        except Exception as e:
-            return await ctx.send(f"**Erreur de téléchargement** : `{e}`")
+        if url:
+            if self._get_file_type(url) != 'audio':
+                return await ctx.send(f"**Fichier invalide** • L'URL doit contenir un fichier audio (MP3)")
+            
+            urlkey = url.split("/")[-1]
+            try:
+                audiopath = self.download_mp3(url, urlkey)
+            except Exception as e:
+                return await ctx.send(f"**Erreur de téléchargement** : `{e}`")
+        elif ctx.message.attachments:
+            audiopath = await self.download_attachment(ctx.message)
+            if not audiopath:
+                return await ctx.send(f"**Aucun fichier valide** • Aucun fichier vidéo attaché au message")
         
         path = str(self.temp)
         imagepath = path + "/avatar_{}.jpg".format(ctx.author)

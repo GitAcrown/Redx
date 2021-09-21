@@ -47,12 +47,12 @@ class Soundwave(commands.Cog):
         path = str(self.temp)
         seed = str(int(time.time()))
         if msg.attachments[0].size <= 2e6:
-            filename = "{}_{}".format(seed, msg.attachments[0].filename)
-            filepath = "{}/{}".format(str(path), filename)
-            await msg.attachments[0].save(filepath)
-            return filepath
-        else:
-            return None
+            if self._get_file_type(msg.attachments[0].url) is 'audio':
+                filename = "{}_{}".format(seed, msg.attachments[0].filename)
+                filepath = "{}/{}".format(str(path), filename)
+                await msg.attachments[0].save(filepath)
+                return filepath
+        return None
     
     async def audio_to_video(self, audio_path: str, image_path: str, output_path: str):
         com = ['ffmpeg', '-loop', '1', '-i', f'{image_path}', '-i', f'{audio_path}', '-c:v', 'libx264', '-tune', 'stillimage', '-c:a', 'aac', '-b:a', '192k', '-pix_fmt', 'yuv420p', '-shortest', '-vf', 'scale=360:-1', f'{output_path}.mp4']

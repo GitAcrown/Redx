@@ -372,7 +372,10 @@ class XPay(commands.Cog):
         
         var = await self.balance_variation(user, time.time() - 86400)
         original = account.balance - var if account.balance != var else account.balance
-        prc = round((var / original) * 100, 2)
+        if original != 0:
+            prc = round((var / original) * 100, 2)
+        else:
+            prc = 0.0
         em.add_field(name=f"Variation sur 24h", value=box(f"{humanize_number(var):+} ({prc:+}%)", lang='fix' if var < 0 else 'css'))
         
         rank = await self.get_leaderboard_member_rank(user)

@@ -12,7 +12,7 @@ from tabulate import tabulate
 logger = logging.getLogger("red.RedX.AltGames")
 
 class AltGames(commands.Cog):
-    """Mini-jeux d'origine de l'économie virtuelle AltEco"""
+    """Mini-jeux d'origine de l'économie virtuelle XPay"""
 
     def __init__(self, bot):
         super().__init__()
@@ -36,7 +36,7 @@ class AltGames(commands.Cog):
         `Niv. 2` : 101 - 500 crédits
         `Niv. 3` : 501 - 1000 crédits"""
         author = ctx.author
-        eco = self.bot.get_cog("AltEco")
+        eco = self.bot.get_cog("XPay")
         curr = await eco.get_currency(ctx.guild)
 
         if not mise:
@@ -293,7 +293,7 @@ class AltGames(commands.Cog):
 
         Mise minimale de 10 crédits et maximale de 200"""
         author = ctx.author
-        eco = self.bot.get_cog("AltEco")
+        eco = self.bot.get_cog("XPay")
         curr = await eco.get_currency(ctx.guild)
 
         if 10 <= mise <= 200:

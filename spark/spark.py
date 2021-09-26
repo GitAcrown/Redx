@@ -544,7 +544,7 @@ class Spark(commands.Cog):
     async def display_inventory(self, ctx):
         """Affiche son inventaire"""
         user, guild = ctx.author, ctx.guild
-        eco = self.bot.get_cog('AltEco')
+        eco = self.bot.get_cog('XPay')
         currency = await eco.get_currency(guild)
         account = await eco.get_account(user)
         
@@ -720,7 +720,7 @@ class Spark(commands.Cog):
         if not item:
             return await ctx.reply("**Item inconnu** · Vérifiez le nom ou fournissez directement son ID", mention_author=False)
         
-        eco = self.bot.get_cog('AltEco')
+        eco = self.bot.get_cog('XPay')
         currency = await eco.get_currency(guild)
         
         em = discord.Embed(title=f"**{item.name}** `{item.id}`", color=SPARK_COLOR, timestamp=ctx.message.created_at)
@@ -862,7 +862,7 @@ class Spark(commands.Cog):
             return await ctx.reply(f"**Boutique indisponible** · Aucune boutique n'est disponible actuellement", mention_author=False)
             
         shop = self.shops[shopdata['id']]
-        eco = self.bot.get_cog('AltEco')
+        eco = self.bot.get_cog('XPay')
         currency = await eco.get_currency(guild)
         conf, stop = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
 
@@ -965,7 +965,7 @@ class Spark(commands.Cog):
         if not item:
             return await ctx.reply("**Item inconnu** · Vérifiez le nom ou fournissez directement son ID", mention_author=False)
 
-        eco = self.bot.get_cog('AltEco')
+        eco = self.bot.get_cog('XPay')
         currency = await eco.get_currency(guild)
         if not data.value:
             return await ctx.reply(f"**Item invendable** · Cet item n'a pas de valeur et ne peut donc être vendu à {self.bot.user.name}")
@@ -1023,7 +1023,7 @@ class Spark(commands.Cog):
         `;sell all consommable | food` = Vendre tous les consommables possédés"""
         guild = ctx.guild
         user = ctx.author
-        eco = self.bot.get_cog('AltEco')
+        eco = self.bot.get_cog('XPay')
         currency = await eco.get_currency(guild)
         
         tag = None

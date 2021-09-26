@@ -367,6 +367,20 @@
             "Régénère 32 pts d'énergie"
         ]
     },
+    "wheat": {
+        "name": "Blé",
+        "lore": "Facile à faire pousser, facile à conserver, permet de faire des pâtes : en bref la meilleure chose qui soit sur Terre.",
+        "tags": [
+            "plant",
+            "resource"
+        ],
+        "value": 10,
+        "tier": 1,
+        "details": [
+            "Peut être transformé en Pâtes"
+        ]
+    },
+
     "barrenrj": {
         "name": "Barre énergétique",
         "lore": "Un produit créé à l'origine pour les sportifs, comme vous (?)",

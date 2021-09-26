@@ -469,10 +469,14 @@ class XPay(commands.Cog):
         Les frais de transfert qui ne peuvent être xpayés sont prélevés sur la somme transférée"""
         author = ctx.author
         guild = ctx.guild
+        conf, stop = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
+        
+        if sum < 0:
+            return await ctx.reply(f"{stop} **Impossible** • Vous ne pouvez pas transférer une somme négative")
+        
         currency = await self.get_currency(guild)
         reasonstring = f'{author.name} › {reason}' if reason else f'Don reçu de {author.name}'
         
-        conf, stop = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         settings = await self.config.guild(guild).Settings()
         
         trscount = await self.config.member(author).Config.get_raw('transfer_count')
@@ -484,12 +488,10 @@ class XPay(commands.Cog):
         fee = 0
         if trscount >= settings['FreeTransfersPerWeek']:
             fee = round(sum * settings['TransferFee'])
+            fee = fee if fee else 1
             if not await self.check_balance(member, fee + sum):
                 sum -= fee
-        
-        if not await self.check_balance(member, fee + sum):
-            return await ctx.reply(f"{stop} **Fonds insuffisants** • Vous n'avez pas cette somme sur votre compte")
-    
+                
         try:
             await self.withdraw_credits(author, fee + sum, desc=f'Don à {member.name}')
         except:

@@ -204,7 +204,7 @@ class XPay(commands.Cog):
                                 start: float = time.time() - LOGS_EXPIRATION,
                                 end: float = time.time()) -> int:
         totaldelta = 0
-        for log in await self.member_logs(member):
+        async for log in await self.member_logs(member):
             if start <= log.timestamp <= end:
                 totaldelta += log.delta
                 
@@ -252,7 +252,7 @@ class XPay(commands.Cog):
             yield(Transaction(member, l))
 
     async def get_log(self, member: discord.Member, id: str) -> Transaction:
-        for log in await self.member_logs(member):
+        async for log in await self.member_logs(member):
             if log.id == id:
                 return log
         return None
@@ -274,7 +274,7 @@ class XPay(commands.Cog):
             
     async def clear_logs(self, member: discord.Member) -> dict:
         clean = await self.config.member(member).Logs()
-        for log in await self.member_logs(member):
+        async for log in await self.member_logs(member):
             if log.timestamp + LOGS_EXPIRATION <= time.time():
                 clean.remove(log._raw)
         
@@ -425,7 +425,7 @@ class XPay(commands.Cog):
         Mentionner un autre membre avec la commande permet de consulter son historique"""
         user = user if user else ctx.message.author
         
-        logs = [l for l in await self.member_logs(user)]
+        logs = [l async for l in await self.member_logs(user)]
         if not logs:
             return await ctx.reply(f"**Aucune opération dans l'historique** • Il n'y a aucune opération enregistrée sur ce compte",
                                    mention_author=False)

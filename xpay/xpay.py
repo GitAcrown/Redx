@@ -204,7 +204,8 @@ class XPay(commands.Cog):
                                 start: float = time.time() - LOGS_EXPIRATION,
                                 end: float = time.time()) -> int:
         totaldelta = 0
-        async for log in await self.member_logs(member):
+        logs = [i async for i in await self.member_logs(member)]
+        for log in logs:
             if start <= log.timestamp <= end:
                 totaldelta += log.delta
                 

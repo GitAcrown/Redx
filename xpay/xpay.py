@@ -204,7 +204,7 @@ class XPay(commands.Cog):
                                 start: float = time.time() - LOGS_EXPIRATION,
                                 end: float = time.time()) -> int:
         totaldelta = 0
-        logs = [i async for i in await self.member_logs(member)]
+        logs = await self.member_logs(member)
         for log in logs:
             if start <= log.timestamp <= end:
                 totaldelta += log.delta
@@ -247,13 +247,15 @@ class XPay(commands.Cog):
 
 # TRANSACTIONS -----------------------------------------
 
-    async def member_logs(self, member: discord.Member) -> Transaction:
+    async def member_logs(self, member: discord.Member) -> List[Transaction]:
         raw = await self.config.member(member).Logs()
+        logs = []
         for l in raw:
-            yield(Transaction(member, l))
+            logs.append(Transaction(member, l))
+        return logs
 
     async def get_log(self, member: discord.Member, id: str) -> Transaction:
-        async for log in await self.member_logs(member):
+        for log in await self.member_logs(member):
             if log.id == id:
                 return log
         return None
@@ -275,7 +277,7 @@ class XPay(commands.Cog):
             
     async def clear_logs(self, member: discord.Member) -> dict:
         clean = await self.config.member(member).Logs()
-        async for log in await self.member_logs(member):
+        for log in await self.member_logs(member):
             if log.timestamp + LOGS_EXPIRATION <= time.time():
                 clean.remove(log._raw)
         
@@ -426,7 +428,7 @@ class XPay(commands.Cog):
         Mentionner un autre membre avec la commande permet de consulter son historique"""
         user = user if user else ctx.message.author
         
-        logs = [l async for l in await self.member_logs(user)]
+        logs = await self.member_logs(user)
         if not logs:
             return await ctx.reply(f"**Aucune opération dans l'historique** • Il n'y a aucune opération enregistrée sur ce compte",
                                    mention_author=False)

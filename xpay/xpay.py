@@ -842,8 +842,15 @@ class XPay(commands.Cog):
     @checks.admin_or_permissions(manage_messages=True)
     async def _bank_reset_income_day(self, ctx, user: discord.Member):
         """Reset seulement les données du jour de récolte du revenu"""
-        await self.config.member(user).config.clear_raw('income_day')
+        await self.config.member(user).Config.clear_raw('day')
         await ctx.send(f"**Succès** • Le jour de récolte du revenu de {user.mention} a été réinitialisé")
+        
+    @bank_settings.command(name="resetweek")
+    @checks.admin_or_permissions(manage_messages=True)
+    async def _bank_reset_income_day(self, ctx, user: discord.Member):
+        """Reset seulement les données de semaine du calcul des frais de transfert"""
+        await self.config.member(user).Config.clear_raw('week')
+        await ctx.send(f"**Succès** • La semaine de transferts offerts de {user.mention} a été réinitialisée")
 
     @bank_settings.command(name="resetcache")
     @checks.admin_or_permissions(manage_messages=True)
@@ -851,7 +858,7 @@ class XPay(commands.Cog):
         """Reset les données du cache du compte bancaire du membre
 
         Cela réinitialise les bonus et malus"""
-        await self.config.member(user).config.clear()
+        await self.config.member(user).Config.clear()
         await ctx.send(f"**Succès** • Le cache du compte de {user.mention} a été réinitialisé")
 
     

@@ -382,7 +382,7 @@ class XPay(commands.Cog):
         medal = f' {MEDALS[rank]}' if rank in MEDALS else ''
         em.add_field(name="Rang", value=box(f"#{rank}{medal}", lang='css'))
         
-        logs = await self.get_logs(user)
+        logs = await self.member_logs(user)
         if logs:
             txt = "\n".join([f"{log.delta:+}{'ʳ' if log.refund else ''} · {log.description[:50]}" for log in logs][::-1][:5])
             em.add_field(name=f"Historique", value=box(txt), inline=False)

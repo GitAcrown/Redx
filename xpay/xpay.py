@@ -250,7 +250,6 @@ class XPay(commands.Cog):
         raw = await self.config.member(member).Logs()
         for l in raw:
             yield(Transaction(member, l))
-        return None
 
     async def get_log(self, member: discord.Member, id: str) -> Transaction:
         for log in await self.member_logs(member):

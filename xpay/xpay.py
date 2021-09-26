@@ -376,7 +376,7 @@ class XPay(commands.Cog):
             prc = round((var / original) * 100, 2)
         else:
             prc = 0.0
-        em.add_field(name=f"Variation sur 24h", value=box(f"{humanize_number(var):+} ({prc:+}%)", lang='fix' if var < 0 else 'css'))
+        em.add_field(name=f"Variation sur 24h", value=box(f"{var:+} ({prc:+}%)", lang='fix' if var < 0 else 'css'))
         
         rank = await self.get_leaderboard_member_rank(user)
         medal = f' {MEDALS[rank]}' if rank in MEDALS else ''

@@ -847,7 +847,7 @@ class XPay(commands.Cog):
         
     @bank_settings.command(name="resetweek")
     @checks.admin_or_permissions(manage_messages=True)
-    async def _bank_reset_income_day(self, ctx, user: discord.Member):
+    async def _bank_reset_income_week(self, ctx, user: discord.Member):
         """Reset seulement les données de semaine du calcul des frais de transfert"""
         await self.config.member(user).Config.clear_raw('week')
         await ctx.send(f"**Succès** • La semaine de transferts offerts de {user.mention} a été réinitialisée")

@@ -543,8 +543,9 @@ class XPay(commands.Cog):
             total += income['LowBalance']
             text += f"+{income['LowBalance']} · Majoration solde faible\n"
         
-        if text: 
+        if text:
             text += f'————————————\n={total}{currency}'
+            await self.config.member(author).Config.set_raw('day', value=today)
             await self.deposit_credits(author, total, desc='Aides journalières')
             em = discord.Embed(description=box(text), color=author.color)
             em.set_author(name="Vos aides journalières", icon_url=author.avatar_url)

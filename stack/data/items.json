@@ -1,0 +1,470 @@
+{
+    "stone": {
+        "name": "Pierre",
+        "tags": [
+            "ore"
+        ],
+        "tier": 1,
+        "value": 3
+    },
+    "copper": {
+        "name": "Cuivre",
+        "tags": [
+            "ore"
+        ],
+        "tier": 1,
+        "value": 6
+    },
+    "tin": {
+        "name": "Etain",
+        "tags": [
+            "ore"
+        ],
+        "tier": 1,
+        "value": 9
+    },
+    "iron": {
+        "name": "Fer",
+        "tags": [
+            "ore"
+        ],
+        "tier": 1,
+        "value": 14
+    },
+    "lead": {
+        "name": "Plomb",
+        "tags": [
+            "ore"
+        ],
+        "tier": 1,
+        "value": 20
+    },
+    "salt": {
+        "name": "Sel",
+        "tags": [
+            "ore",
+            "resource"
+        ],
+        "tier": 1,
+        "value": 28
+    },
+    "obsidian": {
+        "name": "Obsidienne",
+        "tags": [
+            "ore"
+        ],
+        "tier": 2,
+        "value": 40
+    },
+    "silver": {
+        "name": "Argent",
+        "tags": [
+            "ore"
+        ],
+        "tier": 2,
+        "value": 45
+    },
+    "gold": {
+        "name": "Or",
+        "tags": [
+            "ore"
+        ],
+        "tier": 2,
+        "value": 60
+    },
+    "platinum": {
+        "name": "Platine",
+        "tags": [
+            "ore"
+        ],
+        "tier": 2,
+        "value": 60
+    },
+    "diamond": {
+        "name": "Diamant",
+        "tags": [
+            "ore"
+        ],
+        "tier": 3,
+        "value": 85
+    },
+    "cobalt": {
+        "name": "Cobalt",
+        "tags": [
+            "ore"
+        ],
+        "tier": 3,
+        "value": 100
+    },
+    "palladium": {
+        "name": "Palladium",
+        "tags": [
+            "ore"
+        ],
+        "tier": 3,
+        "value": 120
+    },
+    "mythril": {
+        "name": "Mythril",
+        "tags": [
+            "ore"
+        ],
+        "tier": 3,
+        "value": 140
+    },
+
+    "coal": {
+        "name": "Charbon",
+        "tags": [
+            "resource"
+        ],
+        "fuel_amount": 20,
+        "value": 10
+    },
+    "wood": {
+        "name": "Bois",
+        "tags": [
+            "resource"
+        ],
+        "fuel_amount": 5,
+        "value": 4
+    },
+
+    "handbag": {
+        "name": "Sac à main",
+        "description": "Pour avoir la classe en toutes circonstances.",
+        "tags": [
+            "equipment"
+        ],
+        "value": 600,
+        "tier": 2,
+        "on_equip": {
+            "extend_inventory": 50
+        },
+        "info": [
+            "[ᵉ] Augmente la capacité de votre inventaire de 50 emplacements"
+        ]
+    },
+    "smallbag": {
+        "name": "Sacoche",
+        "description": "Sacoche stylée, un peu usée néanmoins, venant de l'ancien monde.",
+        "tags": [
+            "equipment"
+        ],
+        "value": 850,
+        "tier": 2,
+        "on_equip": {
+            "extend_inventory": 75
+        },
+        "info": [
+            "[ᵉ] Augmente la capacité de votre inventaire de 75 emplacements"
+        ]
+    },
+    "mediumbag": {
+        "name": "Sac à dos",
+        "description": "Un simple sac à dos qui pourra vous accompagner dans toutes vos aventures, vous, votre singe et votre carte qui parle.",
+        "tags": [
+            "equipment"
+        ],
+        "value": 1250,
+        "tier": 2,
+        "on_equip": {
+            "extend_inventory": 150
+        },
+        "info": [
+            "[ᵉ] Augmente la capacité de votre inventaire de 150 emplacements"
+        ]
+    },
+    "bigbag": {
+        "name": "Sac de randonnée",
+        "description": "Un grand sac de randonnée pour vivre pleinement l'expérience de survivaliste.",
+        "tags": [
+            "equipment"
+        ],
+        "value": 2000,
+        "tier": 3,
+        "on_equip": {
+            "extend_inventory": 300
+        },
+        "info": [
+            "[ᵉ] Augmente la capacité de votre inventaire de 300 emplacements"
+        ]
+    },
+    "totebag": {
+        "name": "Tote Bag",
+        "description": "Un super Tote bag dédicacé d'une célébrité de l'Ancien monde. Vous ne connaissez pas l'origine de la signature, mais ça vous motive à faire quelque chose de votre vie.",
+        "tags": [
+            "equipment"
+        ],
+        "value": 1025,
+        "tier": 3,
+        "on_equip": {
+            "extend_inventory": 90,
+            "enhance_stamina": 10
+        },
+        "info": [
+            "[ᵉ] Augmente la capacité de votre inventaire de 90 emplacements",
+            "[ᵉ] Augmente la limite max. d'énergie que vous pouvez avoir de 10 points"
+        ]
+    },
+    "ringsacri": {
+        "name": "Anneau sacrificiel",
+        "description": "Un anneau rouillé noir un peu louche qui sent le renfermé.",
+        "tags": [
+            "equipment"
+        ],
+        "value": 430,
+        "tier": 3,
+        "on_equip": {
+            "enhance_stamina": 25
+        },
+        "info": [
+            "[ᵉ] Augmente la limite max. d'énergie que vous pouvez avoir de 25 points"
+        ]
+    },
+    "mana": {
+        "name": "Potion de Mana",
+        "description": "Euh, c'est juste de l'eau avec un colorant bleu.",
+        "tags": [
+            "equipment"
+        ],
+        "value": 80,
+        "tier": 1,
+        "on_equip": {
+            "enhance_stamina": 5
+        },
+        "info": [
+            "[ᵉ] Augmente la limite max. d'énergie que vous pouvez avoir de 5 points"
+        ]
+    },
+    "patchcaf": {
+        "name": "Patch de caféine",
+        "description": "Bricolé avec un bout de tissu et de la caféine pure trouvée dans une pharmacie abandonnée.",
+        "tags": [
+            "equipment"
+        ],
+        "value": 270,
+        "tier": 2,
+        "on_equip": {
+            "enhance_stamina": 15
+        },
+        "info": [
+            "[ᵉ] Augmente la limite max. d'énergie que vous pouvez avoir de 15 points"
+        ]
+    },
+    "mp3": {
+        "name": "Lecteur MP3",
+        "description": "Encore en état de marche, il vous assurera motivation et rythme pour les mois à venir.",
+        "tags": [
+            "equipment"
+        ],
+        "value": 960,
+        "tier": 3,
+        "on_equip": {
+            "enhance_stamina": 50
+        },
+        "info": [
+            "[ᵉ] Augmente la limite max. d'énergie que vous pouvez avoir de 50 points"
+        ]
+    },
+    "kway": {
+        "name": "Coupe-vent",
+        "description": "Une protection efficace contre la pluie, même s'il n'est pas à votre taille.",
+        "tags": [
+            "equipment"
+        ],
+        "value": 450,
+        "tier": 2,
+        "on_equip": {
+            "protect_against_rain": 1
+        },
+        "info": [
+            "[ᵉ] Immunise contre les effets de la pluie (aucun retrait d'énergie)"
+        ]
+    },
+
+    "conserve": {
+        "name": "Conserve",
+        "description": "Une boîte de conserve dont l'étiquette a été partiellement arrachée. Sûrement comestible tout de même.",
+        "tags": [
+            "food"
+        ],
+        "value": 55,
+        "tier": 2,
+        "on_use": {
+            "increase_stamina": 25
+        },
+        "info": [
+            "[ᵘ] Régénère 25 pts d'énergie"
+        ]
+    },
+    "conservep": {
+        "name": "Conserve périmée",
+        "description": "Une boîte de conserve dont l'étiquette a été partiellement arrachée. Elle est périmée.",
+        "tags": [
+            "food"
+        ],
+        "value": 5,
+        "tier": 1,
+        "on_use": {
+            "increase_stamina": 5
+        },
+        "info": [
+            "[ᵘ] Régénère 5 pts d'énergie"
+        ]
+    },
+    "biscuit": {
+        "name": "Biscuit basique",
+        "description": "Un petit biscuit peu nutritif mais pas cher.",
+        "tags": [
+            "food"
+        ], 
+        "value": 10,
+        "tier": 1,
+        "on_use": {
+            "increase_stamina": 10
+        },
+        "info": [
+            "[ᵘ] Régénère 10 pts d'énergie"
+        ]
+    },
+    "oatmeal": {
+        "name": "Flocons d'avoine",
+        "description": "De simples flocons d'avoine, même pas sucrés et de premier prix.",
+        "tags": [
+            "food"
+        ], 
+        "value": 30,
+        "tier": 1,
+        "on_use": {
+            "increase_stamina": 20
+        },
+        "info": [
+            "[ᵘ] Régénère 20 pts d'énergie"
+        ]
+    },
+    "banane": {
+        "name": "Banane",
+        "description": "Une banane, génétiquement modifiée pour resister aux catastrophes naturelles.",
+        "tags": [
+            "food"
+        ],
+        "fuel_amount": 3,
+        "value": 20,
+        "tier": 1,
+        "on_use": {
+            "increase_stamina": 15
+        },
+        "info": [
+            "[ᵘ] Régénère 15 pts d'énergie"
+        ]
+    },
+    "cookie": {
+        "name": "Cookie",
+        "description": "Un simple cookie fait avec amour et l'aide d'un KitchenAid™.",
+        "tags": [
+            "food"
+        ],
+        "value": 12,
+        "tier": 1,
+        "on_use": {
+            "increase_stamina": 12
+        },
+        "info": [
+            "[ᵘ] Régénère 12 pts d'énergie"
+        ]
+    },
+    "pasta": {
+        "name": "Pâtes",
+        "description": "L'ingrédient de base pour plein de plats. Pesto vendu séparément.",
+        "tags": [
+            "food"
+        ],
+        "value": 70,
+        "tier": 2,
+        "on_use": {
+            "increase_stamina": 32
+        },
+        "info": [
+            "[ᵘ] Régénère 32 pts d'énergie"
+        ]
+    },
+    "barrenrj": {
+        "name": "Barre énergétique",
+        "description": "Un produit créé à l'origine pour les sportifs, comme vous (?)",
+        "tags": [
+            "food"
+        ],
+        "value": 50,
+        "tier": 2,
+        "on_use": {
+            "increase_stamina": 30
+        },
+        "info": [
+            "[ᵘ] Régénère 30 pts d'énergie"
+        ]
+    },
+    "stampack1": {
+        "name": "StamPack v1",
+        "description": "Avec ça vous soignez même une jambe cassée. Première version du best-seller médical.",
+        "tags": [
+            "food"
+        ],
+        "value": 75,
+        "tier": 2,
+        "on_use": {
+            "boost_stamina": 25
+        },
+        "info": [
+            "[ᵘ] Régénère 25 pts d'énergie",
+            "Ignore la capacité maximale d'énergie"
+        ]
+    },
+    "stampack2": {
+        "name": "StamPack v2",
+        "description": "Version améliorée du StamPack avec deux fois plus d'agents cancérigènes.",
+        "tags": [
+            "food"
+        ],
+        "value": 110,
+        "tier": 3,
+        "on_use": {
+            "boost_stamina": 50
+        },
+        "info": [
+            "[ᵘ] Régénère 50 pts d'énergie",
+            "Ignore la capacité maximale d'énergie"
+        ]
+    },
+    "cheatcode": {
+        "name": "Cheatcode",
+        "description": "Non ce n'est pas de la triche, c'est juste le nom du produit. Barre survitaminée, interdite à l'époque car elle provoquait des crises cardiaques.",
+        "tags": [
+            "food"
+        ],
+        "value": 180,
+        "tier": 3,
+        "on_use": {
+            "restore_stamina": 0
+        },
+        "info": [
+            "[ᵘ] Restaure entièrement votre énergie (100%)"
+        ]
+    },
+
+    "conservespr": {
+        "name": "Conserve surprise",
+        "description": "Une boîte de conserve dont on semble en avoir extrait le contenu puis refermée. Je me demande ce qu'elle contient.",
+        "tags": [
+            "misc"
+        ],
+        "value": 25,
+        "tier": 2,
+        "on_use": {
+            "random_items_from_tags": ["food"]
+        },
+        "info": [
+            "[ᵘ] Donne un item consommable au hasard"
+        ]
+    }
+}

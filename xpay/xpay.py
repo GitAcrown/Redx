@@ -82,7 +82,7 @@ class Transaction:
     def description(self):
         poss_desc = [k for k in self.__dict__ if k in ('description', 'desc', 'reason')]
         if poss_desc:
-            return self.info[poss_desc[0]]
+            return self._raw[poss_desc[0]]
         return '...'
     
     def ftimestamp(self, fmt: str = '%d/%m/%Y %H:%M'):
@@ -368,7 +368,7 @@ class XPay(commands.Cog):
         em = discord.Embed(color=user.color)
         em.set_author(name=f'{user.name}' if user != ctx.author else "Votre compte", icon_url=user.avatar_url)
         
-        em.add_field(name="Solde", value=box(f"{account.humanize_balance()} {currency}"))
+        em.add_field(name="Solde", value=box(f"{account.humanize_balance()}{currency}"))
         
         var = await self.balance_variation(user, time.time() - 86400)
         original = account.balance - var if account.balance != var else account.balance
@@ -410,7 +410,7 @@ class XPay(commands.Cog):
         income = data['Income']
         incometxt = f"**Base d'aide** · {income['Base']}{currency}\n"
         if income['BaseLimit']:
-            incometxt += f"› Solde maximal son attribution · {income['BaseLimit']}{currency}\n"
+            incometxt += f"› Solde maximal pour son attribution · {income['BaseLimit']}{currency}\n"
         incometxt += f"**Booster du serveur** · {income['Booster']}{currency}\n"
         incometxt += f"**Solde faible** · {income['LowBalance']}{currency}\n"
         incometxt += f"› Solde considéré comme faible · Inf. à {income['LowBalanceLimit']}{currency}"

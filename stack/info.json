@@ -1,0 +1,11 @@
+{
+    "author": ["Acrone"],
+	"description": "Simulateur de vie virtuelle sur une planète inhospitalière",
+	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help Spark` pour voir les commandes disponibles.",
+	"short": "Simulateur de vie",
+	"tags": ["fun", "economy", "games"],
+    "requirements" : [],
+    "required_cogs": {},
+	"type": "COG",
+	"end_user_data_statement": "This cog does not store personal data."
+}

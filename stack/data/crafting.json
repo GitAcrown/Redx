@@ -1,0 +1,12 @@
+{
+    "barrenrj": {
+        "input": {
+            "banane": 1,
+            "biscuit": 1,
+            "oatmeal": 2
+        },
+        "output_amount": 1,
+        "stamina_use": [6, 3, 0.25],
+        "success_rate": [0.75, 1.0, 0.05]
+    }
+}

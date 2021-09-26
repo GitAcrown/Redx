@@ -532,21 +532,21 @@ class XPay(commands.Cog):
             return await ctx.reply(embed=em, mention_author=False)
         
         if income['BaseLimit'] and account.balance > income['BaseLimit']:
-            text += f"+0 · Base d'aide journalière (Solde trop élevé)\n"
+            text += f"+ 0 · Base d'aide journalière (Solde trop élevé)\n"
         else:
             total += income['Base']
-            text += f"+{income['Base']} · Base d'aide journalière\n"
+            text += f"+ {income['Base']} · Base d'aide journalière\n"
         
         if ctx.author.premium_since:
             total += income['Booster']
-            text += f"+{income['Booster']} · Booster du serveur\n"
+            text += f"+ {income['Booster']} · Booster du serveur\n"
         
         if account.balance < income['LowBalanceLimit']:
             total += income['LowBalance']
-            text += f"+{income['LowBalance']} · Majoration solde faible\n"
+            text += f"+ {income['LowBalance']} · Majoration solde faible\n"
         
         if text:
-            text += f'————————————\n={total}{currency}'
+            text += f'————————————\n= {total}{currency}'
             await self.config.member(author).Config.set_raw('day', value=today)
             await self.deposit_credits(author, total, desc='Aides journalières')
             em = discord.Embed(description=box(text), color=author.color)

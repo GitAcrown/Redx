@@ -201,11 +201,13 @@ class XPay(commands.Cog):
         return await self.config.member(member).Balance()
     
     async def balance_variation(self, member: discord.Member, 
-                                start: float = time.time() - LOGS_EXPIRATION,
-                                end: float = time.time()) -> int:
+                                relative_start: int = LOGS_EXPIRATION,
+                                relative_end: int = 0) -> int:
         totaldelta = 0
-        logs = await self.member_logs(member)
-        for log in logs:
+        start = time.time() - relative_start
+        end = time.time() - relative_end
+        
+        for log in await self.member_logs(member):
             if start <= log.timestamp <= end:
                 totaldelta += log.delta
                 
@@ -370,7 +372,7 @@ class XPay(commands.Cog):
         
         em.add_field(name="Solde", value=box(f"{account.humanize_balance()}{currency}"))
         
-        var = await self.balance_variation(user, time.time() - 86400)
+        var = await self.balance_variation(user, 86400)
         original = account.balance - var if account.balance != var else account.balance
         if original != 0:
             prc = round((var / original) * 100, 2)

@@ -59,7 +59,7 @@ class Fetcher(commands.Cog):
             if source not in sources:
                 return await ctx.reply("**Source invalide** · Utilisez `;mugshot sources` pour avoir une liste des sources de mugshot disponibles")
         else:
-            random.choice(sources)
+            source = random.choice(sources)
         
         async with ctx.typing():
             getms = requests.get(f"http://www.jailbase.com/api/1/recent/?source_id={source}")

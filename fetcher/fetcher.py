@@ -140,7 +140,7 @@ class Fetcher(commands.Cog):
                 if ms['details']:
                     details = '\n'.join([f"{c[0].upper()} : {c[1]}" for c in ms['details']])
                     em.add_field(name="Détails [EN]", value=box(details))
-                em.set_footer(text=f"{n}/{len(mugshots)} · {ms['countystate']} ({source})")
+                em.set_footer(text=f"{n}/{len(mugshots)} · {ms['county_state']} ({source})")
                 n += 1
                 embeds.append(em)
             

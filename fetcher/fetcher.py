@@ -37,17 +37,18 @@ class Fetcher(commands.Cog):
         return None
         
     @commands.group(name='mugshot', invoke_without_command=True)
-    async def get_mugshot(self, ctx, source: str = None):
+    async def mugshots(self, ctx, source: str = None):
         """Obtenir des mugshots de réels prisonniers américain (par défaut cherche dans les plus récents)
         
         Données provenant de JailBase.com"""
         if ctx.invoked_subcommand is None:
-            return await ctx.invoke(self.recent_mugshot, source=source)
+            return await ctx.invoke(self.get_mugshot, source=source)
 
-    @get_mugshot.command(name='recent')
-    async def recent_mugshot(self, ctx, source: str = None):
-        """Obtenir les mugshots des prisonniers récents provenant d'une source donnée
+    @mugshots.command(name='get')
+    async def get_mugshot(self, ctx, source: str = None, lastname: str = None):
+        """Obtenir les mugshots des prisonniers provenant d'une source donnée
         
+        Il est possible de préciser un nom de famille à rechercher dans la source
         Si aucune source n'est sélectionnée, vous obtiendrez des mugshots d'une source au hasard"""
         sources = self.jailbase_sources()
         if not sources:
@@ -61,10 +62,18 @@ class Fetcher(commands.Cog):
         
         embeds = []
         async with ctx.typing():
-            getms = requests.get(f"http://www.jailbase.com/api/1/recent/?source_id={source}")
+            if not lastname:
+                getms = requests.get(f"http://www.jailbase.com/api/1/recent/?source_id={source}")
+            else:
+                getms = requests.get(f"http://www.jailbase.com/api/1/recent/?source_id={source}&last_name={lastname}")
+                
             if getms.status_code != 200:
                 await ctx.reply(f"**Source hors-ligne** · Il est impossible de récupérer de mugshots de `{source}`, réessayez plus tard")
-            data = getms.json()
+            try:
+                data = getms.json()
+            except:
+                return await ctx.reply("**Aucun Mugshot disponible** · Cette source n'offre pas de mugshot récent actuellement")
+            
             if data['status'] != 1:
                 return await ctx.reply("**Aucun Mugshot disponible** · Cette source n'offre pas de mugshot récent actuellement")
             
@@ -89,7 +98,7 @@ class Fetcher(commands.Cog):
         else:
             return await ctx.reply("**Aucun Mugshot disponible** · Cette source n'offre pas de mugshot récent actuellement")
             
-    @get_mugshot.command(name='sources')
+    @mugshots.command(name='sources')
     async def sources_mugshot(self, ctx):
         """Obtenir la liste des sources de mugshots"""
         await ctx.reply(f"**Liste des sources de mugshot disponibles** · <https://www.jailbase.com/api/#sources_list>")
@@ -100,8 +109,6 @@ class Fetcher(commands.Cog):
         
         Limité à 100 pages par mois et 2 par minute"""
         key = await self.config.ScreenShotLayerKey()
-        if 'http' not in url:
-            return await ctx.reply("**URL invalide** · Ce que vous avez donné ne semble pas être une URL valable")
         encoded = quote(url, safe='')
         r = f"http://api.screenshotlayer.com/api/capture?access_key={key}&url={encoded}&viewport=1440x900&fullpage=1"
         async with ctx.typing():

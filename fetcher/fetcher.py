@@ -37,12 +37,12 @@ class Fetcher(commands.Cog):
         return None
         
     @commands.group(name='mugshot', invoke_without_command=True)
-    async def mugshots(self, ctx, source: str = None, lastname: str = None):
+    async def mugshots(self, ctx, source: str = None):
         """Obtenir des mugshots de réels prisonniers américain (par défaut cherche dans les plus récents)
         
         Données provenant de JailBase.com"""
         if ctx.invoked_subcommand is None:
-            return await ctx.invoke(self.get_mugshot, source=source)
+            return await ctx.invoke(self.recent_mugshot, source=source)
 
     @mugshots.command(name='recent')
     async def recent_mugshot(self, ctx, source: str = None):

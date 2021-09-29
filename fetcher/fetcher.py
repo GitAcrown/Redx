@@ -62,32 +62,32 @@ class Fetcher(commands.Cog):
             random.choice(sources)
         
         async with ctx.typing():
-            get = requests.get(f"http://www.JailBase.com/api/1/recent/?source_id={source}")
-            if get.status_code != 200:
-                return await ctx.reply("**API Hors-ligne** · Il est impossible de récupérer de mugshots, réessayez plus tard")
-            
-            data = get.json()
-            if data['status'] != 1:
-                return await ctx.reply("**Aucun Mugshot disponible** · Cette source n'offre pas de mugshot récent actuellement")
-            
-            mugshots = data['records']
-            embeds = []
-            n = 1
-            for ms in mugshots:
-                em = discord.Embed(title=f"{ms['name']}", color=await ctx.embed_color())
-                date = datetime.now().strptime(ms['book_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-                em.set_thumbnail(url=ms['mugshot'])
-                em.add_field(name="Enregistré le", value=box(date))
-                charges = '\n'.join(ms['charges'])
-                em.add_field(name="Inculpé.e de [EN]", value=box(charges))
-                em.set_footer(text=f"{n}/{len(mugshots)} · {data['jail']['city']}, {data['jail']['state']}")
-                n += 1
-                embeds.append(em)
-            
-            if embeds:
-                await menu(ctx, embeds, DEFAULT_CONTROLS)
+            getms = requests.get(f"http://www.jailbase.com/api/1/recent/?source_id={source}")
+            if getms.status_code == 200:
+                data = getms.json()
+                if data['status'] != 1:
+                    return await ctx.reply("**Aucun Mugshot disponible** · Cette source n'offre pas de mugshot récent actuellement")
+                
+                mugshots = data['records']
+                embeds = []
+                n = 1
+                for ms in mugshots:
+                    em = discord.Embed(title=f"{ms['name']}", color=await ctx.embed_color())
+                    date = datetime.now().strptime(ms['book_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
+                    em.set_thumbnail(url=ms['mugshot'])
+                    em.add_field(name="Enregistré le", value=box(date))
+                    charges = '\n'.join(ms['charges'])
+                    em.add_field(name="Inculpé.e de [EN]", value=box(charges))
+                    em.set_footer(text=f"{n}/{len(mugshots)} · {data['jail']['city']}, {data['jail']['state']}")
+                    n += 1
+                    embeds.append(em)
+                
+                if embeds:
+                    await menu(ctx, embeds, DEFAULT_CONTROLS)
+                else:
+                    return await ctx.reply("**Aucun Mugshot disponible** · Cette source n'offre pas de mugshot récent actuellement")
             else:
-                return await ctx.reply("**Aucun Mugshot disponible** · Cette source n'offre pas de mugshot récent actuellement")
+                await ctx.reply("**API Hors-ligne** · Il est impossible de récupérer de mugshots, réessayez plus tard")
             
     @get_mugshot.command(name='sources')
     async def sources_mugshot(self, ctx):

@@ -120,10 +120,10 @@ class Fetcher(commands.Cog):
             try:
                 data = getms.json()
             except:
-                return await ctx.reply("**Aucun Mugshot disponible** · La recherche n'a rien donné")
+                return await ctx.reply(f"**Aucun Mugshot disponible** · La recherche n'a rien donné pour la source `{source}`")
             
             if data['status'] != 1:
-                return await ctx.reply("**Aucun Mugshot disponible** · La recherche n'a rien donné")
+                return await ctx.reply(f"**Aucun Mugshot disponible** · La recherche n'a rien donné pour la source `{source}`")
             
             mugshots = data['records']
             n = 1
@@ -147,7 +147,7 @@ class Fetcher(commands.Cog):
         if embeds:
             await menu(ctx, embeds, DEFAULT_CONTROLS)
         else:
-            return await ctx.reply("**Aucun Mugshot disponible** · La recherche n'a rien donné")
+            return await ctx.reply(f"**Aucun Mugshot disponible** · La recherche n'a rien donné pour la source `{source}`")
             
     @mugshots.command(name='sources')
     async def sources_mugshot(self, ctx):

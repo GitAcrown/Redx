@@ -77,8 +77,11 @@ class Fetcher(commands.Cog):
                     em.set_thumbnail(url=ms['mugshot'])
                     em.add_field(name="Enregistré le", value=box(date))
                     charges = '\n'.join(ms['charges'])
-                    em.add_field(name="Inculpé.e de [EN]", value=box(charges))
-                    em.set_footer(text=f"{n}/{len(mugshots)} · {data['jail']['city']}, {data['jail']['state']}")
+                    if charges:
+                        em.add_field(name="Inculpé.e de [EN]", value=box(charges))
+                    else:
+                        em.add_field(name="Inculpé.e de [EN]", value=box('Vide'))
+                    em.set_footer(text=f"{n}/{len(mugshots)} · {data['jail']['city']}, {data['jail']['state']} ({source})")
                     n += 1
                     embeds.append(em)
                 

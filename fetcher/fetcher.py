@@ -30,7 +30,7 @@ class Fetcher(commands.Cog):
         
 # MUGSHOTS ==============================================================    
     
-    def jailbase_sources():
+    def jailbase_sources(self):
         sources = "https://www.jailbase.com/api/1/sources/"
         data = requests.get(sources)
         if data.status_code == 200:
@@ -88,3 +88,8 @@ class Fetcher(commands.Cog):
                 await menu(ctx, embeds, DEFAULT_CONTROLS)
             else:
                 return await ctx.reply("**Aucun Mugshot disponible** · Cette source n'offre pas de mugshot récent actuellement")
+            
+    @get_mugshot.command(name='sources')
+    async def sources_mugshot(self, ctx):
+        """Obtenir la liste des sources de mugshots"""
+        await ctx.reply(f"**Liste des sources de mugshot disponibles** · <https://www.jailbase.com/api/#sources_list>")

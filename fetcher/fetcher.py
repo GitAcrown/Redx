@@ -104,10 +104,10 @@ class Fetcher(commands.Cog):
             return await ctx.reply("**URL invalide** · Ce que vous avez donné ne semble pas être une URL valable")
         encoded = quote(url, safe='')
         r = f"http://api.screenshotlayer.com/api/capture?access_key={key}&url={encoded}&viewport=1440x900&fullpage=1"
-        getdata = requests.get(r)
-        data = getdata.json()
-        if str(data.content).startswith("b'{"):
-            error = data.json()['error']['type']
+        async with ctx.typing():
+            getdata = requests.get(r)
+        if str(getdata.content).startswith("b'{"):
+            error = getdata.json()['error']['type']
             return await ctx.reply(f"**Erreur avec l'API** · `{error}`")
         
         em = discord.Embed(description=f'Screenshot de `{url}`', timestamp=ctx.message.created_at)

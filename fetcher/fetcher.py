@@ -1,17 +1,13 @@
-import asyncio
 import logging
 import random
 import requests
+from requests.utils import quote
 
 import discord
-import json
 from datetime import datetime
 
-from redbot.core import Config, commands
+from redbot.core import Config, commands, checks
 from redbot.core.utils.chat_formatting import box
-from redbot.core.utils.menus import start_adding_reactions
-from tabulate import tabulate
-from redbot.core.data_manager import bundled_data_path
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 
 logger = logging.getLogger("red.RedX.Fetcher")
@@ -24,7 +20,9 @@ class Fetcher(commands.Cog):
         self.bot = bot
         self.config = Config.get_conf(self, identifier=736144321857978388, force_registration=True)
 
-        default_global = {}
+        default_global = {
+            'ScreenShotLayerKey': ''
+        }
         self.config.register_global(**default_global)
         
         
@@ -95,3 +93,35 @@ class Fetcher(commands.Cog):
     async def sources_mugshot(self, ctx):
         """Obtenir la liste des sources de mugshots"""
         await ctx.reply(f"**Liste des sources de mugshot disponibles** · <https://www.jailbase.com/api/#sources_list>")
+        
+    @commands.command(name='webscreen')
+    async def screenshot_website(self, ctx, url: str):
+        """Renvoie un screen de la page web demandée
+        
+        Limité à 100 pages par mois et 2 par minute"""
+        key = await self.config.ScreenShotLayerKey()
+        if 'http' not in url:
+            return await ctx.reply("**URL invalide** · Ce que vous avez donné ne semble pas être une URL valable")
+        encoded = quote(url, safe='')
+        r = f"http://api.screenshotlayer.com/api/capture?access_key={key}&url={encoded}&viewport=1440x900&fullpage=1"
+        getdata = requests.get(r)
+        data = getdata.json()
+        if str(data.content).startswith("b'{"):
+            error = data.json()['error']['type']
+            return await ctx.reply(f"**Erreur avec l'API** · `{error}`")
+        
+        em = discord.Embed(description=f'Screenshot de `{url}`', timestamp=ctx.message.created_at)
+        em.set_image(url=r)
+        await ctx.reply(embed=em, mention_author=False)
+        
+    @commands.group(name="fetcherset")
+    @checks.is_owner()
+    async def fetcher_settings(self, ctx):
+        """Paramètres de propriétaire Fetcher"""
+        
+    @fetcher_settings.command(name="screenapikey")
+    async def set_screenshot_api_key(self, ctx, key: str):
+        """Change la clef utilisée pour l'api ScreenShotLayer"""
+        await self.config.ScreenShotLayerKey.set(key)
+        await ctx.send("**Clef modifiée** · La clef donnée sera désormais utilisée pour l'API de ScreenshotLayer")
+            

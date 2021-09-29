@@ -79,7 +79,7 @@ class Fetcher(commands.Cog):
             for ms in mugshots:
                 em = discord.Embed(title=f"{ms['name']}", color=await ctx.embed_color())
                 date = datetime.now().strptime(ms['book_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-                em.set_thumbnail(url=ms['mugshot'])
+                em.set_image(url=ms['mugshot'])
                 em.add_field(name="Enregistré le", value=box(date))
                 if ms['charges']:
                     charges = '\n'.join([f"{ms['charges'].index(c) + 1}. {c}" for c in ms['charges']])
@@ -130,7 +130,7 @@ class Fetcher(commands.Cog):
             for ms in mugshots:
                 em = discord.Embed(title=f"{ms['name']}", color=await ctx.embed_color())
                 date = datetime.now().strptime(ms['book_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
-                em.set_thumbnail(url=ms['mugshot'])
+                em.set_image(url=ms['mugshot'])
                 em.add_field(name="Enregistré le", value=box(date))
                 if ms['charges']:
                     charges = '\n'.join([f"{ms['charges'].index(c) + 1}. {c}" for c in ms['charges']])

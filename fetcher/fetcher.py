@@ -77,8 +77,8 @@ class Fetcher(commands.Cog):
                 date = datetime.now().strptime(ms['book_date'], '%Y-%m-%d').strftime('%d/%m/%Y')
                 em.set_thumbnail(url=ms['mugshot'])
                 em.add_field(name="Enregistré le", value=box(date))
-                charges = '\n'.join(ms['charges'])
-                if charges:
+                if ms['charges']:
+                    charges = '\n'.join([f"{ms['charges'].index(c) + 1}. {c}" for c in ms['charges']])
                     em.add_field(name="Inculpé.e de [EN]", value=box(charges))
                 else:
                     em.add_field(name="Inculpé.e de [EN]", value=box('Vide'))

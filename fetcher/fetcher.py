@@ -53,13 +53,14 @@ class Fetcher(commands.Cog):
         sources = self.jailbase_sources()
         if not sources:
             return await ctx.reply("**API Hors-ligne** · Il est impossible de récupérer les sources de mugshot, réessayez plus tard")
-        if source:
+        
+        if not source or source == '':
+            source = random.choice(sources)
+        else:
             source = source.lower()
             if source not in sources:
                 return await ctx.reply("**Source invalide** · Utilisez `;mugshot sources` pour avoir une liste des sources de mugshot disponibles")
-        else:
-            source = random.choice(sources)
-        
+            
         embeds = []
         async with ctx.typing():
             if not lastname:

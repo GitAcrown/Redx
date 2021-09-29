@@ -66,7 +66,7 @@ class Fetcher(commands.Cog):
             if not lastname:
                 getms = requests.get(f"http://www.jailbase.com/api/1/recent/?source_id={source}")
             else:
-                getms = requests.get(f"http://www.jailbase.com/api/1/recent/?source_id={source}&last_name={lastname}")
+                getms = requests.get(f"http://www.jailbase.com/api/1/search/?source_id={source}&last_name={lastname}")
                 
             if getms.status_code != 200:
                 return await ctx.reply(f"**Source hors-ligne** · Il est impossible de récupérer de mugshots de `{source}`, réessayez plus tard")

@@ -87,7 +87,7 @@ class Fetcher(commands.Cog):
                 else:
                     return await ctx.reply("**Aucun Mugshot disponible** · Cette source n'offre pas de mugshot récent actuellement")
             else:
-                await ctx.reply("**API Hors-ligne** · Il est impossible de récupérer de mugshots, réessayez plus tard")
+                await ctx.reply(f"**Source hors-ligne** · Il est impossible de récupérer de mugshots de `{source}`, réessayez plus tard")
             
     @get_mugshot.command(name='sources')
     async def sources_mugshot(self, ctx):

@@ -610,7 +610,8 @@ class XPay(commands.Cog):
         async with ctx.typing():
             await ctx.message.delete()
             
-            em = discord.Embed(title="Contenu du code", description=box(f'{value}{currency}', lang='css'), color=author.color)
+            em = discord.Embed(description=box(f'{value}{currency}', lang='css'), color=author.color)
+            em.set_author(name="Contenu du code", icon_url=author.avatar_url)
             em.set_footer(text="› Récupérer ?")
             msg = await ctx.send(embed=em)
         
@@ -631,6 +632,7 @@ class XPay(commands.Cog):
             await self.deposit_credits(author, value, desc="Code cadeau récupéré")
             em.set_footer(text=f"{value}{currency} ont été transférés sur votre compte")
             await msg.edit(embed=em)
+            await msg.delete(delay=10)
         
         else:
             em.set_footer(text=f"Le contenu n'a pas été transféré sur votre compte")

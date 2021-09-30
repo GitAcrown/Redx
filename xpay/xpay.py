@@ -706,7 +706,7 @@ class XPay(commands.Cog):
         else:
             await ctx.reply(f"**Solde modifié** • Le nouveau solde de {member.mention} est {value}{currency}", mention_author=False)
     
-    @edit_bank_account.command(name="searchtrs")
+    @edit_bank_account.command(name="search")
     async def transaction_search(self, ctx, member: discord.Member, *search):
         """Chercher une transaction en particulier pour obtenir son ID"""
         logs = await self.member_logs(member)
@@ -726,8 +726,8 @@ class XPay(commands.Cog):
             return await ctx.reply("**Erreur** • Vous devez rentrer du texte ou une valeur pour rechercher une transaction", mention_author=False)
         
         tabl = []
-        for log in logs[::-1][:20]:
-            if log.delta == value or len([i for i in log.description.split() if i.lower() in [e for e in text]]) > 0:
+        for log in [l for l in logs[::-1][:20] if l.description]:
+            if log.delta == value or len([e for e in text if e in log.description.lower()]) > 0:
                 tabl.append((log.id, log.ftimestamp('%d/%m/%Y %H:%M'), log.delta))
             
         if tabl:
@@ -742,7 +742,7 @@ class XPay(commands.Cog):
     async def refund_transaction(self, ctx, member: discord.Member, transaction_id: str):
         """Rembourser une opération pour le membre visé
         
-        Pour obtenir l'ID de l'opération, utilisez la sous-commande `searchtrs`"""
+        Pour obtenir l'ID de l'opération, utilisez la sous-commande `search`"""
         currency = await self.get_currency(ctx.guild)
         log = await self.get_log(member, transaction_id)
         if not log:

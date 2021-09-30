@@ -673,8 +673,9 @@ class XPay(commands.Cog):
         
         Il est possible de préciser une raison après la somme"""
         currency = await self.get_currency(ctx.guild)
+        reasonstring = f'{ctx.author.name} +› {reason}' if reason else f'{ctx.author.name} +› Ajout de crédits'
         try:
-            await self.deposit_credits(member, value, desc=reason)
+            await self.deposit_credits(member, value, desc=reasonstring)
         except:
             return await ctx.reply("**Erreur** • Impossible d'ajouter cette somme au solde du membre", mention_author=False)
         else:
@@ -686,8 +687,9 @@ class XPay(commands.Cog):
         
         Il est possible de préciser une raison après la somme"""
         currency = await self.get_currency(ctx.guild)
+        reasonstring = f'{ctx.author.name} -› {reason}' if reason else f'{ctx.author.name} -› Ajout de crédits'
         try:
-            await self.withdraw_credits(member, value, desc=reason)
+            await self.withdraw_credits(member, value, desc=reasonstring)
         except:
             return await ctx.reply("**Erreur** • Impossible de retirer cette somme au solde du membre", mention_author=False)
         else:
@@ -699,8 +701,9 @@ class XPay(commands.Cog):
         
         Il est possible de préciser une raison après la somme"""
         currency = await self.get_currency(ctx.guild)
+        reasonstring = f'{ctx.author.name} !› {reason}' if reason else f'{ctx.author.name} !› Ajout de crédits'
         try:
-            await self.set_balance(member, value, desc=reason)
+            await self.set_balance(member, value, desc=reasonstring)
         except:
             return await ctx.reply("**Erreur** • La somme est invalide", mention_author=False)
         else:

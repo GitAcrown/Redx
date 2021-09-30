@@ -292,8 +292,7 @@ class XPay(commands.Cog):
     async def get_giftcode(self, guild: discord.Guild, code: str) -> int:
         codes = await self.config.guild(guild).Giftcodes()
         if code not in codes:
-            raise KeyError(f"'{code}' n'existe pas dans les codes cadeaux sur {guild.name}")
-        
+            return None
         return codes[code]
     
     async def create_giftcode(self, guild: discord.Guild, code: str, value: int) -> str:
@@ -593,6 +592,7 @@ class XPay(commands.Cog):
         else:
             await ctx.send("Il n'y a aucun top à afficher car aucun membre ne possède de crédits.")
     
+    
     @commands.command(name="redeem")
     @commands.guild_only()
     async def redeem_code(self, ctx, code: str):
@@ -661,41 +661,99 @@ class XPay(commands.Cog):
         else:
             await ctx.reply("**Code créé** • Le reçu vous a été envoyé par MP pour raisons de sécurité")
         
-    @commands.command(name='editbalance', aliases=['bedit'])
+        
+    @commands.group(name="editaccount", aliases=["bacc"])
     @checks.admin_or_permissions(manage_messages=True)
-    async def edit_balance(self, ctx, member: discord.Member, modif: str = None, *, reason: str = None):
-        """Modifier manuellement le solde d'un membre
+    async def edit_bank_account(self, ctx):
+        """Groupe de commandes permettant d'effectuer des opérations sur le compte d'un membre"""
         
-        Ne rien mettre permet de consulter le solde du membre
+    @edit_bank_account.command(name="deposit")
+    async def edit_deposit_credits(self, ctx, member: discord.Member, value: int,  *, reason: str = None):
+        """Déposer des crédits sur le compte du membre
         
-        __Opérations :__
-        `X` = Mettre le solde du membre à X
-        `+X` = Ajouter X crédits au solde du membre
-        `-X` = Retirer X crédits au solde du membre"""
-        if not modif:
-            return await ctx.send(f"**Info** • Le solde de {member.name} est de **{await self.get_balance(member)}**{await self.get_currency(ctx.guild)}")
-        
-        reason = f'Mod. {ctx.author.name} › {reason}' if reason else f'Modification par {ctx.author.name}'
-        adding = modif[0] == '+'
+        Il est possible de préciser une raison après la somme"""
+        currency = await self.get_currency(ctx.guild)
         try:
-            val = int(modif)
+            await self.deposit_credits(member, value, desc=reason)
         except:
-            return await ctx.send("**Valeur invalide** • Le solde doit être un nombre entier")
-            
-        if val < 0:
-            try:
-                await self.withdraw_credits(member, val, desc=reason)
-            except:
-                return await ctx.send("**Erreur** • Le membre ne possède pas autant de crédits")
-        elif adding:
-            try:
-                await self.deposit_credits(member, val, desc=reason)
-            except:
-                return await ctx.send("**Erreur** • Impossible d'ajouter cette somme au solde du membre")
+            return await ctx.reply("**Erreur** • Impossible d'ajouter cette somme au solde du membre", mention_author=False)
         else:
-            await self.set_balance(member, val, desc=reason)
+            await ctx.reply(f"**Solde modifié** • {member.mention} a reçu {value}{currency} (={await self.get_balance(member)}{currency})", mention_author=False)
+            
+    @edit_bank_account.command(name="withdraw")
+    async def edit_withdraw_credits(self, ctx, member: discord.Member, value: int,  *, reason: str = None):
+        """Retirer des crédits du compte du membre
         
-        await ctx.reply(f"**Solde de {member.mention} modifié** · {modif}{await self.get_currency(ctx.guild)}", mention_author=False)
+        Il est possible de préciser une raison après la somme"""
+        currency = await self.get_currency(ctx.guild)
+        try:
+            await self.withdraw_credits(member, value, desc=reason)
+        except:
+            return await ctx.reply("**Erreur** • Impossible de retirer cette somme au solde du membre", mention_author=False)
+        else:
+            await ctx.reply(f"**Solde modifié** • {member.mention} a perdu {value}{currency} (={await self.get_balance(member)}{currency})", mention_author=False)
+    
+    @edit_bank_account.command(name="set")
+    async def edit_set_credits(self, ctx, member: discord.Member, value: int,  *, reason: str = None):
+        """Modifier la valeur du solde du compte du membre
+        
+        Il est possible de préciser une raison après la somme"""
+        currency = await self.get_currency(ctx.guild)
+        try:
+            await self.withdraw_credits(member, value, desc=reason)
+        except:
+            return await ctx.reply("**Erreur** • La somme est invalide", mention_author=False)
+        else:
+            await ctx.reply(f"**Solde modifié** • Le nouveau solde de {member.mention} est {value}{currency}", mention_author=False)
+    
+    @edit_bank_account.command(name="searchtrs")
+    async def transaction_search(self, ctx, member: discord.Member, *search):
+        """Chercher une transaction en particulier pour obtenir son ID"""
+        logs = await self.member_logs(member)
+        if not logs:
+            return await ctx.reply(f"**Aucune opération dans l'historique** • Il n'y a aucune opération enregistrée sur ce compte",
+                                   mention_author=False)
+            
+        value = 0
+        text = []
+        for e in search:
+            try:
+                value = int(e)
+            except:
+                text.append(e.lower())
+        
+        if not (value or text):
+            return await ctx.reply("**Erreur** • Vous devez rentrer du texte ou une valeur pour rechercher une transaction", mention_author=False)
+        
+        tabl = []
+        for log in logs[::-1][:20]:
+            if log.delta == value or len([i for i in log.description.split() if i.lower() in [e for e in text]]) > 0:
+                tabl.append((log.id, log.ftimestamp('%d/%m/%Y %H:%M'), log.delta))
+            
+        if tabl:
+            em = discord.Embed(color=member.color, description=box(tabulate(tabl, headers=["ID", "Date/Heure", "Opération"])))
+            em.set_author(name=f'{member.name}', icon_url=member.avatar_url)
+            em.set_footer(text=f"Recherche d'ID – {ctx.guild.name}")
+            await ctx.reply(embed=em, mention_author=False)
+        else:
+            await ctx.reply("**Aucun résultat** • Essayez de rentrer la description de l'opération et la valeur", mention_author=False)
+    
+    @edit_bank_account.command(name="refund")
+    async def refund_transaction(self, ctx, member: discord.Member, transaction_id: str):
+        """Rembourser une opération pour le membre visé
+        
+        Pour obtenir l'ID de l'opération, utilisez la sous-commande `searchtrs`"""
+        currency = await self.get_currency(ctx.guild)
+        log = await self.get_log(member, transaction_id)
+        if not log:
+            return await ctx.reply("**Identifiant invalide** • Assurez-vous que l'opération portant cet identifiant est liée au membre mentionné", mention_author=False)
+        
+        try:
+            new = await self.refund_credits(log)
+        except:
+            return await ctx.reply("**Erreur** • Cette opération ne peut être remboursée", mention_author=False)
+        else:
+            await ctx.reply(f"**Solde modifié** • L'opération `{transaction_id}` de {member.mention} a été remboursée ({new.delta:+}{currency})", mention_author=False)
         
         
 # PARAMETRES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

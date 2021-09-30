@@ -602,40 +602,39 @@ class XPay(commands.Cog):
         currency = await self.get_currency(ctx.guild)
         conf, stop = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         
-        try:
-            value = await self.get_giftcode(guild, code)
-        except:
+        value = await self.get_giftcode(guild, code)
+        if not value:
             return await ctx.send("**Code invalide** • Ce code n'est pas valide sur ce serveur")
-        else:
-            async with ctx.typing():
-                await ctx.message.delete()
-                
-                em = discord.Embed(title="Contenu du code", description=box(f'{value}{currency}', lang='css'), color=author.color)
-                em.set_footer(text="› Récupérer ?")
-                msg = await ctx.send(embed=em)
+        
+        async with ctx.typing():
+            await ctx.message.delete()
             
-            emojis = [conf, stop]
+            em = discord.Embed(title="Contenu du code", description=box(f'{value}{currency}', lang='css'), color=author.color)
+            em.set_footer(text="› Récupérer ?")
+            msg = await ctx.send(embed=em)
+        
+        emojis = [conf, stop]
 
-            start_adding_reactions(msg, emojis)
-            try:
-                react, _ = await self.bot.wait_for("reaction_add",
-                                                        check=lambda r, u: u == ctx.author and r.message.id == msg.id,
-                                                        timeout=30)
-            except asyncio.TimeoutError:
-                emoji = stop
-            else:
-                emoji = react.emoji
-                
-            if emoji == conf:
-                await self.delete_giftcode(guild, code)
-                await self.deposit_credits(author, value, desc="Code cadeau récupéré")
-                em.set_footer(text=f"{value}{currency} ont été transférés sur votre compte")
-                await msg.edit(embed=em)
+        start_adding_reactions(msg, emojis)
+        try:
+            react, _ = await self.bot.wait_for("reaction_add",
+                                                    check=lambda r, u: u == ctx.author and r.message.id == msg.id,
+                                                    timeout=30)
+        except asyncio.TimeoutError:
+            emoji = stop
+        else:
+            emoji = react.emoji
             
-            else:
-                em.set_footer(text=f"Le contenu n'a pas été transféré sur votre compte")
-                await msg.edit(embed=em)
-                await msg.delete(delay=10)
+        if emoji == conf:
+            await self.delete_giftcode(guild, code)
+            await self.deposit_credits(author, value, desc="Code cadeau récupéré")
+            em.set_footer(text=f"{value}{currency} ont été transférés sur votre compte")
+            await msg.edit(embed=em)
+        
+        else:
+            em.set_footer(text=f"Le contenu n'a pas été transféré sur votre compte")
+            await msg.edit(embed=em)
+            await msg.delete(delay=10)
                 
     @commands.command(name='giftcode')
     @checks.admin_or_permissions(manage_messages=True)
@@ -646,11 +645,7 @@ class XPay(commands.Cog):
         guild = ctx.guild
         currency = await self.get_currency(ctx.guild)
         codename = codename if codename else ''.join(random.sample(string.ascii_letters + string.digits, k=8))
-        try:
-            await self.get_giftcode(guild, codename)
-        except:
-            pass
-        else:
+        if await self.get_giftcode(guild, codename):
             return await ctx.send("**Code préexistant** • Un code actif identique existe déjà")
         
         code = await self.create_giftcode(ctx.guild, codename, value)

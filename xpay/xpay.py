@@ -82,7 +82,7 @@ class Transaction:
     def description(self):
         poss_desc = [k for k in self.__dict__ if k in ('description', 'desc', 'reason')]
         if poss_desc:
-            return self._raw[poss_desc[0]]
+            return self._raw[poss_desc[0]] if self._raw[poss_desc[0]] else '...'
         return '...'
     
     def ftimestamp(self, fmt: str = '%d/%m/%Y %H:%M'):

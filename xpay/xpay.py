@@ -244,7 +244,7 @@ class XPay(commands.Cog):
             raise ValueError(f"Impossible de rembourser un remboursement ({log.id})")
         amount = -log.delta
         current = await self.get_balance(member)
-        return await self.set_balance(member, current + amount, refund=log.id)
+        return await self.set_balance(member, current + amount, reason=log.description, refund=log.id)
     
 
 # TRANSACTIONS -----------------------------------------

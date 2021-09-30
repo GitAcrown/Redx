@@ -700,7 +700,7 @@ class XPay(commands.Cog):
         Il est possible de préciser une raison après la somme"""
         currency = await self.get_currency(ctx.guild)
         try:
-            await self.withdraw_credits(member, value, desc=reason)
+            await self.set_balance(member, value, desc=reason)
         except:
             return await ctx.reply("**Erreur** • La somme est invalide", mention_author=False)
         else:

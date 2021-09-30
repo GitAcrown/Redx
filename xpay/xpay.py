@@ -238,7 +238,7 @@ class XPay(commands.Cog):
         current = await self.get_balance(member)
         return await self.set_balance(member, current - amount, **attachments)
     
-    async def refund_credits(self, log: Transaction) -> Transaction:
+    async def rollback_credits(self, log: Transaction) -> Transaction:
         member = log.member
         if log.refund:
             raise ValueError(f"Impossible de rembourser un remboursement ({log.id})")
@@ -741,10 +741,11 @@ class XPay(commands.Cog):
         else:
             await ctx.reply("**Aucun résultat** • Essayez de rentrer la description de l'opération et la valeur", mention_author=False)
     
-    @edit_bank_account.command(name="refund")
-    async def refund_transaction(self, ctx, member: discord.Member, transaction_id: str):
-        """Rembourser une opération pour le membre visé
+    @edit_bank_account.command(name="rollback")
+    async def rollback_transaction(self, ctx, member: discord.Member, transaction_id: str):
+        """Annuler une opération pour le membre visé
         
+        Si l'opération se fait entre deux membres, vous devrez refaire la commande pour chacun avec l'ID de leur opération
         Pour obtenir l'ID de l'opération, utilisez la sous-commande `search`"""
         currency = await self.get_currency(ctx.guild)
         log = await self.get_log(member, transaction_id)
@@ -752,11 +753,11 @@ class XPay(commands.Cog):
             return await ctx.reply("**Identifiant invalide** • Assurez-vous que l'opération portant cet identifiant est liée au membre mentionné", mention_author=False)
         
         try:
-            new = await self.refund_credits(log)
+            new = await self.rollback_credits(log)
         except:
-            return await ctx.reply("**Erreur** • Cette opération ne peut être remboursée", mention_author=False)
+            return await ctx.reply("**Erreur** • Cette opération ne peut être rollback", mention_author=False)
         else:
-            await ctx.reply(f"**Solde modifié** • L'opération `{transaction_id}` de {member.mention} a été remboursée ({new.delta:+}{currency})", mention_author=False)
+            await ctx.reply(f"**Solde modifié** • L'opération `{transaction_id}` de {member.mention} a été rollback ({new.delta:+}{currency})", mention_author=False)
         
         
 # PARAMETRES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

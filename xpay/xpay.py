@@ -668,7 +668,7 @@ class XPay(commands.Cog):
         """Groupe de commandes permettant d'effectuer des opérations sur le compte d'un membre"""
         
     @edit_bank_account.command(name="deposit")
-    async def edit_deposit_credits(self, ctx, member: discord.Member, value: int,  *, reason: str = None):
+    async def edit_deposit_credits(self, ctx, member: discord.Member, value: int,  *, reason: str = ''):
         """Déposer des crédits sur le compte du membre
         
         Il est possible de préciser une raison après la somme"""
@@ -681,7 +681,7 @@ class XPay(commands.Cog):
             await ctx.reply(f"**Solde modifié** • {member.mention} a reçu {value}{currency} (={await self.get_balance(member)}{currency})", mention_author=False)
             
     @edit_bank_account.command(name="withdraw")
-    async def edit_withdraw_credits(self, ctx, member: discord.Member, value: int,  *, reason: str = None):
+    async def edit_withdraw_credits(self, ctx, member: discord.Member, value: int,  *, reason: str = ''):
         """Retirer des crédits du compte du membre
         
         Il est possible de préciser une raison après la somme"""
@@ -694,7 +694,7 @@ class XPay(commands.Cog):
             await ctx.reply(f"**Solde modifié** • {member.mention} a perdu {value}{currency} (={await self.get_balance(member)}{currency})", mention_author=False)
     
     @edit_bank_account.command(name="set")
-    async def edit_set_credits(self, ctx, member: discord.Member, value: int,  *, reason: str = None):
+    async def edit_set_credits(self, ctx, member: discord.Member, value: int,  *, reason: str = ''):
         """Modifier la valeur du solde du compte du membre
         
         Il est possible de préciser une raison après la somme"""

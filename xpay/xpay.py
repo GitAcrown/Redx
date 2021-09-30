@@ -291,19 +291,21 @@ class XPay(commands.Cog):
 
     async def get_giftcode(self, guild: discord.Guild, code: str) -> int:
         codes = await self.config.guild(guild).Giftcodes()
-        if code not in codes:
-            return None
-        return codes[code]
+        if code in codes:
+            codes[code]
+        return None
     
     async def create_giftcode(self, guild: discord.Guild, code: str, value: int) -> str:
-        if await self.get_giftcode(guild, code):
+        codes = await self.config.guild(guild).Giftcodes()
+        if code in codes:
             raise KeyError(f"'{code}' existe déjà dans les codes cadeaux sur {guild.name}")
         
         await self.config.guild(guild).Giftcodes.set_raw(code, value=value)
         return code
     
     async def delete_giftcode(self, guild: discord.Guild, code: str):
-        if not await self.get_giftcode(guild, code):
+        codes = await self.config.guild(guild).Giftcodes()
+        if code not in codes:
             raise KeyError(f"'{code}' n'existe pas dans les codes cadeaux sur {guild.name}")
         
         await self.config.guild(guild).Giftcodes.clear_raw(code)
@@ -608,7 +610,7 @@ class XPay(commands.Cog):
             async with ctx.typing():
                 await ctx.message.delete()
                 
-                em = discord.Embed(title="Contenu du code", description=box(humanize_number(value) + currency, lang='css'), color=author.color)
+                em = discord.Embed(title="Contenu du code", description=box(f'{value}{currency}', lang='css'), color=author.color)
                 em.set_footer(text="› Récupérer ?")
                 msg = await ctx.send(embed=em)
             

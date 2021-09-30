@@ -292,7 +292,7 @@ class XPay(commands.Cog):
     async def get_giftcode(self, guild: discord.Guild, code: str) -> int:
         codes = await self.config.guild(guild).Giftcodes()
         if code in codes:
-            codes[code]
+            return codes[code]
         return None
     
     async def create_giftcode(self, guild: discord.Guild, code: str, value: int) -> str:

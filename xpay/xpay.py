@@ -598,6 +598,7 @@ class XPay(commands.Cog):
     @commands.command(name="redeem")
     @commands.guild_only()
     async def redeem_code(self, ctx, code: str):
+        """Récupérer un code cadeau de crédits"""
         author, guild = ctx.author, ctx.guild
         currency = await self.get_currency(ctx.guild)
         conf, stop = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
@@ -649,8 +650,8 @@ class XPay(commands.Cog):
             return await ctx.send("**Code préexistant** • Un code actif identique existe déjà")
         
         code = await self.create_giftcode(ctx.guild, codename, value)
-        em = discord.Embed(description=f"**Code :** ||{code}||\n__Contient :__ {value:+}{currency}", timestamp=ctx.message.created_at)
-        em.set_footer(text="Un membre peut en récupérer le contenu avec ;redeem")
+        em = discord.Embed(description=f"**Code :** ||{code}||\n__Contient :__ {value:+}{currency}")
+        em.set_footer(text=f"Un membre peut en récupérer le contenu avec ;redeem · {ctx.guild.name}")
         try:
             await ctx.author.send(embed=em)
         except:

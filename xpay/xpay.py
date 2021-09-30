@@ -662,7 +662,7 @@ class XPay(commands.Cog):
             await ctx.reply("**Code créé** • Le reçu vous a été envoyé par MP pour raisons de sécurité")
         
         
-    @commands.group(name="editaccount", aliases=["bacc"])
+    @commands.group(name="editaccount", aliases=["eacc"])
     @checks.admin_or_permissions(manage_messages=True)
     async def edit_bank_account(self, ctx):
         """Groupe de commandes permettant d'effectuer des opérations sur le compte d'un membre"""

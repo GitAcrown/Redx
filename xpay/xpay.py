@@ -610,7 +610,7 @@ class XPay(commands.Cog):
         async with ctx.typing():
             await ctx.message.delete()
             
-            em = discord.Embed(description=box(f'{value}{currency}', lang='css'), color=author.color)
+            em = discord.Embed(description=box(f'{value} crédits ({currency})', lang='css'), color=author.color)
             em.set_author(name="Contenu du code", icon_url=author.avatar_url)
             em.set_footer(text="› Récupérer ?")
             msg = await ctx.send(embed=em)

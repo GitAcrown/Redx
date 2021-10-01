@@ -2,6 +2,7 @@ import logging
 import random
 import requests
 from requests.utils import quote
+from fuzzywuzzy import process, fuzz
 
 import discord
 from datetime import datetime
@@ -9,6 +10,7 @@ from datetime import datetime
 from redbot.core import Config, commands, checks
 from redbot.core.utils.chat_formatting import box
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
+from tabulate import tabulate
 
 logger = logging.getLogger("red.RedX.Fetcher")
 
@@ -97,7 +99,7 @@ class Fetcher(commands.Cog):
         
     @mugshots.command(name='search')
     async def search_mugshot(self, ctx, lastname: str, source: str = None):
-        """Obtenir les mugshots récents des prisonniers provenant d'une source donnée
+        """Rechercher un nom dans la source désirée
         
         Si aucune source n'est sélectionnée, vous obtiendrez des mugshots d'une source au hasard"""
         sources = self.jailbase_sources()
@@ -150,10 +152,41 @@ class Fetcher(commands.Cog):
             return await ctx.reply(f"**Aucun Mugshot disponible** · La recherche n'a rien donné pour la source `{source}`")
             
     @mugshots.command(name='sources')
-    async def sources_mugshot(self, ctx):
-        """Obtenir la liste des sources de mugshots"""
-        await ctx.reply(f"**Liste des sources de mugshot disponibles** · <https://www.jailbase.com/api/#sources_list>")
+    async def sources_mugshot(self, ctx, *, search: str = None):
+        """Obtenir ou effectuer une recherche dans la liste des sources de mugshots"""
+        if not search:
+            return await ctx.reply(f"**Liste des sources de mugshot disponibles** · <https://www.jailbase.com/api/#sources_list>")
         
+        url = "https://www.jailbase.com/api/1/sources/"
+        data = requests.get(url)
+        if data.status_code != 200:
+            return await ctx.reply(f"**Sources indisponibles** · Impossible de récupérer une liste à jour des sources disponibles")
+        
+        sources = data['records']
+        norm_sources = []
+        for s in sources:
+            city = s.get('city', '')
+            state = s.get('state_full', '')
+            county = s.get('name', '')
+            norm_sources.append((s['source_id'], f"{city + ', ' if city else ''}{county}{' (' + state + ')'}"))
+        
+        output = process.extractBests(search, [i[1].lower() for i in norm_sources], processor=fuzz.token_sort_ratio, limit=5)
+        if not output:
+            return await ctx.reply(f"**Aucun résultats** · La recherche dans les sources n'a pas donné de résultats")
+        
+        tabl = []
+        for src in norm_sources:
+            if src[1] in [o[0] for o in output]:
+                tabl.append(*src)
+        
+        if tabl:
+            txt = box(tabulate(tabl, headers=('ID', 'Source')))
+            em = discord.Embed(title=f"Recherche dans les sources · *{search}*", description=txt, color=await ctx.embed_color())
+            em.set_footer(text="Utilisez l'ID désiré avec votre commande pour consulter la source correspondante")
+            await ctx.reply(embed=em, mention_author=False)
+        else:
+            await ctx.reply(f"**Aucun résultats** · La recherche dans les sources n'a pas donné de résultats")
+
     @commands.command(name='webscreen')
     async def screenshot_website(self, ctx, url: str):
         """Renvoie un screen de la page web demandée

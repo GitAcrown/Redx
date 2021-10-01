@@ -174,14 +174,14 @@ class Fetcher(commands.Cog):
                 county = s.get('name', '')
                 norm_sources.append((s['source_id'], f"{city + ', ' if city else ''}{county}{' (' + state + ')'}"))
         
-        output = process.extractBests(search, [i[1] for i in norm_sources], limit=5)
+        output = process.extractBests(search, [i[1] for i in norm_sources], limit=10)
         if not output:
             return await ctx.reply(f"**Aucun résultats** · La recherche dans les sources n'a pas donné de résultats")
         
         tabl = []
         for src in norm_sources:
             if src[1] in [o[0] for o in output]:
-                tabl.append(*src)
+                tabl.append(src)
         
         if tabl:
             txt = box(tabulate(tabl, headers=('ID', 'Source')))

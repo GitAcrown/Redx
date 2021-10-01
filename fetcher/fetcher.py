@@ -161,14 +161,18 @@ class Fetcher(commands.Cog):
         data = requests.get(url)
         if data.status_code != 200:
             return await ctx.reply(f"**Sources indisponibles** · Impossible de récupérer une liste à jour des sources disponibles")
+        try:
+            sources = data.json()['records']
+        except:
+            return await ctx.reply(f"**Sources indisponibles** · Impossible d'extraire une liste à jour des sources disponibles")
         
-        sources = data['records']
-        norm_sources = []
-        for s in sources:
-            city = s.get('city', '')
-            state = s.get('state_full', '')
-            county = s.get('name', '')
-            norm_sources.append((s['source_id'], f"{city + ', ' if city else ''}{county}{' (' + state + ')'}"))
+        async with ctx.typing():
+            norm_sources = []
+            for s in sources:
+                city = s.get('city', '')
+                state = s.get('state_full', '')
+                county = s.get('name', '')
+                norm_sources.append((s['source_id'], f"{city + ', ' if city else ''}{county}{' (' + state + ')'}"))
         
         output = process.extractBests(search, [i[1].lower() for i in norm_sources], processor=fuzz.token_sort_ratio, limit=5)
         if not output:

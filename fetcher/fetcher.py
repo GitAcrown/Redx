@@ -174,7 +174,7 @@ class Fetcher(commands.Cog):
                 county = s.get('name', '')
                 norm_sources.append((s['source_id'], f"{city + ', ' if city else ''}{county}{' (' + state + ')'}"))
         
-        output = process.extractBests(search, [i[1] for i in norm_sources], limit=10)
+        output = process.extractBests(search, [i[1] for i in norm_sources], limit=10, scorer=fuzz.partial_token_sort_ratio)
         if not output:
             return await ctx.reply(f"**Aucun résultats** · La recherche dans les sources n'a pas donné de résultats")
         

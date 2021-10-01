@@ -184,7 +184,7 @@ class Fetcher(commands.Cog):
                 tabl.append(src)
         
         if tabl:
-            txt = box('\n'.join([f"{t[0]} · {t[1]}" for t in tabl]))
+            txt = box('\n'.join([f"{t[0]} · {t[1]}" for t in tabl[::-1]]))
             em = discord.Embed(title=f"Recherche dans les sources · *{search}*", description=txt, color=await ctx.embed_color())
             em.set_footer(text="Utilisez l'ID désiré avec votre commande pour consulter la source correspondante")
             await ctx.reply(embed=em, mention_author=False)

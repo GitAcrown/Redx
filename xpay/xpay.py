@@ -490,7 +490,7 @@ class XPay(commands.Cog):
         
         fee = 0
         if trscount >= settings['FreeTransfersPerWeek']:
-            fee = round(sum * settings['TransferFee'])
+            fee = int(sum * settings['TransferFee'])
             fee = fee if fee else 1
             if not await self.check_balance(member, fee + sum):
                 sum -= fee

@@ -213,7 +213,7 @@ class XPay(commands.Cog):
                 
         return totaldelta
     
-    async def check_balance(self, member: discord.Member, cost: int) -> int:
+    async def check_balance(self, member: discord.Member, cost: int) -> bool:
         return await self.get_balance(member) >= cost
     
     async def set_balance(self, member: discord.Member, value: int, **attachments) -> Transaction:
@@ -490,9 +490,8 @@ class XPay(commands.Cog):
         
         fee = 0
         if trscount >= settings['FreeTransfersPerWeek']:
-            fee = int(sum * settings['TransferFee'])
-            fee = fee if fee else 1
-            if not await self.check_balance(member, fee + sum):
+            fee = max(int(sum * settings['TransferFee']), 0)
+            if await self.check_balance(author, fee + sum) is False:
                 sum -= fee
                 
         try:

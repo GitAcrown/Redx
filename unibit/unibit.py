@@ -310,7 +310,7 @@ class UniBit(commands.Cog):
         await menu(ctx, embeds, DEFAULT_CONTROLS)
         
     @manage_unibit.command(name='give')
-    async def give_asset(self, ctx, user: discord.User, asset_id: str):
+    async def give_asset(self, ctx, to: discord.User, asset_id: str):
         """Donner un Asset au membre visé"""
         asset = await self.get_asset(asset_id)
         author = ctx.author
@@ -324,15 +324,46 @@ class UniBit(commands.Cog):
             return await ctx.reply(f"{cross} **Asset non possédé** · L'asset `{asset_id}` existe mais ne vous appartient pas", mention_author=False)
         
         try:
-            await self.append_asset_event(asset, f"Transfert à {user}", user)
+            await self.append_asset_event(asset, f"Transfert à {to}", to)
         except:
             return await ctx.reply(f"{cross} **Erreur dans la transaction** · L'opération n'a pu être effectuée sur l'Asset", mention_author=False)
         
-        await ctx.reply(f"{conf} **Opération réalisée** · L'Asset `{asset_id}` a été transféré à {user.mention}")
+        await ctx.reply(f"{conf} **Opération réalisée** · L'Asset `{asset_id}` a été transféré à {to.mention}")
+        
+    @manage_unibit.command(name='delete')
+    async def delete_user_asset(self, ctx, asset_id: str):
+        """Supprimer un de vos Asset
+        
+        Attention, cette opération est définitive !"""
+        asset = await self.get_asset(asset_id)
+        author = ctx.author
+        cross = self.bot.get_emoji(812451214179434551)
+        conf = self.bot.get_emoji(812451214037221439)
+        
+        if not asset:
+            return await ctx.reply(f"{cross} **Asset inconnu** · Aucun asset n'existe sous l'identifiant `{asset_id}`", mention_author=False)
+        
+        if asset.owner != author:
+            return await ctx.reply(f"{cross} **Asset non possédé** · L'asset `{asset_id}` existe mais ne vous appartient pas", mention_author=False)
+        
+        msg = await ctx.reply(f"**Êtes-vous certain de vouloir effacer l'Asset `{asset_id}` ?**\nCette opération est __irréversible__ !")
+        start_adding_reactions(msg, ['✅', '❎'])
+        try:
+            react, _ = await self.bot.wait_for("reaction_add",
+                                                    check=lambda m,
+                                                                u: u == ctx.author and m.message.id == msg.id,
+                                                    timeout=20)
+        except asyncio.TimeoutError:
+            pass
+        
+        if react.emoji == '❎':
+            await self.delete_asset(asset)
+            await ctx.reply(f"{conf} **Asset {asset_id} supprimé** · Il a été retiré de votre inventaire et n'est plus transmissible", mention_author=False)
+        return await msg.delete()
         
         
     @commands.command(name='newasset')
-    async def create_user_asset(self, ctx, ctype: str, *content: str):
+    async def create_new_asset(self, ctx, ctype: str, *content: str):
         """Créer un Asset manuellement (réservé aux personnes qui savent ce qu'ils font)
         
         D'abord, précisez le type de contenu que vous voulez protéger par un Asset
@@ -372,36 +403,5 @@ class UniBit(commands.Cog):
             return await ctx.reply(f"{cross} **Création impossible** · La création d'un Asset a échouée", mention_author=False)
     
         await ctx.reply(f"{conf} **Asset créé** · Votre Asset porte l'identifiant `{asset.id}` et a été déposé dans votre porte-monnaie UniBit (`;wallet`)")
-        
-    @commands.command(name='delasset')
-    async def delete_user_asset(self, ctx, asset_id: str):
-        """Supprimer un de vos Asset
-        
-        Attention, cette opération est définitive !"""
-        asset = await self.get_asset(asset_id)
-        author = ctx.author
-        cross = self.bot.get_emoji(812451214179434551)
-        conf = self.bot.get_emoji(812451214037221439)
-        
-        if not asset:
-            return await ctx.reply(f"{cross} **Asset inconnu** · Aucun asset n'existe sous l'identifiant `{asset_id}`", mention_author=False)
-        
-        if asset.owner != author:
-            return await ctx.reply(f"{cross} **Asset non possédé** · L'asset `{asset_id}` existe mais ne vous appartient pas", mention_author=False)
-        
-        msg = await ctx.reply(f"**Êtes-vous certain de vouloir effacer l'Asset `{asset_id}` ?**\nCette opération est __irréversible__ !")
-        start_adding_reactions(msg, ['✅', '❎'])
-        try:
-            react, _ = await self.bot.wait_for("reaction_add",
-                                                    check=lambda m,
-                                                                u: u == ctx.author and m.message.id == msg.id,
-                                                    timeout=20)
-        except asyncio.TimeoutError:
-            pass
-        
-        if react.emoji == '❎':
-            await self.delete_asset(asset)
-            await ctx.reply(f"{conf} **Asset {asset_id} supprimé** · Il a été retiré de votre inventaire et n'est plus transmissible", mention_author=False)
-        return await msg.delete()
     
     

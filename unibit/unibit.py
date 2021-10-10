@@ -359,7 +359,7 @@ class UniBit(commands.Cog):
         except asyncio.TimeoutError:
             pass
         
-        if react.emoji == '❎':
+        if react.emoji == '✅':
             await self.delete_asset(asset)
             await ctx.reply(f"{conf} **Asset {asset_id} supprimé** · Il a été retiré de votre inventaire et n'est plus transmissible", mention_author=False)
         return await msg.delete()

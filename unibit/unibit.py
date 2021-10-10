@@ -223,12 +223,12 @@ class UniBit(commands.Cog):
         em = discord.Embed(title=f"**Info. sur Asset** · `{asset_id}`", color=await ctx.embed_color())
         
         mtd = f"**Date de création** · {datetime.now().fromtimestamp(asset.metadata['created_at']).strftime('%d.%m.%Y %H:%M')}\n"
-        auth = f"ID:{asset.author}" if type(asset.author) != discord.User else f'{asset.author}'
+        auth = f"ID:{asset.author}" if type(asset.author) not in (discord.User, discord.Member) else f'{asset.author}'
         usercreate = asset._raw.get('user_created', False)
         mtd += f"**Auteur original** · {auth}{'' if usercreate is False else 'ᵐ'}"
         em.add_field(name="Metadonnées", value=mtd)
         
-        em.add_field(name="Propriétaire actuel", value=f"ID:{asset.owner}" if type(asset.owner) != discord.User else f'{asset.owner}')
+        em.add_field(name="Propriétaire actuel", value=f"ID:{asset.owner}" if type(asset.owner) not in (discord.User, discord.Member) else f'{asset.owner}')
         
         em.add_field(name="Type d'objet", value=asset.item.item_type_name())
         em.add_field(name="Contenu", value=asset.item.one_liner_repr(), inline=False)

@@ -224,7 +224,8 @@ class UniBit(commands.Cog):
         
         mtd = f"**Date de création** · {datetime.now().fromtimestamp(asset.metadata['created_at']).strftime('%d.%m.%Y %H:%M')}\n"
         auth = f"ID:{asset.author}" if type(asset.author) != discord.User else f'{asset.author}'
-        mtd += f"**Auteur original** · {auth}"
+        usercreate = asset.get('user_created', False)
+        mtd += f"**Auteur original** · {auth}{'' if usercreate is False else 'ᵐ'}"
         em.add_field(name="Metadonnées", value=mtd)
         
         em.add_field(name="Propriétaire actuel", value=f"ID:{asset.owner}" if type(asset.owner) != discord.User else f'{asset.owner}')

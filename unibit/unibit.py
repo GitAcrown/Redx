@@ -366,7 +366,7 @@ class UniBit(commands.Cog):
         
         
     @commands.command(name='newasset')
-    @checks.admin_or_permissions(manage_messages=True)
+    @checks.is_owner()
     async def create_new_asset(self, ctx, author: discord.User, ctype: str, *content):
         """Créer un Asset manuellement (réservé aux personnes qui savent ce qu'ils font)
         

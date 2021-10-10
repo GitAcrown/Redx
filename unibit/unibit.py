@@ -80,7 +80,6 @@ class Asset:
         
         self.metadata = self._raw['metadata']
         self.history = self._raw['history']
-        self.item = AssetItem(self._raw['item'])
         
         self.__dict__.update(asset_data)
 
@@ -101,6 +100,10 @@ class Asset:
         auth = self.metadata['author']
         user = self._cog.bot.get_user(auth)
         return user if user else auth
+    
+    @property
+    def item(self):
+        return AssetItem(self._raw['item'])
     
 
 class UniBit(commands.Cog):
@@ -226,7 +229,7 @@ class UniBit(commands.Cog):
         
         em.add_field(name="Propriétaire actuel", value=f"ID:{asset.owner}" if type(asset.owner) != discord.User else f'{asset.owner}')
         
-        em.add_field(name="Type d'objet", value=str(asset.item))
+        em.add_field(name="Type d'objet", value=asset.item.item_type_name())
         em.add_field(name="Contenu", value=asset.item.one_liner_repr(), inline=False)
         
         em.set_footer(text="L'historique des opérations est disponible avec ;asset history")
@@ -291,7 +294,7 @@ class UniBit(commands.Cog):
         
         for asset in assets:
             if len(tabl) < 25:
-                tabl.append((asset.id, str(asset.item)))
+                tabl.append((asset.id, asset.item.item_type_name()))
             else:
                 em = discord.Embed(color=await ctx.embed_color())
                 em.set_author(name="Inventaire d'Assets", icon_url=user.avatar_url)

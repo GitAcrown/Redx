@@ -380,7 +380,6 @@ class UniBit(commands.Cog):
         author = ctx.author
         cross = self.bot.get_emoji(812451214179434551)
         conf = self.bot.get_emoji(812451214037221439)
-        content = content.split(' ')
         ctype = ctype.lower()
         
         if not content:

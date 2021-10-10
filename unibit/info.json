@@ -1,0 +1,11 @@
+{
+    "author": ["Acrone"],
+	"description": "Système de certificats virtuels",
+	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help UniBit` pour voir les commandes disponibles",
+	"short": "Système de certificats virtuels",
+	"tags": ["community", "fun", "economy"],
+    "requirements" : [],
+    "required_cogs": {},
+	"type": "COG",
+	"end_user_data_statement": "This cog does not store personal data."
+}

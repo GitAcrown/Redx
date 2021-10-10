@@ -366,7 +366,7 @@ class UniBit(commands.Cog):
         
         
     @commands.command(name='newasset')
-    async def create_new_asset(self, ctx, ctype: str, *content: str):
+    async def create_new_asset(self, ctx, ctype: str, *content):
         """Créer un Asset manuellement (réservé aux personnes qui savent ce qu'ils font)
         
         D'abord, précisez le type de contenu que vous voulez protéger par un Asset

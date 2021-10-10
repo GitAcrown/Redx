@@ -366,7 +366,7 @@ class UniBit(commands.Cog):
         
         
     @commands.command(name='newasset')
-    async def create_new_asset(self, ctx, ctype: str, *, content):
+    async def create_new_asset(self, ctx, ctype: str, *content):
         """Créer un Asset manuellement (réservé aux personnes qui savent ce qu'ils font)
         
         D'abord, précisez le type de contenu que vous voulez protéger par un Asset
@@ -380,20 +380,21 @@ class UniBit(commands.Cog):
         author = ctx.author
         cross = self.bot.get_emoji(812451214179434551)
         conf = self.bot.get_emoji(812451214037221439)
-        content = content.split()
+        content = content.split(' ')
+        ctype = ctype.lower()
         
         if not content:
             return await ctx.reply(f"{cross} **Contenu vide** · Il manque un contenu pour créer un Asset", mention_author=False)
         
-        if ctype is 'num':
+        if ctype == 'num':
             text = content[0]
             try:
                 itemdata = float(text)
             except:
                 return await ctx.reply(f"{cross} **Contenu invalide** · Vous avez indiqué un type `num` mais impossible de trouver une valeur numérique dans votre contenu", mention_author=False)
-        elif ctype is 'list':
+        elif ctype == 'list':
             itemdata = content
-        elif ctype is 'data':
+        elif ctype == 'data':
             itemdata = {}
             for c in content:
                 key, value = c.split('=')

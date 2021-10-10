@@ -366,9 +366,52 @@ class UniBit(commands.Cog):
         
         
     @commands.command(name='newasset')
+    async def create_new_asset(self, ctx, ctype: str, *content):
+        """Créer un Asset manuellement
+        
+        D'abord, précisez le type de contenu que vous voulez protéger par un Asset
+        Ensuite, insérez le contenu de votre Item dans le champ `[content]`
+        
+        __Contenus supportés :__
+        `raw`/`text` = Texte brut tel qu'il a été entré (ou URLs)
+        `num` = Valeurs numérales
+        `list` = Liste de valeurs (séparer les valeurs par un espace)
+        `data` = Données brutes (utiliser le format `key=value` séparés par un espace)"""
+        author = ctx.author
+        cross = self.bot.get_emoji(812451214179434551)
+        conf = self.bot.get_emoji(812451214037221439)
+        ctype = ctype.lower()
+        
+        if not content:
+            return await ctx.reply(f"{cross} **Contenu vide** · Il manque un contenu pour créer un Asset", mention_author=False)
+        
+        if ctype == 'num':
+            text = content[0]
+            try:
+                itemdata = float(text)
+            except:
+                return await ctx.reply(f"{cross} **Contenu invalide** · Vous avez indiqué un type `num` mais impossible de trouver une valeur numérique dans votre contenu", mention_author=False)
+        elif ctype == 'list':
+            itemdata = content
+        elif ctype == 'data':
+            itemdata = {}
+            for c in content:
+                key, value = c.split('=')
+                itemdata[key] = value
+        else:
+            itemdata = ' '.join(content)
+        
+        try:
+            asset = await self.create_asset(author, itemdata, user_created=True)
+        except:
+            return await ctx.reply(f"{cross} **Création impossible** · La création d'un Asset a échouée", mention_author=False)
+    
+        await ctx.reply(f"{conf} **Asset créé** · Votre Asset porte l'identifiant `{asset.id}` et a été déposé dans votre porte-monnaie UniBit (`;wallet`)")
+    
+    @commands.command(name='supernewasset', aliases=['snasset'])
     @checks.is_owner()
-    async def create_new_asset(self, ctx, author: discord.User, ctype: str, *content):
-        """Créer un Asset manuellement (réservé aux personnes qui savent ce qu'ils font)
+    async def owner_create_new_asset(self, ctx, author: discord.User, ctype: str, *content):
+        """Créer un Asset manuellement en prenant la place d'un autre utilisateur (réservé aux personnes qui savent ce qu'ils font)
         
         D'abord, précisez le type de contenu que vous voulez protéger par un Asset
         Ensuite, insérez le contenu de votre Item dans le champ `[content]`

@@ -366,7 +366,8 @@ class UniBit(commands.Cog):
         
         
     @commands.command(name='newasset')
-    async def create_new_asset(self, ctx, ctype: str, *content):
+    @checks.admin_or_permissions(manage_messages=True)
+    async def create_new_asset(self, ctx, author: discord.User, ctype: str, *content):
         """Créer un Asset manuellement (réservé aux personnes qui savent ce qu'ils font)
         
         D'abord, précisez le type de contenu que vous voulez protéger par un Asset
@@ -377,7 +378,6 @@ class UniBit(commands.Cog):
         `num` = Valeurs numérales
         `list` = Liste de valeurs (séparer les valeurs par un espace)
         `data` = Données brutes (utiliser le format `key=value` séparés par un espace)"""
-        author = ctx.author
         cross = self.bot.get_emoji(812451214179434551)
         conf = self.bot.get_emoji(812451214037221439)
         ctype = ctype.lower()

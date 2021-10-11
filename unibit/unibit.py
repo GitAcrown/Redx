@@ -226,7 +226,7 @@ class UniBit(commands.Cog):
         if not asset:
             return await ctx.reply(f"{cross} **Asset inconnu** · Aucun asset n'existe sous l'identifiant `{asset_id}`", mention_author=False)
         
-        em = discord.Embed(title=f"**Info. sur Asset** · `{asset_id}`", color=asset.color)
+        em = discord.Embed(title=f"**Asset UniBit** · `{asset_id}`", color=asset.color)
         
         mtd = f"**Date de création** · {datetime.now().fromtimestamp(asset.metadata['created_at']).strftime('%d.%m.%Y %H:%M')}\n"
         auth = f"ID:{asset.author}" if type(asset.author) not in (discord.User, discord.Member) else f'{asset.author}'

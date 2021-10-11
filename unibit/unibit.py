@@ -105,6 +105,12 @@ class Asset:
     def item(self):
         return AssetItem(self._raw['item'])
     
+    @property
+    def color(self):
+        rng = random.Random(self.id)
+        r = lambda: rng.randint(0,255)
+        return '#%02X%02X%02X' % (r(),r(),r())
+    
 
 class UniBit(commands.Cog):
     """Système global de certificats digitaux"""
@@ -220,7 +226,7 @@ class UniBit(commands.Cog):
         if not asset:
             return await ctx.reply(f"{cross} **Asset inconnu** · Aucun asset n'existe sous l'identifiant `{asset_id}`", mention_author=False)
         
-        em = discord.Embed(title=f"**Info. sur Asset** · `{asset_id}`", color=await ctx.embed_color())
+        em = discord.Embed(title=f"**Info. sur Asset** · `{asset_id}`", color=asset.color)
         
         mtd = f"**Date de création** · {datetime.now().fromtimestamp(asset.metadata['created_at']).strftime('%d.%m.%Y %H:%M')}\n"
         auth = f"ID:{asset.author}" if type(asset.author) not in (discord.User, discord.Member) else f'{asset.author}'
@@ -254,14 +260,14 @@ class UniBit(commands.Cog):
                 owner = owner if owner else f"ID:{event['owner']}"
                 tabl.append((date, event['event'], owner))
             else:
-                em = discord.Embed(title=f"**Historique de l'Asset** · `{asset_id}`", color=await ctx.embed_color())
+                em = discord.Embed(title=f"**Historique de l'Asset** · `{asset_id}`", color=asset.color)
                 em.description = box(tabulate(tabl, headers=('Date/Heure', 'Event', 'Propriétaire')))
                 em.set_footer(text=f"Consultez les infos sur cet asset avec ;asset info {asset_id}")
                 embeds.append(em)
                 tabl = []
         
         if tabl:
-            em = discord.Embed(title=f"**Historique de l'Asset** · `{asset_id}`", color=await ctx.embed_color())
+            em = discord.Embed(title=f"**Historique de l'Asset** · `{asset_id}`", color=asset.color)
             em.description = box(tabulate(tabl, headers=('Date/Heure', 'Event', 'Propriétaire')))
             em.set_footer(text=f"Consultez les infos sur cet asset avec ;asset info {asset_id}")
             embeds.append(em)
@@ -451,5 +457,3 @@ class UniBit(commands.Cog):
             return await ctx.reply(f"{cross} **Création impossible** · La création d'un Asset a échouée", mention_author=False)
     
         await ctx.reply(f"{conf} **Asset créé** · Votre Asset porte l'identifiant `{asset.id}` et a été déposé dans votre porte-monnaie UniBit (`;wallet`)")
-    
-    

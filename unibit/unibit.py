@@ -109,7 +109,7 @@ class Asset:
     def color(self):
         rng = random.Random(self.id)
         r = lambda: rng.randint(0,255)
-        return '#%02X%02X%02X' % (r(),r(),r())
+        return int('0x%02X%02X%02X' % (r(),r(),r()), 16)
     
 
 class UniBit(commands.Cog):

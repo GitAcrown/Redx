@@ -249,9 +249,11 @@ class Oktbr(commands.Cog):
                 'EventUsers': {},
                 'EventItems': [],
                 'EventFoe': {},
+                
                 'EventCounter': 0,
-                'EventCounterThreshold': 75,
-                'EventCD': time.time() - 600
+                'EventCounterThreshold': 25,
+                'EventCD': time.time() - 600,
+                'EventCurrent': False
             }
         
         return self.cache[guild.id]
@@ -1075,15 +1077,16 @@ class Oktbr(commands.Cog):
             
             cache['EventCounter'] += 1
             if cache['EventCounter'] >= cache['EventCounterThreshold']:
-                if cache['EventCD'] + 900 > time.time():
+                if cache['EventCD'] + 900 > time.time() and not cache['EventCurrent']:
                     cache['EventCounter'] = 0
+                    cache['EventCurrent'] = True
                     channels = await self.config.guild(guild).Events.get_raw('channels')
                     if not channels:
                         return
                     channelid = random.choice(channels)
                     channel = guild.get_channel(channelid)
                     
-                    event = random.choice(('simple_item', 'group_item', 'foe'))
+                    event = random.choices(('simple_item', 'group_item', 'foe'), weights=(1.0, 0.9, 0.75), k=1)[0]
                     if event == 'simple_item':
                         await self.simple_item_spawn(channel)
                     elif event == 'group_item':
@@ -1096,6 +1099,7 @@ class Oktbr(commands.Cog):
                         basecounter = round(basecounter * 0.66)
                     cache['EventCounterThreshold'] = random.randint(round(basecounter * 1.10), round(basecounter * 0.90))
                     cache['EventCD'] = time.time()
+                    cache['EventCurrent'] = False
     
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):

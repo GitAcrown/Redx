@@ -705,6 +705,7 @@ class Oktbr(commands.Cog):
             return await ctx.reply(f"{cross} **Quantité de sucre insuffisante** · Vous n'avez pas *{qte}x Sucre*.",
                                    mention_author=False)
         
+        notif = None
         if qte > 100:
             notif = await ctx.reply(f"**Info** · J'ai réajusté votre quantité de sucre rentrée car il est inutile d'en mettre plus que 100.", mention_author=False)
         
@@ -721,8 +722,9 @@ class Oktbr(commands.Cog):
                 success = True
             wait = 3 if success else 1.5
             await asyncio.sleep(wait)
-            
-        await notif.delete(delay=4)
+        
+        if notif: 
+            await notif.delete(delay=4)
         await self.config.member(author).Sugar.set(max(0, current - qte))
         
         if not success:

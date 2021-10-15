@@ -188,7 +188,7 @@ class Oktbr(commands.Cog):
 
         default_member = {
             'Pocket': {},
-            'Guild': random.choice(('sorcerer', 'werewolf', 'vampire')),
+            'Guild': None,
             'Sugar': 0,
             'Sanity': 100,
             'Points': 0,
@@ -411,6 +411,21 @@ class Oktbr(commands.Cog):
     
 # GUILDES ---------------------------------------
 
+    async def check_user_guild(self, user: discord.Guild):
+        guilde = await self.config.member(user).Guild()
+        if not guilde:
+            lowest_nb = 0
+            lowest_name = ''
+            for gn in _GUILDS:
+                guildnum = await self.get_guild_members(user.guild, gn)
+                if lowest_nb == 0 or lowest_nb > guildnum:
+                    lowest_nb = guildnum
+                    lowest_name = gn
+            
+            await self.config.member(user).Guild.set(lowest_name)
+            return lowest_name
+        return guilde
+
     async def get_guild_members(self, guild: discord.Guild, guildname: str):
         members = await self.config.all_members(guild)
         return [guild.get_member(i) for i in members if members[i]['Guild'] == guildname]
@@ -454,6 +469,8 @@ class Oktbr(commands.Cog):
         Affiche aussi diverses informations utiles sur le membre"""
         user = user if user else ctx.author
         
+        await self.check_user_guild(user)
+        
         data = await self.config.member(user).all()
         userguild = data['Guild']
         teaminfo = _GUILDS[userguild]
@@ -487,6 +504,8 @@ class Oktbr(commands.Cog):
     async def show_guild(self, ctx):
         """Affiche des informations sur les guildes d'Halloween"""
         guild = ctx.guild
+        
+        await self.check_user_guild(ctx.author)
 
         embeds = []
         data = await self.config.guild(guild).Guilds()
@@ -538,6 +557,7 @@ class Oktbr(commands.Cog):
         
         Les bannières d'items permettent d'obtenir des points supplémentaires pour la guilde"""
         author = ctx.author
+        await self.check_user_guild(author)
         item, qte = self.parse_item_amount(item_qte)
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         
@@ -567,6 +587,7 @@ class Oktbr(commands.Cog):
         
         Les items qui sont consommables sont annotés d'un ᵘ dans votre inventaire"""
         author = ctx.author
+        await self.check_user_guild(author)
         item = await self.fetch_item(itemname)
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         cache = self.get_cache(ctx.guild)
@@ -657,6 +678,7 @@ class Oktbr(commands.Cog):
         
         Vous pouvez ensuite utiliser la commande `;recycle` pour transformer votre sucre en d'autres items"""  
         author = ctx.author 
+        await self.check_user_guild(author)
         item, qte = self.parse_item_amount(item_qte)
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         
@@ -697,6 +719,7 @@ class Oktbr(commands.Cog):
         La quantité de sucre utilisée détermine votre chance d'obtenir des items et lesquels
         Si vous ne précisez pas de qté de sucre, vous donnera le sucre actuellement possédé"""
         author = ctx.author
+        await self.check_user_guild(author)
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         if not qte:
             em = discord.Embed(description="Vous avez **{qte}x Sucre**", color=author.color)
@@ -742,6 +765,8 @@ class Oktbr(commands.Cog):
         Vos chances de réussite dépendent de vos guildes respectives, votre sanité ainsi que la présence récente du membre visé ou non
         Cette action est limitée dans le temps"""
         author = ctx.author
+        await self.check_user_guild(author)
+        await self.check_user_guild(user)
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         authordata, userdata = await self.config.member(author).all(), await self.config.member(user).all()
         
@@ -833,6 +858,7 @@ class Oktbr(commands.Cog):
             await spawn.delete()
             return
         else:
+            await self.check_user_guild(user)
             try:
                 await self.pocket_add(user, item, qte)
             except:
@@ -1027,8 +1053,9 @@ class Oktbr(commands.Cog):
             all_members = await self.config.all_members(channel.guild)
             for u in [m for m in interact if cache["EventUsers"].get(m, ['none', 0])[0] != 'escape']:
                 member = channel.guild.get_member(u)
+                mguild = await self.check_user_guild(member)
                 current = all_members[u]['Sanity']
-                if all_members[u]['Guild'] == 'vampire':
+                if mguild == 'vampire':
                     await self.config.member(member).Sanity.set(max(0, current - round(sanity / 2)))
                 else:
                     await self.config.member(member).Sanity.set(max(0, current - sanity))
@@ -1088,8 +1115,8 @@ class Oktbr(commands.Cog):
                     
                     elif cache['EventType'] == "foe_spawn":
                         if user.id not in cache["EventUsers"]:
+                            user_guild = await self.check_user_guild(user)
                             foe_weak = cache['EventFoe']['weakdef']
-                            user_guild = await self.config.member(user).Guild()
                             atk_values = _GUILDS[user_guild]['atkvalues']
                             
                             dmg = random.randint(20, 60)

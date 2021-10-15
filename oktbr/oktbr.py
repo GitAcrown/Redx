@@ -952,7 +952,7 @@ class Oktbr(commands.Cog):
             end_em.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
             end_em.add_field(name="Bonbons obtenus", value=box("Personne n'a participé à la distribution", lang='fix'))
         await spawn.edit(embed=end_em)
-        await spawn.delete(delay=20)
+        await spawn.delete(delay=30)
         
         
     async def foe_spawn(self, channel: discord.TextChannel):
@@ -1081,7 +1081,7 @@ class Oktbr(commands.Cog):
                 else:
                     await self.config.member(member).Sanity.set(max(0, current - sanity))
         await spawn.edit(embed=endem)
-        await spawn.delete(delay=30)
+        await spawn.delete(delay=60)
         
         
     @commands.Cog.listener()

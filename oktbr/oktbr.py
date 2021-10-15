@@ -696,7 +696,8 @@ class Oktbr(commands.Cog):
         await self.check_user_guild(author)
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         if not qte:
-            em = discord.Embed(description=f"Vous avez **{qte}x Sucre**", color=author.color)
+            usugar = await self.config.member(author).Sugar()
+            em = discord.Embed(description=f"Vous avez **{usugar}x Sucre**", color=author.color)
             em.set_footer(text="La quantité de sucre utilisée détermine votre chance d'obtenir un item et son type")
             return await ctx.reply(embed=em, mention_author=False)
         

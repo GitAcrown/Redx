@@ -711,9 +711,9 @@ class Oktbr(commands.Cog):
         
         async with ctx.typing():
             if 1 < qte <= 10:
-                success = random.randint(0, 4) == 0
+                success = random.randint(0, 9) == 0
             elif 10 < qte <= 30:
-                success = random.randint(0, 1) == 0
+                success = random.randint(0, 2) == 0
             elif 30 < qte <= 50:
                 success = random.randint(0, 2) < 2
             elif 50 < qte <= 100:

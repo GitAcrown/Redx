@@ -722,7 +722,7 @@ class Oktbr(commands.Cog):
         await self.check_user_guild(author)
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         if not qte:
-            em = discord.Embed(description="Vous avez **{qte}x Sucre**", color=author.color)
+            em = discord.Embed(description=f"Vous avez **{qte}x Sucre**", color=author.color)
             em.set_footer(text="La quantité de sucre utilisée détermine votre chance d'obtenir un item et son type")
             return await ctx.reply(embed=em, mention_author=False)
         
@@ -893,6 +893,7 @@ class Oktbr(commands.Cog):
                               "Vous pouvez piocher là-dedans :",
                               "Hop, voilà ce que je donne :",
                               "Des bonbons ? Je vous en donne :"))
+        text += '\n'
         text += '\n'.join([f"- **{i}**" for i in items])
         emcolor = HALLOWEEN_COLOR()
         em = discord.Embed(title="🍬 Jeu d'Halloween • Distribution générale", 
@@ -907,7 +908,7 @@ class Oktbr(commands.Cog):
         cache['EventUsers'] = {}
         cache['EventType'] = 'item_spawn'
         cache['EventItems'] = items
-        cache['EventMsg'] = spawn
+        cache['EventMsg'] = spawn.id
         
         userlist = []
         timeout = time.time() + 45
@@ -924,7 +925,7 @@ class Oktbr(commands.Cog):
                 nem.set_footer(text="Cliquez sur 🍬 pour obtenir un bonbon (au hasard)")
                 nem.add_field(name="Bonbons obtenus", value=box(tabulate(tabl, headers=["Membre", "Bonbon"])))
                 await spawn.edit(embed=nem)
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.75)
         
         if time.time() >= timeout:
             end_msg = random.choice(["Distribution terminée, à la prochaine !",
@@ -937,7 +938,7 @@ class Oktbr(commands.Cog):
                                      "Plus rien à donner, c'est fini."])
             
         await spawn.remove_reaction("🍬", self.bot.user)
-        if cache["distrib_users"]:
+        if cache["EventUsers"]:
             tabl = []
             for uid, gain in cache["EventUsers"].items():
                 tabl.append((channel.guild.get_member(uid).name, gain.name))
@@ -987,7 +988,7 @@ class Oktbr(commands.Cog):
         cache['EventUsers'] = {}
         cache['EventType'] = 'foe_spawn'
         cache['EventFoe'] = foe
-        cache['EventMsg'] = spawn
+        cache['EventMsg'] = spawn.id
         
         userlist = []
         timeout = time.time() + 30

@@ -210,7 +210,7 @@ class Oktbr(commands.Cog):
                 'vampire':  {}},
             'Events': {
                 'channels': [],
-                'counter_threshold': 20
+                'counter_threshold': 75
             }
         }
         
@@ -224,45 +224,7 @@ class Oktbr(commands.Cog):
 
         self.cache = {}
         
-        self.oktbr_loop.start()
-        
-        
-# LOOP --------------------------------------------
 
-    @tasks.loop(minutes=1)
-    async def oktbr_loop(self):
-        all_guilds = await self.config.all_guilds()
-        for g in all_guilds:
-            guild = self.bot.get_guild(g)
-            cache = self.get_cache(guild)
-            
-            channels = await self.config.guild(guild).Events.get_raw('channels')
-            if not channels:
-                continue
-            
-            cache['EventCounter'] += 1
-            if cache['EventCounter'] >= cache['EventCounterThreshold']:
-                cache['EventCounter'] = 0
-                channel = random.choice(channels)
-                event = random.choice(('simple_item', 'group_item', 'foe'))
-                if event == 'simple_item':
-                    await self.simple_item_spawn(channel)
-                elif event == 'group_item':
-                    await self.group_item_spawn(channel)
-                else:
-                    await self.foe_spawn(channel)
-                
-                basecounter = all_guilds[g]['Events']['counter_threshold']
-                if 1 <= datetime.now().hour <= 7:
-                    basecounter *= 2
-                cache['EventCounterThreshold'] = random.randint(basecounter + 5, basecounter - 5)
-
-    @oktbr_loop.before_loop
-    async def before_oktbr_loop(self):
-        logger.info('Démarrage de la boucle oktbr_loop...')
-        await self.bot.wait_until_ready()
-        
-        
 # DONNEES -----------------------------------------
 
     # Se charge avec __init__.py au chargement du module
@@ -288,7 +250,8 @@ class Oktbr(commands.Cog):
                 'EventItems': [],
                 'EventFoe': {},
                 'EventCounter': 0,
-                'EventCounterThreshold': 5
+                'EventCounterThreshold': 75,
+                'EventCD': time.time() - 600
             }
         
         return self.cache[guild.id]
@@ -543,7 +506,7 @@ class Oktbr(commands.Cog):
             best = sorted(gmpts, key=operator.itemgetter(1), reverse=True)
             besttabl = tabulate(best[:5], headers=('Membre', 'Points'))
             if best:
-                em.add_field(name="Plus gros contributeurs", value=box(besttabl))
+                em.add_field(name="Plus gros contributeurs", value=box(besttabl), inline=False)
             else:
                 em.add_field(name="Plus gros contributeurs", value=box("Aucun contributeur pour le moment"))
             
@@ -552,7 +515,7 @@ class Oktbr(commands.Cog):
             if banners:
                 banntabl = [(self.get_item(bi), f"{_BANNERS[banners[bi]][0]}/{guildinv[bi]}") for bi in banners]
                 btabl = tabulate(banntabl, headers=('Item', 'Niveau'))
-                em.add_field(name="Bannières d'items", value=box(btabl))
+                em.add_field(name="Bannières d'items", value=box(btabl), inline=False)
             else:
                 em.add_field(name="Bannières d'items", value=box("Aucune bannière d'item débloquée"))
                 
@@ -1097,6 +1060,7 @@ class Oktbr(commands.Cog):
             user = message.author
             if user.bot:
                 return
+            
             cache = self.get_cache(guild)
             
             cache['UserActivity'][user.id] = time.time()
@@ -1107,6 +1071,29 @@ class Oktbr(commands.Cog):
                         if currentsug:
                             await self.config.member(user).Sugar.set(max(0, currentsug - 2))
                         cache['SanityLossCD'][user.id] = time.time()
+            
+            
+            cache['EventCounter'] += 1
+            if cache['EventCounter'] >= cache['EventCounterThreshold']:
+                if cache['EventCD'] + 900 > time.time():
+                    cache['EventCounter'] = 0
+                    channels = await self.config.guild(guild).Events.get_raw('channels')
+                    if not channels:
+                        return
+                    channel = random.choice(channels)
+                    event = random.choice(('simple_item', 'group_item', 'foe'))
+                    if event == 'simple_item':
+                        await self.simple_item_spawn(channel)
+                    elif event == 'group_item':
+                        await self.group_item_spawn(channel)
+                    else:
+                        await self.foe_spawn(channel)
+                    
+                    basecounter = await self.config.guild(guild).Events.get_raw('counter_threshold')
+                    if 1 <= datetime.now().hour <= 7:
+                        basecounter = round(basecounter * 0.66)
+                    cache['EventCounterThreshold'] = random.randint(round(basecounter * 1.10), round(basecounter * 0.90))
+                    cache['EventCD'] = time.time()
     
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
@@ -1164,7 +1151,7 @@ class Oktbr(commands.Cog):
     async def set_counter(self, ctx, value: int):
         """Modifier le nombre de cycles (de base) avant l'apparition d'un évènement
         
-        1 cycle = 1 minute"""
+        1 cycle = 1 msg"""
         guild = ctx.guild
         if value >= 1:
             cache = self.get_cache(guild)
@@ -1172,6 +1159,17 @@ class Oktbr(commands.Cog):
             await self.config.guild(guild).Events.set_raw("counter_threshold", value=value)
             return await ctx.send(f"Valeur modifiée · Le bot tentera de se rapprocher de {value} cycles pour les évènements")
         await ctx.send(f"Impossible · La valeur doit être supérieure ou égale à 1 cycle")
+        
+    @oktbr_settings.command(name="cooldown")
+    async def set_events_cd(self, ctx, value: int):
+        """Modifier le cooldown minimal en secondes entre deux events"""
+        guild = ctx.guild
+        if value >= 60:
+            cache = self.get_cache(guild)
+            cache['EventCounterThreshold'] = value
+            await self.config.guild(guild).Events.set_raw("counter_threshold", value=value)
+            return await ctx.send(f"Valeur modifiée · Le bot tentera de se rapprocher de {value}m entre les évènements")
+        await ctx.send(f"Impossible · La valeur doit être supérieure ou égale à 1m (60s)")
         
     @oktbr_settings.command(name="channels")
     async def set_channels(self, ctx, channels: Greedy[discord.TextChannel] = None):

@@ -1162,6 +1162,8 @@ class Oktbr(commands.Cog):
         1 cycle = 1 minute"""
         guild = ctx.guild
         if value >= 1:
+            cache = self.get_cache(guild)
+            cache['EventCounterThreshold'] = value
             await self.config.guild(guild).Events.set_raw("counter_threshold", value=value)
             return await ctx.send(f"Valeur modifiée · Le bot tentera de se rapprocher de {value} cycles pour les évènements")
         await ctx.send(f"Impossible · La valeur doit être supérieure ou égale à 1 cycle")

@@ -849,12 +849,13 @@ class Oktbr(commands.Cog):
                                         f"Bien joué {user.mention} ! Tu pars avec **{item.famount(qte)}**.",
                                         f"Bravo à {user.mention} qui repart avec **{item.famount(qte)}**."
                                         ))
-                post_em = discord.Embed(title="🍬 Jeu d'Halloween • Trouvaille", 
-                                        description=wintxt,
-                                        color=emcolor)
-                if item.icon:
-                    post_em.set_thumbnail(url=item.icon)
-                post_em.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
+            post_em = discord.Embed(title="🍬 Jeu d'Halloween • Trouvaille", 
+                                    description=wintxt,
+                                    color=emcolor)
+            if item.icon:
+                post_em.set_thumbnail(url=item.icon)
+            post_em.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
+            
             await spawn.edit(embed=post_em)
             await spawn.remove_reaction("🍬", self.bot.user)
             await spawn.delete(delay=10)

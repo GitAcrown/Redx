@@ -710,14 +710,16 @@ class Oktbr(commands.Cog):
             return await ctx.reply(f"{cross} **Quantité de sucre insuffisante** · Vous n'avez pas *{qte}x Sucre*.",
                                    mention_author=False)
         
+        if qte < 10:
+            notif = await ctx.reply(f"{cross} **Impossible** · La qté minimale de sucre qui doit être utilisée est de 10x.", mention_author=False)
+        
+        
         notif = None
         if qte > 100:
             notif = await ctx.reply(f"**Info** · J'ai réajusté votre quantité de sucre rentrée car il est inutile d'en mettre plus que 100.", mention_author=False)
         
         async with ctx.typing():
-            if 1 < qte <= 10:
-                success = random.randint(0, 9) == 0
-            elif 10 < qte <= 30:
+            if 10 <= qte <= 30:
                 success = random.randint(0, 2) == 0
             elif 30 < qte <= 50:
                 success = random.randint(0, 2) < 2
@@ -960,11 +962,11 @@ class Oktbr(commands.Cog):
         
         if 7 <= datetime.now().hour <= 21:
             foe_pv = random.randint(100, 250)
-            sugar = random.randint(5, 15)
+            sugar = random.randint(10, 20)
             boosted = False
         else:
             foe_pv = random.randint(100, 350)
-            sugar = random.randint(10, 25)
+            sugar = random.randint(15, 30)
             boosted = True
         sanity = round(sugar * 0.80)
             

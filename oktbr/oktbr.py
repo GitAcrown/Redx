@@ -915,7 +915,8 @@ class Oktbr(commands.Cog):
         if cache["EventUsers"]:
             tabl = []
             for uid, gain in cache["EventUsers"].items():
-                tabl.append((channel.guild.get_member(uid).name, gain.name))
+                gtxt = gtxt = gain.name if gain else 'Inv. Plein'
+                tabl.append((channel.guild.get_member(uid).name, gtxt))
             end_em = discord.Embed(title="🍬 Jeu d'Halloween • Distribution générale",
                                 description=end_msg,
                                 color=emcolor)

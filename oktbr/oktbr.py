@@ -288,7 +288,7 @@ class Oktbr(commands.Cog):
                 'EventItems': [],
                 'EventFoe': {},
                 'EventCounter': 0,
-                'EventCounterThreshold': 15
+                'EventCounterThreshold': 5
             }
         
         return self.cache[guild.id]
@@ -551,7 +551,7 @@ class Oktbr(commands.Cog):
             guildinv = await self.config.guild(guild).Guilds.get_raw(g)
             if banners:
                 banntabl = [(self.get_item(bi), f"{_BANNERS[banners[bi]][0]}/{guildinv[bi]}") for bi in banners]
-                btabl = tabulate(banntabl, headers=('Item', 'Niveau de Bann.'))
+                btabl = tabulate(banntabl, headers=('Item', 'Niveau'))
                 em.add_field(name="Bannières d'items", value=box(btabl))
             else:
                 em.add_field(name="Bannières d'items", value=box("Aucune bannière d'item débloquée"))

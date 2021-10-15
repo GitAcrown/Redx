@@ -939,11 +939,11 @@ class Oktbr(commands.Cog):
         emcolor = HALLOWEEN_COLOR()
         
         if 7 <= datetime.now().hour <= 21:
-            foe_pv = random.randint(50, 150)
+            foe_pv = random.randint(50, 200)
             sugar = random.randint(5, 15)
             boosted = False
         else:
-            foe_pv = random.randint(100, 300)
+            foe_pv = random.randint(75, 250)
             sugar = random.randint(10, 25)
             boosted = True
         sanity = round(sugar * 0.80)
@@ -1073,7 +1073,7 @@ class Oktbr(commands.Cog):
             cache = self.get_cache(guild)
             
             cache['UserActivity'][user.id] = time.time()
-            if cache['SanityLossCD'].get(user.id, 0) <= time.time() - 300:
+            if cache['SanityLossCD'].get(user.id, 0) <= time.time() - 600:
                 if await self.config.member(user).Sanity() < 25:
                     if random.randint(0, 2) == 0:
                         currentsug = await self.config.member(user).Sugar()

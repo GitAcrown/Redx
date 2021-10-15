@@ -539,7 +539,7 @@ class Oktbr(commands.Cog):
             return await ctx.reply(f"{cross} **Item inconnu** · Vérifiez le nom de l'item ou fournissez directement son ID.",
                                    mention_author=False)
             
-        if not await self.pocket_check(author, item, qte):
+        if not await self.pocket_check(author, item, -qte):
             return await ctx.reply(f"{cross} **Nombre d'items insuffisant** · Vous n'avez pas {item.famount(qte)} dans votre inventaire.",
                                    mention_author=False)
         
@@ -575,7 +575,7 @@ class Oktbr(commands.Cog):
             return await ctx.reply(f"{cross} **Item inconnu** · Vérifiez le nom de l'item ou fournissez directement son ID.",
                                    mention_author=False)
             
-        if not await self.pocket_check(author, item, 1):
+        if not await self.pocket_check(author, item, -1):
             return await ctx.reply(f"{cross} **Item non possédé** · Cet item ne se trouve pas dans votre inventaire.",
                                    mention_author=False)
         
@@ -660,7 +660,7 @@ class Oktbr(commands.Cog):
             return await ctx.reply(f"{cross} **Item inconnu** · Vérifiez le nom de l'item ou fournissez directement son ID.",
                                    mention_author=False)
             
-        if not await self.pocket_check(author, item, qte):
+        if not await self.pocket_check(author, item, -qte):
             return await ctx.reply(f"{cross} **Nombre d'items insuffisant** · Vous n'avez pas {item.famount(qte)} dans votre inventaire.",
                                    mention_author=False)
         

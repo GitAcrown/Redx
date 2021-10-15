@@ -1012,7 +1012,7 @@ class Oktbr(commands.Cog):
                 nem.description = f'*{diag}*'
                 nem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f'{foe_pv}ᴮ', lang='css'))
                 nem.add_field(name="Faible VS", value=box(_TRANSLATIONS[foe['weakdef']], lang='fix'))
-                nem.set_footer(text="🗡️ Atq. Physique | 🔮 Magie | 🏃 Fuir")
+                nem.set_footer(text="🗡️ Atq. Physique | 🔮 Magie | 💨 Fuir")
                 nem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])), inline=False)
                 await spawn.edit(embed=nem)
             await asyncio.sleep(1)
@@ -1139,12 +1139,12 @@ class Oktbr(commands.Cog):
                                 action = 'escape'
                             else:
                                 action = random.choice(('physical', 'magic'))
-                                
-                            dmg *= atk_values[action]
-                            if action == foe_weak:
-                                dmg *= random.uniform(1.5, 2.0)
-                                
-                            if action == 'escape':
+                            
+                            if action != 'escape':
+                                dmg *= atk_values[action]
+                                if action == foe_weak:
+                                    dmg *= random.uniform(1.5, 2.0)
+                            else:
                                 dmg = 0
                                 
                             cache["EventUsers"][user.id] = (action, round(dmg))

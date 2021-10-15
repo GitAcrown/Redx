@@ -84,7 +84,7 @@ _FOES = {
     },
     'vampalcool': {
         'name': "Vampire Alcoolisé",
-        'icon': "",
+        'icon': "https://i.imgur.com/1DrDA10.png",
         'dialogues': [
             "Vos bonbons ? Vous voulez dire, NOS bonbons.",
             "N'êtes-vous pas un peu trop âgés pour manger des sucreries ?"
@@ -93,7 +93,7 @@ _FOES = {
     },
     'dogghost': {
         'name': "Dogghost",
-        'icon': "",
+        'icon': "https://i.imgur.com/o4CSMJ2.png",
         'dialogues': [
             "Bouhouh ! Vous avez eu peur ? J'espère.",
             "Un peu de sucre ? Et si je dis s'il-vous-plaît ?"

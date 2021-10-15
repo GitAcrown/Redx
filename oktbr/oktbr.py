@@ -1091,6 +1091,7 @@ class Oktbr(commands.Cog):
                     channelid = random.choice(channels)
                     channel = guild.get_channel(channelid)
                     
+                    await asyncio.sleep(random.randint(1, 5))
                     event = random.choices(('simple_item', 'group_item', 'foe'), weights=(1.0, 0.9, 0.75), k=1)[0]
                     if event == 'simple_item':
                         await self.simple_item_spawn(channel)

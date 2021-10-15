@@ -472,11 +472,13 @@ class Oktbr(commands.Cog):
             em.add_field(name="Effets actifs", value=statxt)
         
         items = await self.pocket_items(user)
+        maxcap = await self.config.PocketSlots()
         items_table = [(f"{item.name}{'ᵘ' if item.on_use else ''}", qte) for item, qte in items]
         if items_table:
-            maxcap = await self.config.PocketSlots()
             pcksum = sum([qte for _, qte in items])
             em.add_field(name=f"Poches ({pcksum}/{maxcap})", value=box(tabulate(items_table, headers=('Item', 'Qte')), lang='fix'))
+        else:
+            em.add_field(name=f"Poches (0/{maxcap})", value=box("Inventaire vide", lang='fix'))
         
         em.set_footer(text=f"Guilde des {teaminfo['name']}", icon_url=teaminfo['icon'])
         await ctx.reply(embed=em, mention_author=False)
@@ -512,7 +514,10 @@ class Oktbr(commands.Cog):
                 gmpts.append((gm.name, await self.config.member(gm).Points()))
             best = sorted(gmpts, key=operator.itemgetter(1), reverse=True)
             besttabl = tabulate(best[:5], headers=('Membre', 'Points'))
-            em.add_field(name="Plus gros contributeurs", value=box(besttabl))
+            if best:
+                em.add_field(name="Plus gros contributeurs", value=box(besttabl))
+            else:
+                em.add_field(name="Plus gros contributeurs", value=box("Aucun contributeur pour le moment"))
             
             banners = await self.get_banners(guild, g)
             guildinv = await self.config.guild(guild).Guilds.get_raw(g)
@@ -520,6 +525,8 @@ class Oktbr(commands.Cog):
                 banntabl = [(self.get_item(bi), f"{_BANNERS[banners[bi]][0]}/{guildinv[bi]}", _BANNERS[banners[bi]][1]) for bi in banners]
                 btabl = tabulate(banntabl, headers=('Item', 'Niveau/Qte', 'Points'))
                 em.add_field(name="Bannières d'items", value=box(btabl))
+            else:
+                em.add_field(name="Bannières d'items", value=box("Aucune bannière d'item débloquée"))
                 
             embeds.append(em)
             
@@ -1133,6 +1140,21 @@ class Oktbr(commands.Cog):
             ids = [c.id for c in channels]
             await self.config.guild(guild).Events.set_raw('channels', value=ids)
             return await ctx.send(f"Salons modifiés · Les évènements pourront apparaître sur les salons donnés.")
+        
+    @oktbr_settings.command(name="guildset")
+    async def set_user_guild(self, ctx, user: discord.Member, guildname: str):
+        """Modifier la guilde d'un membre
+        
+        __Noms normalisés des guildes :__
+        `sorcerer` (Sorcier)
+        `werewolf` (Loup-Garou)
+        `vampire` (Vampire)"""
+        guildname = guildname.lower()
+        if guildname not in list(_GUILDS.keys()):
+            return await ctx.send(f"Nom de guilde invalide · Voyez l'aide de la commande pour voir les noms normalisés des guildes.")
+
+        await self.config.member(user).Guild.set(guildname)
+        await ctx.send(f"Guilde modifiée · {user.mention} a rejoint la guilde des ***{_GUILDS[guildname]['name']}***.")
             
     @oktbr_settings.command(name="pocketsize")
     @checks.is_owner()

@@ -716,7 +716,7 @@ class Oktbr(commands.Cog):
                 success = random.randint(0, 2) == 0
             elif 30 < qte <= 50:
                 success = random.randint(0, 2) < 2
-            elif 50 < qte <= 100:
+            elif 50 < qte < 100:
                 success = random.randint(0, 4) < 4
             else:
                 success = True

@@ -986,10 +986,10 @@ class Oktbr(commands.Cog):
         em.description = f'*{diag}*'
         em.add_field(name="Points de vie", value=box(foe_pv if not boosted else f'{foe_pv}ᴮ', lang='css'))
         em.add_field(name="Faible VS", value=box(_TRANSLATIONS[foe['weakdef']], lang='fix'))
-        em.set_footer(text="🗡️ Atq. Physique | 🔮 Magie | 🏃 Fuir")
+        em.set_footer(text="🗡️ Atq. Physique | 🔮 Magie | 💨 Fuir")
         
         spawn = await channel.send(embed=em)
-        start_adding_reactions(spawn, ["🗡️", "🔮", "🏃‍♂️"])
+        start_adding_reactions(spawn, ["🗡️", "🔮", "💨"])
         
         cache = self.get_cache(channel.guild)
         cache['EventUsers'] = {}
@@ -1135,10 +1135,10 @@ class Oktbr(commands.Cog):
                                 action = 'physical'
                             elif reaction.emoji == "🔮":
                                 action = 'magic'
-                            elif reaction.emoji == "🏃‍♂️":
+                            elif reaction.emoji == "💨":
                                 action = 'escape'
                             else:
-                                action = random.choice(('physical', 'magic', 'escape'))
+                                action = random.choice(('physical', 'magic'))
                                 
                             dmg *= atk_values[action]
                             if action == foe_weak:

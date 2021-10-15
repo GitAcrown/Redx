@@ -994,7 +994,7 @@ class Oktbr(commands.Cog):
             endem = discord.Embed(title=f"🍬 Jeu d'Halloween • VICTOIRE vs. ***{foe['name']}***", color=emcolor)
             endem.set_thumbnail(url=foe['icon'])
             endem.description = f'*{diag}*'
-            endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f'{foe_pv}ᴮ', lang='css'))
+            endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f"{cache['EventFoe']['pv']}ᴮ", lang='css'))
             endem.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
             endem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])), inline=False)
             endem.add_field(name="Gains (Victoire)", value=f"**Sucre +{sugar}**\nPour tous les participants au combat (fuyards exclus)")
@@ -1015,7 +1015,7 @@ class Oktbr(commands.Cog):
             endem = discord.Embed(title=f"🍬 Jeu d'Halloween • DEFAITE vs. ***{foe['name']}***", color=emcolor)
             endem.set_thumbnail(url=foe['icon'])
             endem.description = f'*{diag}*'
-            endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f'{foe_pv}ᴮ', lang='css'))
+            endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f"{cache['EventFoe']['pv']}ᴮ", lang='css'))
             endem.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
             endem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])), inline=False)
             endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}** [**-{round(sanity / 2)}** pour les Vampires]\nPour tous les membres présents récemment (fuyards exclus)")
@@ -1036,10 +1036,11 @@ class Oktbr(commands.Cog):
                     await self.config.member(member).Sanity.set(max(0, current - sanity))
                 
         else:
+            sanity -= round(sanity * 0.33)
             endem = discord.Embed(title=f"🍬 Jeu d'Halloween • DEFAITE vs. ***{foe['name']}***", color=emcolor)
             endem.set_thumbnail(url=foe['icon'])
             endem.description = f'*{diag}*'
-            endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f'{foe_pv}ᴮ', lang='css'))
+            endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f"{cache['EventFoe']['pv']}ᴮ", lang='css'))
             endem.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
             endem.add_field(name="Actions", value=box('Aucun participant', lang='fix'), inline=False)
             endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}** [**-{round(sanity / 2)}** pour les Vampires]\nPour tous les membres présents récemment (fuyards exclus)")
@@ -1049,8 +1050,12 @@ class Oktbr(commands.Cog):
             all_members = await self.config.all_members(channel.guild)
             for u in interact:
                 member = channel.guild.get_member(u)
+                mguild = await self.check_user_guild(member)
                 current = all_members[u]['Sanity']
-                await self.config.member(member).Sanity.set(max(0, current - sanity))
+                if mguild == 'vampire':
+                    await self.config.member(member).Sanity.set(max(0, current - round(sanity / 2)))
+                else:
+                    await self.config.member(member).Sanity.set(max(0, current - sanity))
         await spawn.edit(embed=endem)
         await spawn.delete(delay=20)
         

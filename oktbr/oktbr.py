@@ -33,6 +33,7 @@ HALLOWEEN_COLOR = lambda: random.choice([0x5E32BA, 0xEB6123, 0x18181A, 0x96C457]
 _TRANSLATIONS = {
     'magic': "Magie",
     'physical': "Atq. Physique",
+    'escape': "Fuite",
     'none': "Aucun",
     'sorcerer': "Sorcier",
     'werewolf': "Loup-Garou",
@@ -593,7 +594,7 @@ class Oktbr(commands.Cog):
         Les items qui sont consommables sont annotés d'un ᵘ dans votre inventaire"""
         author = ctx.author
         await self.check_user_guild(author)
-        item = await self.fetch_item(itemname)
+        item = self.fetch_item(itemname)
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         cache = self.get_cache(ctx.guild)
         

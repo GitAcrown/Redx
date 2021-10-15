@@ -998,7 +998,7 @@ class Oktbr(commands.Cog):
                 tabl = []
                 for uid, result in cache["EventUsers"].items():
                     action, dmg = result[0], result[1]
-                    tabl.append((channel.guild.get_member(uid).name, action, dmg if dmg else '--'))
+                    tabl.append((channel.guild.get_member(uid).name, _TRANSLATIONS[action], dmg if dmg else '--'))
                 
                 nem = discord.Embed(title=f"🍬 Jeu d'Halloween • ***{foe['name']}***", color=emcolor)
                 nem.set_thumbnail(url=foe['icon'])
@@ -1006,7 +1006,7 @@ class Oktbr(commands.Cog):
                 nem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f'{foe_pv}ᴮ', lang='css'))
                 nem.add_field(name="Faible VS", value=box(_TRANSLATIONS[foe['weakdef']], lang='fix'))
                 nem.set_footer(text="🗡️ Atq. Physique | 🔮 Magie | 🏃 Fuir")
-                nem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])))
+                nem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])), inline=False)
                 await spawn.edit(embed=nem)
             await asyncio.sleep(1)
         
@@ -1015,14 +1015,14 @@ class Oktbr(commands.Cog):
             tabl = []
             for uid, result in cache["EventUsers"].items():
                 action, dmg = result[0], result[1]
-                tabl.append((channel.guild.get_member(uid).name, action, dmg if dmg else '--'))
+                tabl.append((channel.guild.get_member(uid).name, _TRANSLATIONS[action], dmg if dmg else '--'))
             
             endem = discord.Embed(title=f"🍬 Jeu d'Halloween • VICTOIRE vs. ***{foe['name']}***", color=emcolor)
             endem.set_thumbnail(url=foe['icon'])
             endem.description = f'*{diag}*'
             endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f'{foe_pv}ᴮ', lang='css'))
             endem.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
-            endem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])))
+            endem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])), inline=False)
             endem.add_field(name="Gains (Victoire)", value=f"**Sucre +{sugar}**\nPour tous les participants au combat (fuyards exclus)")
             
             all_members = await self.config.all_members(channel.guild)
@@ -1036,14 +1036,14 @@ class Oktbr(commands.Cog):
             tabl = []
             for uid, result in cache["EventUsers"].items():
                 action, dmg = result[0], result[1]
-                tabl.append((channel.guild.get_member(uid).name, action, dmg if dmg else '--'))
+                tabl.append((channel.guild.get_member(uid).name, _TRANSLATIONS[action], dmg if dmg else '--'))
             
             endem = discord.Embed(title=f"🍬 Jeu d'Halloween • DEFAITE vs. ***{foe['name']}***", color=emcolor)
             endem.set_thumbnail(url=foe['icon'])
             endem.description = f'*{diag}*'
             endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f'{foe_pv}ᴮ', lang='css'))
             endem.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
-            endem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])))
+            endem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])), inline=False)
             endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}** [**-{round(sanity / 2)}** pour les Vampires]\nPour tous les membres présents récemment (fuyards exclus)")
             
             interact = [m for m in cache["UserActivity"] if cache['UserActivity'][m] >= time.time() - 300]
@@ -1067,7 +1067,7 @@ class Oktbr(commands.Cog):
             endem.description = f'*{diag}*'
             endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f'{foe_pv}ᴮ', lang='css'))
             endem.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
-            endem.add_field(name="Actions", value=box('Aucun participant', lang='fix'))
+            endem.add_field(name="Actions", value=box('Aucun participant', lang='fix'), inline=False)
             endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}**\nPour tous les membres présents récemment (fuyards exclus)")
             
             interact = [m for m in cache["UserActivity"] if cache['UserActivity'][m] >= time.time() - 300]
@@ -1086,6 +1086,8 @@ class Oktbr(commands.Cog):
         if message.guild:
             guild = message.guild
             user = message.author
+            if user.bot:
+                return
             cache = self.get_cache(guild)
             
             cache['UserActivity'][user.id] = time.time()

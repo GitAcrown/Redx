@@ -1080,7 +1080,9 @@ class Oktbr(commands.Cog):
                     channels = await self.config.guild(guild).Events.get_raw('channels')
                     if not channels:
                         return
-                    channel = random.choice(channels)
+                    channelid = random.choice(channels)
+                    channel = guild.get_channel(channelid)
+                    
                     event = random.choice(('simple_item', 'group_item', 'foe'))
                     if event == 'simple_item':
                         await self.simple_item_spawn(channel)

@@ -981,7 +981,7 @@ class Oktbr(commands.Cog):
             
         foe['pv'] = foe_pv
         
-        em = discord.Embed(title=f"🍬 Jeu d'Halloween • HOSTILE ***{foe['name']}***", color=emcolor)
+        em = discord.Embed(title=f"🍬 Jeu d'Halloween • COMBAT vs. ***{foe['name']}***", color=emcolor)
         em.set_thumbnail(url=foe['icon'])
         em.description = f'*{diag}*'
         em.add_field(name="Points de vie", value=box(foe_pv if not boosted else f'{foe_pv}ᴮ', lang='css'))
@@ -989,7 +989,7 @@ class Oktbr(commands.Cog):
         em.set_footer(text="🗡️ Atq. Physique | 🔮 Magie | 🏃 Fuir")
         
         spawn = await channel.send(embed=em)
-        start_adding_reactions(spawn, ["🗡️", "🔮", "🏃"])
+        start_adding_reactions(spawn, ["🗡️", "🔮", "🏃‍♂️"])
         
         cache = self.get_cache(channel.guild)
         cache['EventUsers'] = {}
@@ -1007,7 +1007,7 @@ class Oktbr(commands.Cog):
                     action, dmg = result[0], result[1]
                     tabl.append((channel.guild.get_member(uid).name, _TRANSLATIONS[action], dmg if dmg else '--'))
                 
-                nem = discord.Embed(title=f"🍬 Jeu d'Halloween • ***{foe['name']}***", color=emcolor)
+                nem = discord.Embed(title=f"🍬 Jeu d'Halloween • COMBAT vs. ***{foe['name']}***", color=emcolor)
                 nem.set_thumbnail(url=foe['icon'])
                 nem.description = f'*{diag}*'
                 nem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f'{foe_pv}ᴮ', lang='css'))
@@ -1135,8 +1135,10 @@ class Oktbr(commands.Cog):
                                 action = 'physical'
                             elif reaction.emoji == "🔮":
                                 action = 'magic'
-                            else: # 🏃
+                            elif reaction.emoji == "🏃‍♂️":
                                 action = 'escape'
+                            else:
+                                action = random.choice(('physical', 'magic', 'escape'))
                                 
                             dmg *= atk_values[action]
                             if action == foe_weak:
@@ -1144,9 +1146,10 @@ class Oktbr(commands.Cog):
                                 
                             if action == 'escape':
                                 dmg = 0
-                            
-                            cache["EventFoe"]['pv'] = max(0, cache["EventFoe"]['pv'] - round(dmg))
+                                
                             cache["EventUsers"][user.id] = (action, round(dmg))
+                            if dmg:
+                                cache["EventFoe"]['pv'] = max(0, cache["EventFoe"]['pv'] - round(dmg))
 
 
     @commands.group(name="oktset")

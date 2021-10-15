@@ -836,7 +836,7 @@ class Oktbr(commands.Cog):
             try:
                 await self.pocket_add(user, item, qte)
             except:
-                sugar = item.sugar * qte
+                sugar = int(item.sugar / 2) * qte
                 current = await self.config.member(user).Sugar()
                 await self.config.member(user).Sugar.set(current + sugar)
                 wintxt = random.choice((f"{user.mention} gagne **{item.famount(qte)}**, transformé en **{sugar}x Sucre** par manque de place dans l'inventaire",
@@ -979,7 +979,7 @@ class Oktbr(commands.Cog):
                 nem = discord.Embed(title=f"🍬 Jeu d'Halloween • COMBAT vs. ***{foe['name']}***", color=emcolor)
                 nem.set_thumbnail(url=foe['icon'])
                 nem.description = f'*{diag}*'
-                nem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f'{foe_pv}ᴮ', lang='css'))
+                nem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f"{cache['EventFoe']['pv']}ᴮ", lang='css'))
                 nem.add_field(name="Faible VS", value=box(_TRANSLATIONS[foe['weakdef']], lang='fix'))
                 nem.set_footer(text="🗡️ Atq. Physique | 🔮 Magie | 💨 Fuir")
                 nem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])), inline=False)

@@ -566,8 +566,8 @@ class Oktbr(commands.Cog):
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         cache = self.get_cache(ctx.guild)
         
-        if cache['SickUser'].get(author.id, 0) > time.time() - 1200:
-            new = (cache['SickUser'][author.id] + 1200) - time.time()
+        if cache['SickUser'].get(author.id, 0) > time.time() - 21600:
+            new = (cache['SickUser'][author.id] + 21600) - time.time()
             return await ctx.reply(f"{cross} **Surconsommation** · Vous êtes malade. Vous ne pourrez pas reconsommer d'item avant *{new}*.",
                                    mention_author=False)
         
@@ -639,7 +639,11 @@ class Oktbr(commands.Cog):
         em.add_field(name="Effets", value='\n'.join(applied))
         
         if sick:
-            em.add_field(name="Malus", value="Vous êtes tombé malade ! Vous ne pouvez plus consommer d'items pendant **20 minutes**.")
+            sanitymal = random.randint(5, 25)
+            current = await self.config.member(author).Sanity()
+            new = max(0, current - sanitymal)
+            await self.config.member(author).Sanity.set(new)
+            em.add_field(name="Malus", value="Vous êtes tombé malade ! Vous ne pouvez plus consommer d'items pendant **6 heures** et vous perdez **-{sanity} Sanité**.")
             cache['SickUser'][author.id] = time.time()
             
         await msg.clear_reactions()

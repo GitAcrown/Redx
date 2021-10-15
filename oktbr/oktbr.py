@@ -142,7 +142,8 @@ _ASTUCES = (
     "La fuite est le seul moyen de s'assurer de ne pas perdre de sanité, mais en cas de victoire vous ne remportez rien.",
     "Les hostiles sont parfois sensibles contre un type d'attaque et si vous êtes en plus dans une guilde avec un bonus d'attaque dans ce type alors battez-vous !",
     "Si votre sanité tombe en dessous de 25%, vous perdrez du sucre au fil du temps.",
-    "Assurez-vous de garder votre sanité au delà de 25% pour éviter de perdre du sucre...")
+    "Assurez-vous de garder votre sanité au delà de 25% pour éviter de perdre du sucre...",
+    "Chaque niveau de bannière pour un item rapporte 25 points de guilde supplémentaires (B1 = 25, B2 = 50 etc.)")
 
 
 class OktbrError(Exception):
@@ -549,8 +550,8 @@ class Oktbr(commands.Cog):
             banners = await self.get_banners(guild, g)
             guildinv = await self.config.guild(guild).Guilds.get_raw(g)
             if banners:
-                banntabl = [(self.get_item(bi), f"{_BANNERS[banners[bi]][0]}/{guildinv[bi]}", _BANNERS[banners[bi]][1]) for bi in banners]
-                btabl = tabulate(banntabl, headers=('Item', 'Niveau/Qte', 'Points'))
+                banntabl = [(self.get_item(bi), f"{_BANNERS[banners[bi]][0]}/{guildinv[bi]}") for bi in banners]
+                btabl = tabulate(banntabl, headers=('Item', 'Niveau de Bann.'))
                 em.add_field(name="Bannières d'items", value=box(btabl))
             else:
                 em.add_field(name="Bannières d'items", value=box("Aucune bannière d'item débloquée"))

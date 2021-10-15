@@ -32,7 +32,7 @@ HALLOWEEN_COLOR = lambda: random.choice([0x5E32BA, 0xEB6123, 0x18181A, 0x96C457]
 
 _TRANSLATIONS = {
     'magic': "Magie",
-    'physical': "Atq. Physiques",
+    'physical': "Atq. Physique",
     'none': "Aucun",
     'sorcerer': "Sorcier",
     'werewolf': "Loup-Garou",
@@ -348,6 +348,8 @@ class Oktbr(commands.Cog):
         if qte < 0:
             raise ValueError("La quantité d'un item ne peut être négative")
         
+        await self.check_user_guild(user)
+        
         if qte != 0:
             await self.config.member(user).Pocket.set_raw(item.id, value=qte)
         else:
@@ -363,6 +365,9 @@ class Oktbr(commands.Cog):
         
         if not await self.pocket_check(user, item, +qte):
             raise PocketSlotsError("Il n'y a pas assez de slots dans les poches pour faire cette opération")
+        
+        curpts = await self.config.member(user).Points()
+        await self.config.member(user).Points.set(curpts + qte)
         
         pck = await self.config.member(user).Pocket()
         return await self.pocket_set(user, item, qte + pck.get(item.id, 0))
@@ -970,11 +975,11 @@ class Oktbr(commands.Cog):
             foe_pv = random.randint(100, 300)
             sugar = random.randint(10, 25)
             boosted = True
-        sanity = -sugar
+        sanity = round(sugar * 0.80)
             
         foe['pv'] = foe_pv
         
-        em = discord.Embed(title=f"🍬 Jeu d'Halloween • ***{foe['name']}***", color=emcolor)
+        em = discord.Embed(title=f"🍬 Jeu d'Halloween • HOSTILE ***{foe['name']}***", color=emcolor)
         em.set_thumbnail(url=foe['icon'])
         em.description = f'*{diag}*'
         em.add_field(name="Points de vie", value=box(foe_pv if not boosted else f'{foe_pv}ᴮ', lang='css'))
@@ -1068,7 +1073,7 @@ class Oktbr(commands.Cog):
             endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f'{foe_pv}ᴮ', lang='css'))
             endem.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
             endem.add_field(name="Actions", value=box('Aucun participant', lang='fix'), inline=False)
-            endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}**\nPour tous les membres présents récemment (fuyards exclus)")
+            endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}** [**-{round(sanity / 2)}** pour les Vampires]\nPour tous les membres présents récemment (fuyards exclus)")
             
             interact = [m for m in cache["UserActivity"] if cache['UserActivity'][m] >= time.time() - 300]
             

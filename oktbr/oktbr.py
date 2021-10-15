@@ -285,7 +285,8 @@ class Oktbr(commands.Cog):
                 'EventUsers': {},
                 'EventItems': [],
                 'EventFoe': {},
-                'EventCounter': 0
+                'EventCounter': 0,
+                'EventCounterThreshold': 15
             }
         
         return self.cache[guild.id]
@@ -741,9 +742,9 @@ class Oktbr(commands.Cog):
             if 1 < qte <= 10:
                 success = random.randint(0, 4) == 0
             elif 10 < qte <= 30:
-                success = random.randint(0, 2) == 0
-            elif 30 < qte <= 50:
                 success = random.randint(0, 1) == 0
+            elif 30 < qte <= 50:
+                success = random.randint(0, 2) <= 2
             else:
                 success = True
             wait = 3 if success else 1.5

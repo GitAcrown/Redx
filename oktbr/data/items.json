@@ -1,0 +1,128 @@
+{
+    "berlingot" : {
+        "name" : "Berlingot",
+        "icon" : "",
+        "sugar": 9,
+        "on_use": {
+            "restore_sanity": 10
+        },
+        "info": ["Restauration de la sanité : +10"]
+    },
+    "marshmallow" : {
+        "name" : "Marshmallow",
+        "icon" : "",
+        "sugar": 19,
+        "on_use": {
+            "restore_sanity": 5
+        },
+        "info": ["Restauration de la sanité : +5"]
+    },
+    "calisson" : {
+        "name" : "Calisson",
+        "icon" : "",
+        "sugar": 13,
+        "on_use": {
+            "restore_sanity": 15
+        },
+        "info": ["Restauration de la sanité : +15"]
+    },
+    "caramel" : {
+        "name" : "Caramel",
+        "icon" : "",
+        "sugar": 24,
+        "on_use": {
+            "restore_sanity": 12
+        },
+        "info": ["Restauration de la sanité : +12"]
+    },
+    "chewinggum" : {
+        "name" : "Chewing-gum",
+        "icon" : "",
+        "sugar": 10,
+        "on_use": {
+            "restore_sanity": 35
+        },
+        "info": ["Restauration de la sanité : +35"]
+    },
+    "dragee" : {
+        "name" : "Dragée",
+        "icon" : "",
+        "sugar": 8,
+        "on_use": {
+            "restore_sanity": 7
+        },
+        "info": ["Restauration de la sanité : +7"]
+    },
+    "guimauve" : {
+        "name" : "Guimauve",
+        "icon" : "",
+        "sugar": 14,
+        "on_use": {
+            "restore_sanity": 17
+        },
+        "info": ["Restauration de la sanité : +17"]
+    },
+    "reglisse" : {
+        "name" : "Réglisse",
+        "icon" : "",
+        "sugar": 6,
+        "on_use": {
+            "withdraw_sanity": 5
+        },
+        "info": ["Perte de sanité : -5"]
+    },
+    "sucette" : {
+        "name" : "Sucette",
+        "icon" : "",
+        "sugar": 18,
+        "on_use": {
+            "restore_sanity": 24
+        },
+        "info": ["Restauration de la sanité : +24"]
+    },
+    "nougat" : {
+        "name" : "Nougat",
+        "icon" : "",
+        "sugar": 21,
+        "on_use": {
+            "restore_sanity": 12
+        },
+        "info": ["Restauration de la sanité : +12"]
+    },
+    "soucoupe" : {
+        "name" : "Soucoupe",
+        "icon" : "",
+        "sugar": 50,
+        "on_use": {
+            "restore_sanity": 20
+        },
+        "info": ["Restauration de la sanité : +20"]
+    },
+    "praline" : {
+        "name" : "Praline",
+        "icon" : "",
+        "sugar": 15,
+        "on_use": {
+            "restore_sanity": 15
+        },
+        "info": ["Restauration de la sanité : +15"]
+    },
+    "dalgona" : {
+        "name" : "Dalgona",
+        "icon" : "",
+        "sugar": 26,
+        "on_use": {
+            "random_sanity": 20
+        },
+        "info": ["Gain ou perte aléatoire de la sanité : +20 OU -20"]
+    },
+    "chique" : {
+        "name" : "Chique",
+        "icon" : "",
+        "sugar": 13,
+        "on_use": {
+            "restore_sanity": 8
+        },
+        "info": ["Restauration de la sanité : +8"]
+    }
+}

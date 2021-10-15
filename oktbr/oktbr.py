@@ -391,7 +391,7 @@ class Oktbr(commands.Cog):
             lowest_nb = 0
             lowest_name = ''
             for gn in _GUILDS:
-                guildnum = await self.get_guild_members(user.guild, gn)
+                guildnum = len(await self.get_guild_members(user.guild, gn))
                 if lowest_nb == 0 or lowest_nb > guildnum:
                     lowest_nb = guildnum
                     lowest_name = gn

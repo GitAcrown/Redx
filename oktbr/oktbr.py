@@ -515,8 +515,8 @@ class Oktbr(commands.Cog):
             banners = await self.get_banners(guild, g)
             guildinv = await self.config.guild(guild).Guilds.get_raw(g)
             if banners:
-                banntabl = [(self.get_item(bi), f"{_BANNERS[banners[bi]][0]}/{guildinv[bi]}") for bi in banners]
-                btabl = tabulate(banntabl, headers=('Item', 'Niveau'))
+                banntabl = [(self.get_item(bi), f"{_BANNERS[banners[bi]][0]}", f"{guildinv[bi]}") for bi in banners]
+                btabl = tabulate(banntabl, headers=('Item', 'Niveau', 'Qte'))
                 em.add_field(name="Bannières d'items", value=box(btabl), inline=False)
             else:
                 em.add_field(name="Bannières d'items", value=box("Aucune bannière d'item débloquée"))

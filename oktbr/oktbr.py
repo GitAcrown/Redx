@@ -1082,7 +1082,7 @@ class Oktbr(commands.Cog):
             
             cache['EventCounter'] += 1
             if cache['EventCounter'] >= cache['EventCounterThreshold']:
-                if cache['EventCD'] + 900 > time.time() and not cache['EventCurrent']:
+                if cache['EventCD'] + 900 < time.time() and not cache['EventCurrent']:
                     cache['EventCounter'] = 0
                     cache['EventCurrent'] = True
                     channels = await self.config.guild(guild).Events.get_raw('channels')
@@ -1103,7 +1103,7 @@ class Oktbr(commands.Cog):
                     basecounter = await self.config.guild(guild).Events.get_raw('counter_threshold')
                     if 1 <= datetime.now().hour <= 7:
                         basecounter = round(basecounter * 0.66)
-                    cache['EventCounterThreshold'] = random.randint(round(basecounter * 1.10), round(basecounter * 0.90))
+                    cache['EventCounterThreshold'] = random.randint(int(basecounter * 0.90), int(basecounter * 1.10))
                     cache['EventCD'] = time.time()
                     cache['EventCurrent'] = False
     

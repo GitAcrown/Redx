@@ -705,25 +705,31 @@ class Oktbr(commands.Cog):
             return await ctx.reply(f"{cross} **Quantité de sucre insuffisante** · Vous n'avez pas *{qte}x Sucre*.",
                                    mention_author=False)
         
+        if qte > 100:
+            notif = await ctx.reply(f"**Info** · J'ai réajusté votre quantité de sucre rentrée car il est inutile d'en mettre plus que 100.", mention_author=False)
+        
         async with ctx.typing():
             if 1 < qte <= 10:
                 success = random.randint(0, 4) == 0
             elif 10 < qte <= 30:
                 success = random.randint(0, 1) == 0
             elif 30 < qte <= 50:
-                success = random.randint(0, 2) <= 2
+                success = random.randint(0, 2) < 2
+            elif 50 < qte <= 100:
+                success = random.randint(0, 4) < 4
             else:
                 success = True
             wait = 3 if success else 1.5
             await asyncio.sleep(wait)
             
+        await notif.delete(delay=4)
         await self.config.member(author).Sugar.set(max(0, current - qte))
         
         if not success:
             return await ctx.reply(f"{cross} **Echec** · Vous perdez **{qte}x Sucre** sans obtenir de bonbons.",
                                    mention_author=False)
             
-        itemsw = {i: self.items[i]['sugar'] for i in self.items if 'sugar' in self.items[i]}
+        itemsw = {i: 1 - (self.items[i]['sugar'] / 100) for i in self.items if 'sugar' in self.items[i]}
         itemid = random.choices(list(itemsw.keys()), list(itemsw.values()), k=1)[0]
         item = self.get_item(itemid)
         itemqte = random.randint(1, max(3, round(qte/10)))

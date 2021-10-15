@@ -724,11 +724,18 @@ class Oktbr(commands.Cog):
                                    mention_author=False)
             
         itemsw = {i: self.items[i]['sugar'] for i in self.items if 'sugar' in self.items[i]}
-        item = random.choices(list(itemsw.keys()), list(itemsw.values()), k=1)[0]
+        itemid = random.choices(list(itemsw.keys()), list(itemsw.values()), k=1)[0]
+        item = self.get_item(itemid)
         itemqte = random.randint(1, max(3, round(qte/10)))
         
-        await ctx.reply(f"{check} **Sucre recyclé avec succès** · Vous obtenez **{item.famount(itemqte)}** en utilisant {qte} de sucre.",
-                        mention_author=False)
+        try:
+            await self.pocket_add(ctx.author, item, itemqte)
+        except:
+            return await ctx.reply(f"{cross} **Inventaire plein** · Vous avez réussi à créer des bonbons mais... votre inventaire est plein. C'est bête. Vous perdez **{qte}x Sucre** pour rien.",
+                                   mention_author=False)
+        else:
+            await ctx.reply(f"{check} **Sucre recyclé avec succès** · Vous obtenez **{item.famount(itemqte)}** en utilisant {qte} de sucre.",
+                            mention_author=False)
     
     
     @commands.command(name='steal')

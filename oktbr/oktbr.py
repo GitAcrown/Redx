@@ -1070,7 +1070,7 @@ class Oktbr(commands.Cog):
             interact = [m for m in cache["UserActivity"] if cache['UserActivity'][m] >= time.time() - 300]
             
             all_members = await self.config.all_members(channel.guild)
-            for u in interact:
+            for u in [i for i in interact if i in all_members]:
                 member = channel.guild.get_member(u)
                 mguild = await self.check_user_guild(member)
                 current = all_members[u]['Sanity']

@@ -878,7 +878,7 @@ class Oktbr(commands.Cog):
             
             await spawn.edit(embed=post_em)
             await spawn.remove_reaction("🍬", self.bot.user)
-            await spawn.delete(delay=10)
+            await spawn.delete(delay=15)
         
         
     async def group_item_spawn(self, channel: discord.TextChannel):
@@ -950,7 +950,7 @@ class Oktbr(commands.Cog):
             end_em.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
             end_em.add_field(name="Bonbons obtenus", value=box("Personne n'a participé à la distribution", lang='fix'))
         await spawn.edit(embed=end_em)
-        await spawn.delete(delay=15)
+        await spawn.delete(delay=20)
         
         
     async def foe_spawn(self, channel: discord.TextChannel):
@@ -959,11 +959,11 @@ class Oktbr(commands.Cog):
         emcolor = HALLOWEEN_COLOR()
         
         if 7 <= datetime.now().hour <= 21:
-            foe_pv = random.randint(50, 200)
+            foe_pv = random.randint(100, 250)
             sugar = random.randint(5, 15)
             boosted = False
         else:
-            foe_pv = random.randint(75, 250)
+            foe_pv = random.randint(100, 350)
             sugar = random.randint(10, 25)
             boosted = True
         sanity = round(sugar * 0.80)
@@ -1079,7 +1079,7 @@ class Oktbr(commands.Cog):
                 else:
                     await self.config.member(member).Sanity.set(max(0, current - sanity))
         await spawn.edit(embed=endem)
-        await spawn.delete(delay=20)
+        await spawn.delete(delay=30)
         
         
     @commands.Cog.listener()

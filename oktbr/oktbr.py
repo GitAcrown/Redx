@@ -122,10 +122,11 @@ _FOES = {
 
 _BANNERS = {
     0: ("B0", 0),
-    50: ("B1", 25),
-    250: ("B2", 50),
-    500: ("B3", 75),
-    1000: ("B4", 100)
+    25: ("B1", 25),
+    100: ("B2", 50),
+    250: ("B3", 75),
+    500: ("B4", 100),
+    1000: ("B5", 200)
 }
 
 _ASTUCES = (
@@ -143,7 +144,10 @@ _ASTUCES = (
     "Les hostiles sont parfois sensibles contre un type d'attaque et si vous êtes en plus dans une guilde avec un bonus d'attaque dans ce type alors battez-vous !",
     "Si votre sanité tombe en dessous de 25%, vous perdrez du sucre au fil du temps.",
     "Assurez-vous de garder votre sanité au delà de 25% pour éviter de perdre du sucre...",
-    "Chaque niveau de bannière pour un item rapporte 25 points de guilde supplémentaires (B1 = 25, B2 = 50 etc.)")
+    "Chaque niveau de bannière pour un item rapporte 25 points de guilde supplémentaires (B1 = 25, B2 = 50 etc.)",
+    "Gardez bien en tête dans quel type d'attaque que votre guilde excelle, afin de bien choisir le type d'attaque quand un hostile apparaît !",
+    "Vous pouvez récupérer du sucre en écrasant (;crush) vos bonbons. Vous pouvez ensuite le recycler avec ;recycle suivi de la qté de sucre à utiliser.",
+    "Vous pouvez faire ';help' devant n'importe quelle commande pour obtenir de l'aide !")
 
 
 class OktbrError(Exception):
@@ -210,7 +214,7 @@ class Oktbr(commands.Cog):
                 'vampire':  {}},
             'Events': {
                 'channels': [],
-                'counter_threshold': 75
+                'counter_threshold': 50
             }
         }
         
@@ -961,11 +965,11 @@ class Oktbr(commands.Cog):
         emcolor = HALLOWEEN_COLOR()
         
         if 7 <= datetime.now().hour <= 21:
-            foe_pv = random.randint(100, 250)
+            foe_pv = random.randint(100, 300)
             sugar = random.randint(10, 20)
             boosted = False
         else:
-            foe_pv = random.randint(100, 350)
+            foe_pv = random.randint(150, 400)
             sugar = random.randint(15, 30)
             boosted = True
         sanity = round(sugar * 0.80)
@@ -989,7 +993,7 @@ class Oktbr(commands.Cog):
         cache['EventMsg'] = spawn.id
         
         userlist = []
-        timeout = time.time() + 30
+        timeout = time.time() + 45
         while time.time() < timeout and cache['EventFoe']['pv'] > 0:
             if list(cache["EventUsers"].keys()) != userlist:
                 userlist = list(cache["EventUsers"].keys())
@@ -1006,7 +1010,7 @@ class Oktbr(commands.Cog):
                 nem.set_footer(text="🗡️ Atq. Physique | 🔮 Magie | 💨 Fuir")
                 nem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])), inline=False)
                 await spawn.edit(embed=nem)
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.75)
         
         if cache['EventFoe']['pv'] == 0:
             userlist = list(cache["EventUsers"].keys())
@@ -1021,13 +1025,16 @@ class Oktbr(commands.Cog):
             endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f"{cache['EventFoe']['pv']}ᴮ", lang='css'))
             endem.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
             endem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])), inline=False)
-            endem.add_field(name="Gains (Victoire)", value=f"**Sucre +{sugar}**\nPour tous les participants au combat (fuyards exclus)")
+            endem.add_field(name="Gains (Victoire)", value=f"- **Sucre +{sugar}**\n- **Points +2**\n› Pour tous les participants au combat (fuyards exclus)")
             
             all_members = await self.config.all_members(channel.guild)
             for u in [m for m in cache["EventUsers"] if cache["EventUsers"][m][0] != 'escape']:
                 member = channel.guild.get_member(u)
                 current = all_members[u]['Sugar']
                 await self.config.member(member).Sugar.set(current + sugar)
+                
+                pts = await self.config.member(member).Points()
+                await self.config.member(member).Points.set(pts + 2)
 
         elif cache['EventUsers']:
             userlist = list(cache["EventUsers"].keys())
@@ -1042,7 +1049,7 @@ class Oktbr(commands.Cog):
             endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f"{cache['EventFoe']['pv']}ᴮ", lang='css'))
             endem.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
             endem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])), inline=False)
-            endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}** [**-{round(sanity / 2)}** pour les Vampires]\nPour tous les membres présents récemment (fuyards exclus)")
+            endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}** [**-{round(sanity / 2)}** pour les Vampires]\n› Pour tous les membres présents récemment (fuyards exclus)")
             
             interact = [m for m in cache["UserActivity"] if cache['UserActivity'][m] >= time.time() - 300]
             for m in cache['EventUsers']:
@@ -1067,7 +1074,7 @@ class Oktbr(commands.Cog):
             endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f"{cache['EventFoe']['pv']}ᴮ", lang='css'))
             endem.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
             endem.add_field(name="Actions", value=box('Aucun participant', lang='fix'), inline=False)
-            endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}** [**-{round(sanity / 2)}** pour les Vampires]\nPour tous les membres présents récemment (fuyards exclus)")
+            endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}** [**-{round(sanity / 2)}** pour les Vampires]\n› Pour tous les membres présents récemment (fuyards exclus)")
             
             interact = [m for m in cache["UserActivity"] if cache['UserActivity'][m] >= time.time() - 300]
             
@@ -1081,7 +1088,7 @@ class Oktbr(commands.Cog):
                 else:
                     await self.config.member(member).Sanity.set(max(0, current - sanity))
         await spawn.edit(embed=endem)
-        await spawn.delete(delay=60)
+        await spawn.delete(delay=50)
         
         
     @commands.Cog.listener()
@@ -1154,7 +1161,7 @@ class Oktbr(commands.Cog):
                             foe_weak = cache['EventFoe']['weakdef']
                             atk_values = _GUILDS[user_guild]['atkvalues']
                             
-                            dmg = random.randint(20, 60)
+                            dmg = random.randint(15, 50)
                             
                             if reaction.emoji == "🗡️":
                                 action = 'physical'
@@ -1168,7 +1175,7 @@ class Oktbr(commands.Cog):
                             if action != 'escape':
                                 dmg *= atk_values[action]
                                 if action == foe_weak:
-                                    dmg *= random.uniform(1.5, 2.0)
+                                    dmg *= random.uniform(1.3, 1.9)
                             else:
                                 dmg = 0
                                 
@@ -1202,9 +1209,8 @@ class Oktbr(commands.Cog):
         guild = ctx.guild
         if value >= 60:
             cache = self.get_cache(guild)
-            cache['EventCounterThreshold'] = value
             await self.config.guild(guild).Events.set_raw("counter_threshold", value=value)
-            return await ctx.send(f"Valeur modifiée · Le bot tentera de se rapprocher de {value}m entre les évènements")
+            return await ctx.send(f"Valeur modifiée · Le bot tentera de se rapprocher de {value}s entre les évènements")
         await ctx.send(f"Impossible · La valeur doit être supérieure ou égale à 1m (60s)")
         
     @oktbr_settings.command(name="channels")

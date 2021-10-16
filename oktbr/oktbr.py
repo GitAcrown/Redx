@@ -508,7 +508,7 @@ class Oktbr(commands.Cog):
             best = sorted(gmpts, key=operator.itemgetter(1), reverse=True)
             besttabl = tabulate(best[:5], headers=('Membre', 'Points'))
             if best:
-                em.add_field(name="Top 5 contributeurs", value=box(besttabl + "\n-------------\n› Voir ';guildtop'"), inline=False)
+                em.add_field(name="Top 5 contributeurs", value=box(besttabl + "\n-----------------\n› Voir ';guildtop'"), inline=False)
             else:
                 em.add_field(name="Top 5 contributeurs", value=box("Aucun contributeur pour le moment"))
             

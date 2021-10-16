@@ -142,7 +142,8 @@ _ASTUCES = (
     "Chaque niveau de bannière pour un item rapporte 25 points de guilde supplémentaires (B1 = 25, B2 = 50 etc.)",
     "Gardez bien en tête dans quel type d'attaque que votre guilde excelle, afin de bien choisir le type d'attaque quand un hostile apparaît !",
     "Vous pouvez récupérer du sucre en écrasant (;crush) vos bonbons. Vous pouvez ensuite le recycler avec ;recycle suivi de la qté de sucre à utiliser.",
-    "Vous pouvez faire ';help' devant n'importe quelle commande pour obtenir de l'aide !")
+    "Vous pouvez faire ';help' devant n'importe quelle commande pour obtenir de l'aide !",
+    "Vous pouvez consulter un top complet de votre guilde avec ';guildtop' !")
 
 
 class OktbrError(Exception):
@@ -507,9 +508,9 @@ class Oktbr(commands.Cog):
             best = sorted(gmpts, key=operator.itemgetter(1), reverse=True)
             besttabl = tabulate(best[:5], headers=('Membre', 'Points'))
             if best:
-                em.add_field(name="Top 5 contributeurs", value=box(besttabl), inline=False)
+                em.add_field(name="Top 3 contributeurs", value=box(besttabl + '\n\nVoir top complet avec ;guildtop'), inline=False)
             else:
-                em.add_field(name="Top 5 contributeurs", value=box("Aucun contributeur pour le moment"))
+                em.add_field(name="Top 3 contributeurs", value=box("Aucun contributeur pour le moment"))
             
             banners = await self.get_banners(guild, g)
             guildinv = await self.config.guild(guild).Guilds.get_raw(g)
@@ -535,7 +536,7 @@ class Oktbr(commands.Cog):
         if guilde:
             guilde = guilde.lower()
             if guilde not in list(_GUILDS.keys()):
-                isname = [_GUILDS[g]['name'].lower() for g in _GUILDS if _GUILDS[g]['name'].lower() == guilde]
+                isname = [g for g in _GUILDS if _GUILDS[g]['name'].lower() == guilde]
                 if isname:
                     guilde = isname[0]
                 else:

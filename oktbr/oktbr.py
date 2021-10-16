@@ -1,25 +1,20 @@
-from io import RawIOBase
 import json
 import logging
 import operator
 from os import truncate
 from pickle import NONE
 import random
-from re import T
 import time
 import asyncio
 from datetime import datetime
-from typing import List, Tuple, Union, Set, Any, Dict
+from typing import List, Tuple, Union, Optional
 from copy import copy
 from typing_extensions import ParamSpecKwargs
 
 import discord
-from discord.ext import tasks
 from discord.ext.commands import Greedy
-from discord.ext.commands.errors import PrivateMessageOnly
 from fuzzywuzzy import process
 from redbot.core import commands, Config, checks
-from redbot.core.commands.commands import Command
 from redbot.core.data_manager import bundled_data_path
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS, start_adding_reactions
 from redbot.core.utils.chat_formatting import box, humanize_timedelta
@@ -512,9 +507,9 @@ class Oktbr(commands.Cog):
             best = sorted(gmpts, key=operator.itemgetter(1), reverse=True)
             besttabl = tabulate(best[:5], headers=('Membre', 'Points'))
             if best:
-                em.add_field(name="Plus gros contributeurs", value=box(besttabl), inline=False)
+                em.add_field(name="Top 5 contributeurs", value=box(besttabl), inline=False)
             else:
-                em.add_field(name="Plus gros contributeurs", value=box("Aucun contributeur pour le moment"))
+                em.add_field(name="Top 5 contributeurs", value=box("Aucun contributeur pour le moment"))
             
             banners = await self.get_banners(guild, g)
             guildinv = await self.config.guild(guild).Guilds.get_raw(g)
@@ -528,6 +523,44 @@ class Oktbr(commands.Cog):
             embeds.append(em)
             
         await menu(ctx, embeds, DEFAULT_CONTROLS)
+        
+    @commands.command(name='guildtop', aliases=['guildetop'])
+    async def show_guild_top(self, ctx, top: Optional[int] = 20, guilde: str = None):
+        """Affiche un top des contributeurs de votre guilde
+        
+        Changez le paramètre [top] pour obtenir un top plus ou moins complet
+        Vous pouvez rentrer un nom de guilde pour consulter une autre guilde que la votre"""
+        guild = ctx.guild
+        
+        if guilde:
+            guilde = guilde.lower()
+            if guilde not in list(_GUILDS.keys()):
+                isname = [_GUILDS[g]['name'].lower() for g in _GUILDS if _GUILDS[g]['name'].lower() == guilde]
+                if isname:
+                    guilde = isname[0]
+                else:
+                    return await ctx.reply(f"**Nom invalide** · Ce nom ne correspond à aucune guilde existante.",mention_author=False)
+        else:
+            guilde = await self.check_user_guild(ctx.author)
+            
+        guildinfo = _GUILDS[guilde]
+        members = await self.get_guild_members(guild, guilde)
+        members_data = await self.config.all_members(guild)
+        mscore = [(m.name, members_data[m.id]['Points']) for m in members]
+        msort = sorted(mscore, key=operator.itemgetter(1), reverse=True)
+        
+        em = discord.Embed(color=guildinfo['color'])
+        em.set_author(name=f"Guilde des {guildinfo['name']}", icon_url=guildinfo['icon'])
+        em.description = box(tabulate(msort[:top], headers=['Membre', 'Points']))
+        pts = await self.get_guild_points(guild, guilde) + await self.get_banners_points(guild, guilde)
+        em.set_footer(text=f"Points de guilde : {pts}")
+        
+        try:
+            await ctx.reply(embed=em, mention_author=False)
+        except:
+            await ctx.reply(f"**Top trop grand** · Impossible d'afficher une liste aussi longue. Réduisez le nombre au paramètre [top].",
+                                   mention_author=False)
+        
         
     @commands.command(name='donation', aliases=['dono'])
     async def guild_donation(self, ctx, *, item_qte):
@@ -965,11 +998,11 @@ class Oktbr(commands.Cog):
         emcolor = HALLOWEEN_COLOR()
         
         if 7 <= datetime.now().hour <= 21:
-            foe_pv = random.randint(100, 300)
+            foe_pv = random.randint(75, 250)
             sugar = random.randint(10, 20)
             boosted = False
         else:
-            foe_pv = random.randint(150, 400)
+            foe_pv = random.randint(100, 350)
             sugar = random.randint(15, 30)
             boosted = True
         sanity = round(sugar * 0.80)
@@ -1012,7 +1045,7 @@ class Oktbr(commands.Cog):
                 await spawn.edit(embed=nem)
             await asyncio.sleep(0.75)
         
-        if cache['EventFoe']['pv'] == 0:
+        if cache['EventFoe']['pv'] <= 0:
             userlist = list(cache["EventUsers"].keys())
             tabl = []
             for uid, result in cache["EventUsers"].items():
@@ -1029,6 +1062,8 @@ class Oktbr(commands.Cog):
             
             all_members = await self.config.all_members(channel.guild)
             for u in [m for m in cache["EventUsers"] if cache["EventUsers"][m][0] != 'escape']:
+                if u not in all_members:
+                    continue
                 member = channel.guild.get_member(u)
                 current = all_members[u]['Sugar']
                 await self.config.member(member).Sugar.set(current + sugar)
@@ -1058,6 +1093,8 @@ class Oktbr(commands.Cog):
             
             all_members = await self.config.all_members(channel.guild)
             for u in [m for m in interact if cache["EventUsers"].get(m, ['none', 0])[0] != 'escape']:
+                if u not in all_members:
+                    continue
                 member = channel.guild.get_member(u)
                 mguild = await self.check_user_guild(member)
                 current = all_members[u]['Sanity']
@@ -1080,6 +1117,8 @@ class Oktbr(commands.Cog):
             
             all_members = await self.config.all_members(channel.guild)
             for u in [i for i in interact if i in all_members]:
+                if u not in all_members:
+                    continue
                 member = channel.guild.get_member(u)
                 mguild = await self.check_user_guild(member)
                 current = all_members[u]['Sanity']
@@ -1175,13 +1214,12 @@ class Oktbr(commands.Cog):
                             if action != 'escape':
                                 dmg *= atk_values[action]
                                 if action == foe_weak:
-                                    dmg *= random.uniform(1.3, 1.9)
+                                    dmg *= random.uniform(1.5, 2)
+                                cache["EventFoe"]['pv'] = max(0, cache["EventFoe"]['pv'] - round(dmg))
                             else:
                                 dmg = 0
                                 
                             cache["EventUsers"][user.id] = (action, round(dmg))
-                            if dmg:
-                                cache["EventFoe"]['pv'] = max(0, cache["EventFoe"]['pv'] - round(dmg))
 
 
     @commands.group(name="oktset")

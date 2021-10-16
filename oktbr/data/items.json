@@ -4,36 +4,36 @@
         "icon" : "",
         "sugar": 9,
         "on_use": {
-            "restore_sanity": 10
+            "restore_sanity": 12
         },
-        "info": ["Restauration de la sanité : +10"]
+        "info": ["Restauration de la sanité : +12"]
     },
     "marshmallow" : {
         "name" : "Marshmallow",
         "icon" : "",
         "sugar": 19,
         "on_use": {
-            "restore_sanity": 5
+            "restore_sanity": 7
         },
-        "info": ["Restauration de la sanité : +5"]
+        "info": ["Restauration de la sanité : +7"]
     },
     "calisson" : {
         "name" : "Calisson",
         "icon" : "",
         "sugar": 13,
         "on_use": {
-            "restore_sanity": 15
+            "restore_sanity": 18
         },
-        "info": ["Restauration de la sanité : +15"]
+        "info": ["Restauration de la sanité : +18"]
     },
     "caramel" : {
         "name" : "Caramel",
         "icon" : "",
         "sugar": 24,
         "on_use": {
-            "restore_sanity": 12
+            "restore_sanity": 15
         },
-        "info": ["Restauration de la sanité : +12"]
+        "info": ["Restauration de la sanité : +15"]
     },
     "chewinggum" : {
         "name" : "Chewing-gum",
@@ -49,18 +49,18 @@
         "icon" : "",
         "sugar": 8,
         "on_use": {
-            "restore_sanity": 7
+            "restore_sanity": 9
         },
-        "info": ["Restauration de la sanité : +7"]
+        "info": ["Restauration de la sanité : +9"]
     },
     "guimauve" : {
         "name" : "Guimauve",
         "icon" : "",
         "sugar": 14,
         "on_use": {
-            "restore_sanity": 17
+            "restore_sanity": 20
         },
-        "info": ["Restauration de la sanité : +17"]
+        "info": ["Restauration de la sanité : +20"]
     },
     "reglisse" : {
         "name" : "Réglisse",
@@ -76,27 +76,27 @@
         "icon" : "",
         "sugar": 18,
         "on_use": {
-            "restore_sanity": 24
+            "restore_sanity": 28
         },
-        "info": ["Restauration de la sanité : +24"]
+        "info": ["Restauration de la sanité : +28"]
     },
     "nougat" : {
         "name" : "Nougat",
         "icon" : "",
         "sugar": 21,
         "on_use": {
-            "restore_sanity": 12
+            "restore_sanity": 15
         },
-        "info": ["Restauration de la sanité : +12"]
+        "info": ["Restauration de la sanité : +15"]
     },
     "soucoupe" : {
         "name" : "Soucoupe",
         "icon" : "",
         "sugar": 50,
         "on_use": {
-            "restore_sanity": 20
+            "restore_sanity": 25
         },
-        "info": ["Restauration de la sanité : +20"]
+        "info": ["Restauration de la sanité : +25"]
     },
     "praline" : {
         "name" : "Praline",

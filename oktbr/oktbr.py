@@ -999,14 +999,14 @@ class Oktbr(commands.Cog):
         emcolor = HALLOWEEN_COLOR()
         
         if 7 <= datetime.now().hour <= 21:
-            foe_pv = random.randint(75, 250)
-            sugar = random.randint(10, 20)
+            foe_pv = random.randint(75, 200)
+            sugar = random.randint(15, 30)
             boosted = False
         else:
-            foe_pv = random.randint(100, 350)
-            sugar = random.randint(15, 30)
+            foe_pv = random.randint(100, 300)
+            sugar = random.randint(20, 40)
             boosted = True
-        sanity = round(sugar * 0.80)
+        sanity = round(sugar / 2)
             
         foe['pv'] = foe_pv
         

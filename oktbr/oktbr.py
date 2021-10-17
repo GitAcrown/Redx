@@ -785,7 +785,7 @@ class Oktbr(commands.Cog):
                                    mention_author=False)
             
         if random.randint(0, 2) == 0 and authorguild != 'werewolf':
-            sanitymal = random.randint(2, 8)
+            sanitymal = random.randint(5, 15)
             current = await self.config.member(author).Sanity()
             new = max(0, current - sanitymal)
             await self.config.member(author).Sanity.set(new)

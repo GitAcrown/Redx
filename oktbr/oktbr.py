@@ -605,9 +605,9 @@ class Oktbr(commands.Cog):
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         cache = self.get_cache(ctx.guild)
         
-        if cache['SickUser'].get(author.id, 0) > time.time() - 21600:
-            new = (cache['SickUser'][author.id] + 21600) - time.time()
-            return await ctx.reply(f"{cross} **Surconsommation** · Vous êtes malade. Vous ne pourrez pas reconsommer d'item avant *{new}*.",
+        if cache['SickUser'].get(author.id, 0) + 3600 > time.time():
+            new = (cache['SickUser'][author.id] + 3600) - time.time()
+            return await ctx.reply(f"{cross} **Maladie** · Vous êtes malade. Vous ne pourrez pas reconsommer d'item avant *{new}*.",
                                    mention_author=False)
         
         if not item:
@@ -682,7 +682,7 @@ class Oktbr(commands.Cog):
             current = await self.config.member(author).Sanity()
             new = max(0, current - sanitymal)
             await self.config.member(author).Sanity.set(new)
-            em.add_field(name="Malus", value=f"Vous êtes tombé malade ! Vous ne pouvez plus consommer d'items pendant **6 heures** et vous perdez **-{sanitymal} Sanité**.")
+            em.add_field(name="Malus", value=f"Vous êtes tombé malade ! Vous ne pouvez plus consommer d'items pendant **une heure** et vous perdez **-{sanitymal} Sanité**.")
             cache['SickUser'][author.id] = time.time()
             
         await msg.clear_reactions()
@@ -719,7 +719,7 @@ class Oktbr(commands.Cog):
         else:
             authorguild = await self.config.member(author).Guild()
             if authorguild == 'sorcerer':
-                sugar = random.randint(item.sugar, item.sugar + 3) * qte
+                sugar = random.randint(item.sugar, item.sugar + 2) * qte
                 await ctx.reply(f"{check} **Opération réussie** · Vous avez obtenu **{sugar}x Sucre** en recyclant ***{item.famount(qte)}*** [Bonus de Guilde].",
                                    mention_author=False)
             else:
@@ -736,13 +736,19 @@ class Oktbr(commands.Cog):
         La quantité de sucre utilisée détermine votre chance d'obtenir des items et lesquels
         Si vous ne précisez pas de qté de sucre, vous donnera le sucre actuellement possédé"""
         author = ctx.author
-        await self.check_user_guild(author)
+        authorguild = await self.check_user_guild(author)
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         if not qte:
             usugar = await self.config.member(author).Sugar()
             em = discord.Embed(description=f"Vous avez **{usugar}x Sucre**", color=author.color)
             em.set_footer(text="La quantité de sucre utilisée détermine votre chance d'obtenir un item et son type")
             return await ctx.reply(embed=em, mention_author=False)
+        
+        cache = self.get_cache(ctx.guild)
+        if cache['SickUser'].get(author.id, 0) + 3600 > time.time():
+            new = (cache['SickUser'][author.id] + 3600) - time.time()
+            return await ctx.reply(f"{cross} **Maladie** · Vous êtes malade. Vous ne pouvez pas réaliser cette action avant *{new}*.",
+                                   mention_author=False)
         
         current = await self.config.member(author).Sugar()
         if qte > current:
@@ -755,6 +761,7 @@ class Oktbr(commands.Cog):
         
         notif = None
         if qte > 100:
+            qte = 100
             notif = await ctx.reply(f"**Info** · J'ai réajusté votre quantité de sucre rentrée car il est inutile d'en mettre plus que 100.", mention_author=False)
         
         async with ctx.typing():
@@ -775,6 +782,15 @@ class Oktbr(commands.Cog):
         
         if not success:
             return await ctx.reply(f"{cross} **Echec** · Vous perdez **{qte}x Sucre** sans obtenir de bonbons.",
+                                   mention_author=False)
+            
+        if random.randint(0, 4) == 0 and authorguild != 'werewolf':
+            sanitymal = random.randint(2, 8)
+            current = await self.config.member(author).Sanity()
+            new = max(0, current - sanitymal)
+            await self.config.member(author).Sanity.set(new)
+            cache['SickUser'][author.id] = time.time()
+            return await ctx.reply(f"{cross} **Vous êtes tombé malade** · Vous ne pouvez plus recycler d'items pendant **une heure** et vous perdez **-{sanitymal} Sanité**.\nVotre sucre a été perdu.",
                                    mention_author=False)
             
         itemsw = {i: 1 - (self.items[i]['sugar'] / 100) for i in self.items if 'sugar' in self.items[i]}

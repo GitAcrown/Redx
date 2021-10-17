@@ -2,7 +2,7 @@
     "berlingot" : {
         "name" : "Berlingot",
         "icon" : "",
-        "sugar": 9,
+        "sugar": 8,
         "on_use": {
             "restore_sanity": 12
         },
@@ -11,7 +11,7 @@
     "marshmallow" : {
         "name" : "Marshmallow",
         "icon" : "",
-        "sugar": 19,
+        "sugar": 17,
         "on_use": {
             "restore_sanity": 7
         },
@@ -20,7 +20,7 @@
     "calisson" : {
         "name" : "Calisson",
         "icon" : "",
-        "sugar": 13,
+        "sugar": 12,
         "on_use": {
             "restore_sanity": 18
         },
@@ -29,7 +29,7 @@
     "caramel" : {
         "name" : "Caramel",
         "icon" : "",
-        "sugar": 24,
+        "sugar": 22,
         "on_use": {
             "restore_sanity": 15
         },
@@ -74,7 +74,7 @@
     "sucette" : {
         "name" : "Sucette",
         "icon" : "",
-        "sugar": 18,
+        "sugar": 16,
         "on_use": {
             "restore_sanity": 28
         },
@@ -83,7 +83,7 @@
     "nougat" : {
         "name" : "Nougat",
         "icon" : "",
-        "sugar": 21,
+        "sugar": 19,
         "on_use": {
             "restore_sanity": 15
         },
@@ -92,7 +92,7 @@
     "soucoupe" : {
         "name" : "Soucoupe",
         "icon" : "",
-        "sugar": 50,
+        "sugar": 45,
         "on_use": {
             "restore_sanity": 25
         },
@@ -101,7 +101,7 @@
     "praline" : {
         "name" : "Praline",
         "icon" : "",
-        "sugar": 15,
+        "sugar": 13,
         "on_use": {
             "restore_sanity": 15
         },
@@ -110,7 +110,7 @@
     "dalgona" : {
         "name" : "Dalgona",
         "icon" : "",
-        "sugar": 26,
+        "sugar": 23,
         "on_use": {
             "random_sanity": 20
         },
@@ -119,7 +119,7 @@
     "chique" : {
         "name" : "Chique",
         "icon" : "",
-        "sugar": 13,
+        "sugar": 12,
         "on_use": {
             "restore_sanity": 8
         },

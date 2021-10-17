@@ -810,7 +810,8 @@ class Oktbr(commands.Cog):
             for m in all_members:
                 if all_members[m]['Guild'] != authorguild:
                     if all_members[m]['Sugar'] or all_members[m]['Pocket']:
-                        targlist.append((ctx.guild.get_member(m).name, _GUILDS[all_members[m]['Guild']]['name']))
+                        if all_members[m]['Steal']['LastTarget'] != datetime.now().strftime('%d.%m.%Y'):
+                            targlist.append((ctx.guild.get_member(m).name, _GUILDS[all_members[m]['Guild']]['name']))
             if targlist:
                 em = discord.Embed(title="Potentielles cibles de vol", description=box(tabulate(targlist[:10], headers=["Membre", "Guilde"])),
                                    color=HALLOWEEN_COLOR())

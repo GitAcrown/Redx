@@ -817,7 +817,7 @@ class Oktbr(commands.Cog):
                 em.set_footer(text="Vous pouvez tenter de voler quelqu'un avec ';steal <pseudo>'")
                 return await ctx.reply(embed=em, mention_author=False)
             else:
-                em = discord.Embed(title="Potentielles cibles de vol", description=box("Aucune cible n'a été trouvée", lang='css'),
+                em = discord.Embed(title="Potentielles cibles de vol", description=box("Aucune cible n'a été trouvée"),
                                    color=HALLOWEEN_COLOR())
                 em.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
                 return await ctx.reply(embed=em, mention_author=False)

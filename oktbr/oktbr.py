@@ -50,7 +50,7 @@ _GUILDS = {
         'name': "Loups-Garous",
         'icon': "https://i.imgur.com/tnJDQhJ.png",
         'color': 0x87592b,
-        'passive': "Immunisés contre la surconsommation de sucre",
+        'passive': "Immunisé contre les maladies",
         'weakvs': 'sorcerer',
         'atkvalues': {
             'magic': 0.5,
@@ -720,7 +720,7 @@ class Oktbr(commands.Cog):
         else:
             authorguild = await self.config.member(author).Guild()
             if authorguild == 'sorcerer':
-                sugar = random.randint(item.sugar, item.sugar + 2) * qte
+                sugar = random.randint(item.sugar, item.sugar + 3) * qte
                 await ctx.reply(f"{check} **Opération réussie** · Vous avez obtenu **{sugar}x Sucre** en recyclant ***{item.famount(qte)}*** [Bonus de Guilde].",
                                    mention_author=False)
             else:
@@ -1206,12 +1206,13 @@ class Oktbr(commands.Cog):
                         
             userguild = await self.check_user_guild(user)
             if userguild == 'vampire':
-                if cache['SanityVamp'].get(user.id, 0) <= time.time() - 300:
+                if cache['SanityVamp'].get(user.id, 0) <= time.time() - 450:
                     if await self.config.member(user).Pocket():
-                        cache['SanityVamp'][user.id] = time.time()
-                        
-                        cursan = await self.config.member(user).Sanity()
-                        await self.config.member(user).Sanity.set(min(100, cursan + 2))
+                        if cache['SickUser'].get(user.id, 0) + 3600 > time.time():
+                            cache['SanityVamp'][user.id] = time.time()
+                            
+                            cursan = await self.config.member(user).Sanity()
+                            await self.config.member(user).Sanity.set(min(100, cursan + 1))
             
             cache['EventCounter'] += 1
             if cache['EventCounter'] >= cache['EventCounterThreshold']:

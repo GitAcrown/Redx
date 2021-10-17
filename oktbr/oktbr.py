@@ -118,10 +118,10 @@ _FOES = {
 _BANNERS = {
     0: ("B0", 0),
     25: ("B1", 25),
-    100: ("B2", 50),
-    250: ("B3", 75),
-    500: ("B4", 100),
-    1000: ("B5", 200)
+    50: ("B2", 50),
+    100: ("B3", 75),
+    200: ("B4", 100),
+    300: ("B5", 200)
 }
 
 _ASTUCES = (
@@ -799,7 +799,9 @@ class Oktbr(commands.Cog):
         
         Vous ne pouvez voler qu'un membre qui n'est pas de votre guilde
         Vos chances de réussite dépendent de vos guildes respectives, votre sanité ainsi que la présence récente du membre visé ou non
-        Cette action est limitée dans le temps"""
+        Cette action est limitée dans le temps
+        
+        Faire la commande sans mention vous donne une liste de cibles potentielles"""
         author = ctx.author
         authorguild = await self.check_user_guild(author)
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
@@ -866,7 +868,7 @@ class Oktbr(commands.Cog):
                 await self.config.member(user).Sugar.set(userdata['Sugar'] + sugar)
                 return await ctx.reply(f"{cross}🍬 **Echec critique du vol** · {user.mention} vous a attrapé la main dans le sac. Vous perdez **x{sugar} Sucre**, qui sont transférés à la victime.", mention_author=False)
             else:
-                return await ctx.reply(f"{cross}🍬 **Echec du vol** · Vous n'avez pas réussi à voler {user.mention}, mais heureusement pour vous il ne vous a pas attrapé.", mention_author=False)
+                return await ctx.reply(f"{cross}🍬 **Echec du vol** · Vous n'avez pas réussi à voler ***{user.name}***, mais heureusement pour vous il/elle ne vous a pas attrapé.", mention_author=False)
         
         if userdata['Pocket']:
             itemid = random.choice(list(userdata['Pocket'].keys()))
@@ -876,7 +878,7 @@ class Oktbr(commands.Cog):
             try:
                 await self.pocket_remove(user, item, qte)
             except:
-                return await ctx.reply(f"{cross}🍬 **Echec du vol** · Vous n'avez pas réussi à voler {user.mention}, mais heureusement pour vous il ne vous a pas attrapé.", mention_author=False)
+                return await ctx.reply(f"{cross}🍬 **Echec du vol** · Vous n'avez pas réussi à voler **{user.name}**, mais heureusement pour vous il/elle ne vous a pas attrapé.", mention_author=False)
             else:
                 await self.pocket_add(author, item, qte)
             
@@ -895,7 +897,7 @@ class Oktbr(commands.Cog):
             await ctx.reply(embed=em, mention_author=False)
         
         else:
-            return await ctx.reply(f"{cross}🍬 **Echec du vol** · Vous n'avez pas réussi à voler {user.mention}, mais heureusement pour vous il ne vous a pas attrapé.", mention_author=False)
+            return await ctx.reply(f"{cross}🍬 **Echec du vol** · Vous n'avez pas réussi à voler **{user.name}**, mais heureusement pour vous il/elle ne vous a pas attrapé.", mention_author=False)
     
 # EVENTS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    
         

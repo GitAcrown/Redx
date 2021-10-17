@@ -60,7 +60,7 @@ _GUILDS = {
         'name': "Vampires",
         'icon': "https://i.imgur.com/1LJfMqZ.png",
         'color': 0xf0162f,
-        'passive': "Perte de sanité réduite",
+        'passive': "Perte de sanité réduite en combat et regain dans le temps",
         'weakvs': 'werewolf',
         'atkvalues': {
             'magic': 1.25,
@@ -1139,7 +1139,7 @@ class Oktbr(commands.Cog):
             endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f"{cache['EventFoe']['pv']}ᴮ", lang='css'))
             endem.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
             endem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])), inline=False)
-            endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}** [**-{round(sanity / 2)}** pour les Vampires]\n› Pour tous les membres présents récemment (fuyards exclus)")
+            endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}** [**-{round(sanity / 3)}** pour les Vampires]\n› Pour tous les membres présents récemment (fuyards exclus)")
             
             interact = [m for m in cache["UserActivity"] if cache['UserActivity'][m] >= time.time() - 300]
             for m in cache['EventUsers']:
@@ -1154,7 +1154,7 @@ class Oktbr(commands.Cog):
                 mguild = await self.check_user_guild(member)
                 current = all_members[u]['Sanity']
                 if mguild == 'vampire':
-                    await self.config.member(member).Sanity.set(max(0, current - round(sanity / 2)))
+                    await self.config.member(member).Sanity.set(max(0, current - round(sanity / 3)))
                 else:
                     await self.config.member(member).Sanity.set(max(0, current - sanity))
                 
@@ -1166,7 +1166,7 @@ class Oktbr(commands.Cog):
             endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f"{cache['EventFoe']['pv']}ᴮ", lang='css'))
             endem.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
             endem.add_field(name="Actions", value=box('Aucun participant', lang='fix'), inline=False)
-            endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}** [**-{round(sanity / 2)}** pour les Vampires]\n› Pour tous les membres présents récemment (fuyards exclus)")
+            endem.add_field(name="Perte (Défaite)", value=f"**Sanité -{sanity}** [**-{round(sanity / 3)}** pour les Vampires]\n› Pour tous les membres présents récemment (fuyards exclus)")
             
             interact = [m for m in cache["UserActivity"] if cache['UserActivity'][m] >= time.time() - 300]
             
@@ -1178,7 +1178,7 @@ class Oktbr(commands.Cog):
                 mguild = await self.check_user_guild(member)
                 current = all_members[u]['Sanity']
                 if mguild == 'vampire':
-                    await self.config.member(member).Sanity.set(max(0, current - round(sanity / 2)))
+                    await self.config.member(member).Sanity.set(max(0, current - round(sanity / 3)))
                 else:
                     await self.config.member(member).Sanity.set(max(0, current - sanity))
         await spawn.edit(embed=endem)

@@ -243,6 +243,7 @@ class Oktbr(commands.Cog):
                 'UserActivity': {},
                 'SanityLossCD': {},
                 'SickUser': {},
+                'SanityVamp': {},
                 
                 'EventMsg': None,
                 'EventType': '',
@@ -1200,9 +1201,17 @@ class Oktbr(commands.Cog):
                     if random.randint(0, 2) == 0:
                         currentsug = await self.config.member(user).Sugar()
                         if currentsug:
-                            await self.config.member(user).Sugar.set(max(0, currentsug - 2))
+                            await self.config.member(user).Sugar.set(max(0, currentsug - 5))
                         cache['SanityLossCD'][user.id] = time.time()
-            
+                        
+            userguild = await self.check_user_guild(user)
+            if userguild == 'vampire':
+                if cache['SanityVamp'].get(user.id, 0) <= time.time() - 300:
+                    if await self.config.member(user).Pocket():
+                        cache['SanityVamp'][user.id] = time.time()
+                        
+                        cursan = await self.config.member(user).Sanity()
+                        await self.config.member(user).Sanity.set(min(100, cursan + 2))
             
             cache['EventCounter'] += 1
             if cache['EventCounter'] >= cache['EventCounterThreshold']:

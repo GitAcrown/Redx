@@ -812,7 +812,7 @@ class Oktbr(commands.Cog):
                     if all_members[m]['Sugar'] or all_members[m]['Pocket']:
                         targlist.append((ctx.guild.get_member(m).name, _GUILDS[all_members[m]['Guild']]['name']))
             if targlist:
-                em = discord.Embed(title="Potentielles cibles de vol", description=box(tabulate(targlist, headers=["Membre", "Guilde"])),
+                em = discord.Embed(title="Potentielles cibles de vol", description=box(tabulate(targlist[:10], headers=["Membre", "Guilde"])),
                                    color=HALLOWEEN_COLOR())
                 em.set_footer(text="Vous pouvez tenter de voler quelqu'un avec ';steal <pseudo>'")
                 return await ctx.reply(embed=em, mention_author=False)

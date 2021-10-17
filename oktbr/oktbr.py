@@ -766,11 +766,13 @@ class Oktbr(commands.Cog):
         
         async with ctx.typing():
             if 10 <= qte <= 30:
-                success = random.randint(0, 2) == 0
+                success = random.randint(0, 3) == 0
             elif 30 < qte <= 50:
+                success = random.randint(0, 2) == 0
+            elif 50 < qte <= 75:
                 success = random.randint(0, 2) < 2
-            elif 50 < qte < 100:
-                success = random.randint(0, 4) < 3
+            elif 75 < qte < 100:
+                success = random.randint(0, 3) < 3
             else:
                 success = True
             wait = 2.5 if success else 1.5

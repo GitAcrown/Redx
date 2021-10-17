@@ -677,11 +677,11 @@ class Oktbr(commands.Cog):
         em.add_field(name="Effets", value='\n'.join(applied))
         
         if sick:
-            sanitymal = random.randint(5, 25)
+            sanitymal = random.randint(3, 15)
             current = await self.config.member(author).Sanity()
             new = max(0, current - sanitymal)
             await self.config.member(author).Sanity.set(new)
-            em.add_field(name="Malus", value="Vous êtes tombé malade ! Vous ne pouvez plus consommer d'items pendant **6 heures** et vous perdez **-{sanity} Sanité**.")
+            em.add_field(name="Malus", value=f"Vous êtes tombé malade ! Vous ne pouvez plus consommer d'items pendant **6 heures** et vous perdez **-{sanitymal} Sanité**.")
             cache['SickUser'][author.id] = time.time()
             
         await msg.clear_reactions()
@@ -792,16 +792,29 @@ class Oktbr(commands.Cog):
     
     
     @commands.command(name='steal')
-    async def steal_user(self, ctx, user: discord.Member):
+    async def steal_user(self, ctx, user: discord.Member = None):
         """Tenter de voler un autre membre
         
         Vous ne pouvez voler qu'un membre qui n'est pas de votre guilde
         Vos chances de réussite dépendent de vos guildes respectives, votre sanité ainsi que la présence récente du membre visé ou non
         Cette action est limitée dans le temps"""
         author = ctx.author
-        await self.check_user_guild(author)
-        await self.check_user_guild(user)
+        authorguild = await self.check_user_guild(author)
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
+        
+        if not user:
+            all_members = await self.config.all_members(ctx.guild)
+            rdm = []
+            for m in all_members:
+                if all_members[m]['Guild'] != authorguild:
+                    rdm.append(m)
+            if rdm:
+                user = ctx.guild.get_member(random.choice(rdm))
+        
+        if not user:
+            return await ctx.reply(f"{cross} **Choisissez un membre** · Vous devez mentionner un membre à voler avec la commande.", mention_author=False)
+    
+        await self.check_user_guild(user)
         authordata, userdata = await self.config.member(author).all(), await self.config.member(user).all()
         
         if authordata['Steal']['LastTry'] >= time.time() - 21600:
@@ -813,9 +826,6 @@ class Oktbr(commands.Cog):
         
         if authordata['Guild'] == userdata['Guild']:
             return await ctx.reply(f"{cross} **Même guilde** · Vous venez tous les deux de la même guilde. On ne vole pas les gens de sa propre équipe.", mention_author=False)
-        
-        if not userdata['Pocket']:
-            return await ctx.reply(f"{cross} **Inventaire de la cible vide** · Il n'y a rien à voler chez ce membre.", mention_author=False)
         
         await self.config.member(user).Steal.set_raw('LastTarget', value=datetime.now().strftime('%d.%m.%Y'))
         await self.config.member(author).Steal.set_raw('LastTry', value=time.time())
@@ -838,31 +848,42 @@ class Oktbr(commands.Cog):
             await asyncio.sleep(random.randint(2, 4))
             
         if random.uniform(0, 1) > luck:
-            current = authordata['Sugar']
-            if random.randint(0, 1) == 0 and current:
-                sugar = random.randint(1, min(20, authordata['Sugar']))
-                await self.config.member(author).Sugar.set(current - sugar)
-                await self.config.member(user).Sugar.set(current + sugar)
-                return await ctx.reply(f"{cross}🍬 **Echec critique du vol de bonbons** · {user.mention} vous a attrapé la main dans le sac. Vous perdez **x{sugar} Sucre**, qui sont transférés à la victime.", mention_author=False)
+            if random.randint(0, 1) == 0 and authordata['Sugar']:
+                sugar = random.randint(round(authordata['Sugar'] / 4), round(authordata['Sugar'] / 2))
+                await self.config.member(author).Sugar.set(authordata['Sugar'] - sugar)
+                await self.config.member(user).Sugar.set(userdata['Sugar'] + sugar)
+                return await ctx.reply(f"{cross}🍬 **Echec critique du vol** · {user.mention} vous a attrapé la main dans le sac. Vous perdez **x{sugar} Sucre**, qui sont transférés à la victime.", mention_author=False)
             else:
-                return await ctx.reply(f"{cross}🍬 **Echec du vol de bonbons** · Vous n'avez pas réussi à voler {user.mention}, mais heureusement pour vous il ne vous a pas attrapé.", mention_author=False)
+                return await ctx.reply(f"{cross}🍬 **Echec du vol** · Vous n'avez pas réussi à voler {user.mention}, mais heureusement pour vous il ne vous a pas attrapé.", mention_author=False)
         
-        itemid = random.choice(list(userdata['Pocket'].keys()))
-        item = self.get_item(itemid)
-        qte = random.randint(1, max(1, userdata['Pocket'][itemid] / 3))
+        if userdata['Pocket']:
+            itemid = random.choice(list(userdata['Pocket'].keys()))
+            item = self.get_item(itemid)
+            qte = random.randint(1, max(1, userdata['Pocket'][itemid] / 3))
+            
+            try:
+                await self.pocket_remove(user, item, qte)
+            except:
+                return await ctx.reply(f"{cross}🍬 **Echec du vol** · Vous n'avez pas réussi à voler {user.mention}, mais heureusement pour vous il ne vous a pas attrapé.", mention_author=False)
+            else:
+                await self.pocket_add(author, item, qte)
+            
+            em = discord.Embed(color=HALLOWEEN_COLOR())
+            em.set_author(name=author.name, icon_url=author.avatar_url)
+            em.description = f"{check} Vous avez volé {user.mention} avec succès et obtenu {item.famount(qte)} !"
+            await ctx.reply(embed=em, mention_author=False)
+            
+        elif userdata['Sugar']:
+            sugar = random.randint(round(userdata['Sugar'] / 5), round(userdata['Sugar'] / 3))
+            await self.config.member(user).Sugar.set(userdata['Sugar'] - sugar)
+            await self.config.member(author).Sugar.set(authordata['Sugar'] + sugar)
+            em = discord.Embed(color=HALLOWEEN_COLOR())
+            em.set_author(name=author.name, icon_url=author.avatar_url)
+            em.description = f"{check} Vous avez volé {user.mention} avec succès et obtenu **x{sugar} Sucre** !"
+            await ctx.reply(embed=em, mention_author=False)
         
-        try:
-            await self.pocket_remove(user, item, qte)
-        except:
-            return await ctx.reply(f"{cross}🍬 **Echec du vol de bonbons** · Vous n'avez pas réussi à voler {user.mention}, mais heureusement pour vous il ne vous a pas attrapé.", mention_author=False)
         else:
-            await self.pocket_add(author, item, qte)
-        
-        em = discord.Embed(color=HALLOWEEN_COLOR())
-        em.set_author(name=author.name, icon_url=author.avatar_url)
-        em.description = f"{check} Vous avez volé {user.mention} avec succès et obtenu {item.famount(qte)} !"
-        await ctx.reply(embed=em, mention_author=False)
-    
+            return await ctx.reply(f"{cross}🍬 **Echec du vol** · Vous n'avez pas réussi à voler {user.mention}, mais heureusement pour vous il ne vous a pas attrapé.", mention_author=False)
     
 # EVENTS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    
         

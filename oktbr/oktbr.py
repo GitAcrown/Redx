@@ -784,8 +784,8 @@ class Oktbr(commands.Cog):
             return await ctx.reply(f"{cross} **Echec** · Vous perdez **{qte}x Sucre** sans obtenir de bonbons.",
                                    mention_author=False)
             
-        if random.randint(0, 2) == 0 and authorguild != 'werewolf':
-            sanitymal = random.randint(5, 15)
+        if random.randint(0, 3) == 0 and authorguild != 'werewolf':
+            sanitymal = random.randint(5, 20)
             current = await self.config.member(author).Sanity()
             new = max(0, current - sanitymal)
             await self.config.member(author).Sanity.set(new)

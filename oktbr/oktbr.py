@@ -607,7 +607,7 @@ class Oktbr(commands.Cog):
         
         if cache['SickUser'].get(author.id, 0) + 3600 > time.time():
             new = (cache['SickUser'][author.id] + 3600) - time.time()
-            return await ctx.reply(f"{cross} **Maladie** · Vous êtes malade. Vous ne pourrez pas reconsommer d'item avant *{humanize_timedelta(new)}*.",
+            return await ctx.reply(f"{cross} **Maladie** · Vous êtes malade. Vous ne pourrez pas reconsommer d'item avant *{humanize_timedelta(seconds=new)}*.",
                                    mention_author=False)
         
         if not item:
@@ -678,7 +678,7 @@ class Oktbr(commands.Cog):
         em.add_field(name="Effets", value='\n'.join(applied))
         
         if sick:
-            sanitymal = random.randint(3, 15)
+            sanitymal = random.randint(3, 10)
             current = await self.config.member(author).Sanity()
             new = max(0, current - sanitymal)
             await self.config.member(author).Sanity.set(new)
@@ -747,7 +747,7 @@ class Oktbr(commands.Cog):
         cache = self.get_cache(ctx.guild)
         if cache['SickUser'].get(author.id, 0) + 3600 > time.time():
             new = (cache['SickUser'][author.id] + 3600) - time.time()
-            return await ctx.reply(f"{cross} **Maladie** · Vous êtes malade. Vous ne pouvez pas réaliser cette action avant *{humanize_timedelta(new)}*.",
+            return await ctx.reply(f"{cross} **Maladie** · Vous êtes malade. Vous ne pouvez pas réaliser cette action avant *{humanize_timedelta(seconds=new)}*.",
                                    mention_author=False)
         
         current = await self.config.member(author).Sugar()

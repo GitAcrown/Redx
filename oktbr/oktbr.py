@@ -810,7 +810,7 @@ class Oktbr(commands.Cog):
             for m in all_members:
                 if all_members[m]['Guild'] != authorguild:
                     if all_members[m]['Sugar'] or all_members[m]['Pocket']:
-                        if all_members[m]['Steal']['LastTarget'] != datetime.now().strftime('%d.%m.%Y'):
+                        if all_members[m]['Steal'].get('LastTarget', "") != datetime.now().strftime('%d.%m.%Y'):
                             targlist.append((ctx.guild.get_member(m).name, _GUILDS[all_members[m]['Guild']]['name']))
             if targlist:
                 em = discord.Embed(title="Potentielles cibles de vol", description=box(tabulate(targlist[:10], headers=["Membre", "Guilde"])),
@@ -833,7 +833,7 @@ class Oktbr(commands.Cog):
             newtry = (authordata['Steal']['LastTry'] + 21600) - time.time()
             return await ctx.reply(f"{cross} **Vol impossible** · Vous avez déjà tenté de voler quelqu'un il y a moins de 6h. Réessayez dans *{humanize_timedelta(seconds=newtry)}*.", mention_author=False)
         
-        if userdata['Steal']['LastTarget'] == datetime.now().strftime('%d.%m.%Y'):
+        if userdata['Steal'].get('LastTarget', '') == datetime.now().strftime('%d.%m.%Y'):
             return await ctx.reply(f"{cross} **Vol impossible** · Ce membre a déjà été visé par un vol aujourd'hui. Réessayez demain.", mention_author=False)
         
         if authordata['Guild'] == userdata['Guild']:

@@ -564,6 +564,7 @@ class Oktbr(commands.Cog):
         
         
     @commands.command(name='donation', aliases=['dono'])
+    @commands.cooldown(1, 60, commands.BucketType.member)
     async def guild_donation(self, ctx, *, item_qte):
         """Faire don d'items à la guilde pour contribuer à l'obtention de bannières
         
@@ -718,7 +719,7 @@ class Oktbr(commands.Cog):
         else:
             authorguild = await self.config.member(author).Guild()
             if authorguild == 'sorcerer':
-                sugar = random.randint(item.sugar, item.sugar + 4) * qte
+                sugar = random.randint(item.sugar, item.sugar + 3) * qte
                 await ctx.reply(f"{check} **Opération réussie** · Vous avez obtenu **{sugar}x Sucre** en recyclant ***{item.famount(qte)}*** [Bonus de Guilde].",
                                    mention_author=False)
             else:
@@ -779,7 +780,7 @@ class Oktbr(commands.Cog):
         itemsw = {i: 1 - (self.items[i]['sugar'] / 100) for i in self.items if 'sugar' in self.items[i]}
         itemid = random.choices(list(itemsw.keys()), list(itemsw.values()), k=1)[0]
         item = self.get_item(itemid)
-        itemqte = random.randint(1, max(3, round(qte/10)))
+        itemqte = random.randint(max(1, round(qte/20)), max(5, round(qte/10)))
         
         try:
             await self.pocket_add(ctx.author, item, itemqte)
@@ -792,6 +793,7 @@ class Oktbr(commands.Cog):
     
     
     @commands.command(name='steal')
+    @commands.cooldown(1, 10, commands.BucketType.member)
     async def steal_user(self, ctx, user: discord.Member = None):
         """Tenter de voler un autre membre
         
@@ -804,12 +806,21 @@ class Oktbr(commands.Cog):
         
         if not user:
             all_members = await self.config.all_members(ctx.guild)
-            rdm = []
+            targlist = []
             for m in all_members:
                 if all_members[m]['Guild'] != authorguild:
-                    rdm.append(m)
-            if rdm:
-                user = ctx.guild.get_member(random.choice(rdm))
+                    if all_members[m]['Sugar'] or all_members[m]['Pocket']:
+                        targlist.append((ctx.guild.get_member(m).name, _GUILDS[all_members[m]['Guild']]['name']))
+            if targlist:
+                em = discord.Embed(title="Potentielles cibles de vol", description=box(tabulate(targlist, headers=["Membre", "Guilde"])),
+                                   color=HALLOWEEN_COLOR())
+                em.set_footer(text="Vous pouvez tenter de voler quelqu'un avec ';steal <pseudo>'")
+                return await ctx.reply(embed=em, mention_author=False)
+            else:
+                em = discord.Embed(title="Potentielles cibles de vol", description=box("Aucune cible n'a été trouvée", lang='css'),
+                                   color=HALLOWEEN_COLOR())
+                em.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
+                return await ctx.reply(embed=em, mention_author=False)
         
         if not user:
             return await ctx.reply(f"{cross} **Choisissez un membre** · Vous devez mentionner un membre à voler avec la commande.", mention_author=False)

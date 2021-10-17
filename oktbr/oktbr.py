@@ -787,7 +787,7 @@ class Oktbr(commands.Cog):
                                    mention_author=False)
             
         if random.randint(0, 3) == 0 and authorguild != 'werewolf':
-            sanitymal = random.randint(5, 20)
+            sanitymal = random.randint(10, 20)
             current = await self.config.member(author).Sanity()
             new = max(0, current - sanitymal)
             await self.config.member(author).Sanity.set(new)
@@ -1195,7 +1195,7 @@ class Oktbr(commands.Cog):
             cache = self.get_cache(guild)
             
             cache['UserActivity'][user.id] = time.time()
-            if cache['SanityLossCD'].get(user.id, 0) <= time.time() - 600:
+            if cache['SanityLossCD'].get(user.id, 0) <= time.time() - 300:
                 if await self.config.member(user).Sanity() < 25:
                     if random.randint(0, 2) == 0:
                         currentsug = await self.config.member(user).Sugar()

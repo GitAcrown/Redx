@@ -770,10 +770,10 @@ class Oktbr(commands.Cog):
             elif 30 < qte <= 50:
                 success = random.randint(0, 2) < 2
             elif 50 < qte < 100:
-                success = random.randint(0, 3) < 3
+                success = random.randint(0, 4) < 3
             else:
                 success = True
-            wait = 3 if success else 1.5
+            wait = 2.5 if success else 1.5
             await asyncio.sleep(wait)
         
         if notif: 

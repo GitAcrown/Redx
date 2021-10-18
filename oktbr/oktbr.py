@@ -946,8 +946,8 @@ class Oktbr(commands.Cog):
         start_adding_reactions(spawn, emojis)
         try:
             _, user = await self.bot.wait_for("reaction_add",
-                                              check=lambda r, u: r.message.id == spawn.id and not u.bot,
-                                              timeout=30)
+                                              check=lambda r, u: r.message.id == spawn.id and r.emoji == goodemoji and not u.bot,
+                                              timeout=20)
         except asyncio.TimeoutError:
             await spawn.delete()
             return
@@ -956,7 +956,7 @@ class Oktbr(commands.Cog):
             try:
                 await self.pocket_add(user, item, qte)
             except:
-                sugar = int(item.sugar / 2) * qte
+                sugar = int(item.sugar / 1.5) * qte
                 current = await self.config.member(user).Sugar()
                 await self.config.member(user).Sugar.set(current + sugar)
                 wintxt = random.choice((f"{user.mention} gagne **{item.famount(qte)}**, transformé en **{sugar}x Sucre** par manque de place dans l'inventaire",

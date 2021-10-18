@@ -771,7 +771,7 @@ class Oktbr(commands.Cog):
             elif 30 < qte <= 50:
                 success = random.randint(0, 2) == 0
             elif 50 < qte <= 75:
-                success = random.randint(0, 2) < 2
+                success = random.randint(0, 1) == 0
             elif 75 < qte < 100:
                 success = random.randint(0, 3) < 3
             else:

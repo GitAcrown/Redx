@@ -943,7 +943,7 @@ class Oktbr(commands.Cog):
         em.set_footer(text=f"Cliquez en premier sur {goodemoji}")
         
         spawn = await channel.send(embed=em)
-        start_adding_reactions(spawn, [goodemoji])
+        start_adding_reactions(spawn, emojis)
         try:
             _, user = await self.bot.wait_for("reaction_add",
                                               check=lambda r, u: r.message.id == spawn.id and not u.bot,

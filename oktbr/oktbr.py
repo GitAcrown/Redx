@@ -757,7 +757,7 @@ class Oktbr(commands.Cog):
                                    mention_author=False)
         
         if qte < 10:
-            notif = await ctx.reply(f"{cross} **Impossible** · La qté minimale de sucre qui doit être utilisée est de 10x.", mention_author=False)
+            return await ctx.reply(f"{cross} **Impossible** · La qté minimale de sucre qui doit être utilisée est de 10x.", mention_author=False)
         
         
         notif = None

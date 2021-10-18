@@ -2,7 +2,7 @@
     "berlingot" : {
         "name" : "Berlingot",
         "icon" : "",
-        "sugar": 8,
+        "sugar": 6,
         "on_use": {
             "restore_sanity": 12
         },
@@ -11,7 +11,7 @@
     "marshmallow" : {
         "name" : "Marshmallow",
         "icon" : "",
-        "sugar": 17,
+        "sugar": 14,
         "on_use": {
             "restore_sanity": 7
         },
@@ -20,7 +20,7 @@
     "calisson" : {
         "name" : "Calisson",
         "icon" : "",
-        "sugar": 12,
+        "sugar": 11,
         "on_use": {
             "restore_sanity": 18
         },
@@ -29,7 +29,7 @@
     "caramel" : {
         "name" : "Caramel",
         "icon" : "",
-        "sugar": 22,
+        "sugar": 18,
         "on_use": {
             "restore_sanity": 15
         },
@@ -38,7 +38,7 @@
     "chewinggum" : {
         "name" : "Chewing-gum",
         "icon" : "",
-        "sugar": 10,
+        "sugar": 8,
         "on_use": {
             "restore_sanity": 35
         },
@@ -47,7 +47,7 @@
     "dragee" : {
         "name" : "Dragée",
         "icon" : "",
-        "sugar": 8,
+        "sugar": 6,
         "on_use": {
             "restore_sanity": 9
         },
@@ -56,7 +56,7 @@
     "guimauve" : {
         "name" : "Guimauve",
         "icon" : "",
-        "sugar": 14,
+        "sugar": 11,
         "on_use": {
             "restore_sanity": 20
         },
@@ -65,7 +65,7 @@
     "reglisse" : {
         "name" : "Réglisse",
         "icon" : "",
-        "sugar": 6,
+        "sugar": 5,
         "on_use": {
             "withdraw_sanity": 5
         },
@@ -74,7 +74,7 @@
     "sucette" : {
         "name" : "Sucette",
         "icon" : "",
-        "sugar": 16,
+        "sugar": 13,
         "on_use": {
             "restore_sanity": 28
         },
@@ -83,7 +83,7 @@
     "nougat" : {
         "name" : "Nougat",
         "icon" : "",
-        "sugar": 19,
+        "sugar": 16,
         "on_use": {
             "restore_sanity": 15
         },
@@ -92,7 +92,7 @@
     "soucoupe" : {
         "name" : "Soucoupe",
         "icon" : "",
-        "sugar": 45,
+        "sugar": 30,
         "on_use": {
             "restore_sanity": 25
         },
@@ -101,7 +101,7 @@
     "praline" : {
         "name" : "Praline",
         "icon" : "",
-        "sugar": 13,
+        "sugar": 11,
         "on_use": {
             "restore_sanity": 15
         },
@@ -110,7 +110,7 @@
     "dalgona" : {
         "name" : "Dalgona",
         "icon" : "",
-        "sugar": 23,
+        "sugar": 21,
         "on_use": {
             "random_sanity": 20
         },
@@ -119,7 +119,7 @@
     "chique" : {
         "name" : "Chique",
         "icon" : "",
-        "sugar": 12,
+        "sugar": 10,
         "on_use": {
             "restore_sanity": 8
         },

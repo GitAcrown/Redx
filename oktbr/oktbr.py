@@ -651,7 +651,7 @@ class Oktbr(commands.Cog):
         except:
             return await ctx.reply(f"**Erreur** · Impossible de retirer l'item de votre inventaire.", mention_author=False)
             
-        sick = random.randint(0, 3) == 0
+        sick = random.randint(0, 4) == 0
         if await self.config.member(author).Guild() == 'werewolf':
             sick = False
             
@@ -787,7 +787,7 @@ class Oktbr(commands.Cog):
             return await ctx.reply(f"{cross} **Echec** · Vous perdez **{qte}x Sucre** sans obtenir de bonbons.",
                                    mention_author=False)
             
-        if random.randint(0, 3) == 0 and authorguild != 'werewolf':
+        if random.randint(0, 4) == 0 and authorguild != 'werewolf':
             sanitymal = random.randint(10, 20)
             current = await self.config.member(author).Sanity()
             new = max(0, current - sanitymal)

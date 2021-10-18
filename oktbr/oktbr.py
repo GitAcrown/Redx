@@ -934,10 +934,16 @@ class Oktbr(commands.Cog):
                            color=emcolor)
         if item.icon:
             em.set_thumbnail(url=item.icon)
-        em.set_footer(text="Cliquez en premier sur 🍬")
+        
+        emojis = ['🍬','🍭','🍫','🍪']
+        random.shuffle(emojis)
+        emojis = emojis[:3]
+        goodemoji = random.choice(emojis)
+            
+        em.set_footer(text=f"Cliquez en premier sur {goodemoji}")
         
         spawn = await channel.send(embed=em)
-        start_adding_reactions(spawn, ["🍬"])
+        start_adding_reactions(spawn, [goodemoji])
         try:
             _, user = await self.bot.wait_for("reaction_add",
                                               check=lambda r, u: r.message.id == spawn.id and not u.bot,
@@ -971,8 +977,8 @@ class Oktbr(commands.Cog):
             post_em.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
             
             await spawn.edit(embed=post_em)
-            await spawn.remove_reaction("🍬", self.bot.user)
-            await spawn.delete(delay=15)
+            await spawn.remove_reaction(goodemoji, self.bot.user)
+            await spawn.delete(delay=16)
         
         
     async def group_item_spawn(self, channel: discord.TextChannel):

@@ -881,8 +881,8 @@ class Oktbr(commands.Cog):
             userdata['Steal']['LastTarget'] = 0
         
         if userdata['Steal'].get('LastTarget', 0) >= time.time() - 28800:
-            newtry = (authordata['Steal']['LastTarget'] + 28800) - time.time()
-            return await ctx.reply(f"{cross} **Vol impossible** · Ce membre a déjà été visé par un vol il y a moins de 8h. Réessayez dans *{humanize_timedelta(seconds=newtry)}*.", mention_author=False)
+            newsteal = (authordata['Steal']['LastTarget'] + 28800) - time.time()
+            return await ctx.reply(f"{cross} **Vol impossible** · Ce membre a déjà été visé par un vol il y a moins de 8h. Réessayez dans *{humanize_timedelta(seconds=newsteal)}*.", mention_author=False)
         
         if authordata['Guild'] == userdata['Guild']:
             return await ctx.reply(f"{cross} **Même guilde** · Vous venez tous les deux de la même guilde. On ne vole pas les gens de sa propre équipe.", mention_author=False)

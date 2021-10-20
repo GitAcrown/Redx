@@ -536,6 +536,23 @@ class Oktbr(commands.Cog):
         
         if guilde:
             guilde = guilde.lower()
+            
+            if guilde == 'global':
+                em = discord.Embed(title="Classement Global de l'Event", color=HALLOWEEN_COLOR())
+                
+                guildes = await self.config.guild(guild).Guilds()
+                glist = [(_GUILDS[g]['name'], await self.get_guild_points(guild, g) + await self.get_banners_points(guild, g)) for g in guildes]
+                classg = sorted(glist, key=operator.itemgetter(1), reverse=True)
+                em.add_field(name="Guildes", value=box(tabulate(classg, headers=['Guilde', 'Points*'])), inline=False)
+                
+                all_members = await self.config.all_members(guild)
+                mlist = [(guild.get_member(m), _GUILDS[all_members[m]['Guild']]['name'], all_members[m]['Points']) for m in all_members]
+                topm = sorted(mlist, key=operator.itemgetter(1), reverse=True)
+                em.add_field(name="Top 10 membres (Points personnels)", value=box(tabulate(topm[:10], headers=['Membre', 'Guilde', 'Points'])), inline=False)
+            
+                em.set_footer(text="*Comprend les points des membres de la guilde et ceux des bannières")
+                return await ctx.reply(embed=em, mention_author=False)
+                            
             if guilde not in list(_GUILDS.keys()):
                 isname = [g for g in _GUILDS if _GUILDS[g]['name'].lower() == guilde]
                 if isname:
@@ -565,7 +582,7 @@ class Oktbr(commands.Cog):
         
         
     @commands.command(name='donation', aliases=['dono'])
-    @commands.cooldown(1, 60, commands.BucketType.member)
+    @commands.cooldown(1, 30, commands.BucketType.member)
     async def guild_donation(self, ctx, *, item_qte):
         """Faire don d'items à la guilde pour contribuer à l'obtention de bannières
         
@@ -651,7 +668,7 @@ class Oktbr(commands.Cog):
         except:
             return await ctx.reply(f"**Erreur** · Impossible de retirer l'item de votre inventaire.", mention_author=False)
             
-        sick = random.randint(0, 4) == 0
+        sick = random.randint(0, 5) == 0
         if await self.config.member(author).Guild() == 'werewolf':
             sick = False
             
@@ -768,32 +785,33 @@ class Oktbr(commands.Cog):
         async with ctx.typing():
             if 10 <= qte <= 30:
                 success = random.randint(0, 3) == 0
-            elif 30 < qte <= 50:
+            elif 30 < qte < 50:
                 success = random.randint(0, 2) == 0
-            elif 50 < qte <= 75:
-                success = random.randint(0, 1) == 0
-            elif 75 < qte < 100:
-                success = random.randint(0, 3) < 3
+            elif 50 <= qte < 100:
+                success = random.uniform(0, 1) <= qte / 100
             else:
                 success = True
-            wait = 2.5 if success else 1.5
+            wait = 2 if success else 1.25
             await asyncio.sleep(wait)
-        
-        if notif: 
-            await notif.delete(delay=4)
-        await self.config.member(author).Sugar.set(max(0, current - qte))
-        
-        if not success:
-            return await ctx.reply(f"{cross} **Echec** · Vous perdez **{qte}x Sucre** sans obtenir de bonbons.",
-                                   mention_author=False)
             
-        if random.randint(0, 4) == 0 and authorguild != 'werewolf':
-            sanitymal = random.randint(10, 20)
+        if random.randint(0, 5) == 0 and authorguild != 'werewolf':
+            sanitymal = random.randint(5, 15)
+            
+            await self.config.member(author).Sugar.set(max(0, current - round(qte / 2)))
+            
             current = await self.config.member(author).Sanity()
             new = max(0, current - sanitymal)
             await self.config.member(author).Sanity.set(new)
             cache['SickUser'][author.id] = time.time()
-            return await ctx.reply(f"{cross} **Vous êtes tombé malade** · Vous ne pouvez plus recycler d'items pendant **une heure** et vous perdez **-{sanitymal} Sanité**.\nVotre sucre a été perdu.",
+            return await ctx.reply(f"{cross} **Vous êtes tombé malade** · Vous ne pouvez plus recycler d'items pendant **une heure** et vous perdez **-{sanitymal} Sanité**.\nLa moitié du sucre (**{round(qte / 2)}x**) a été perdu.",
+                                   mention_author=False)
+        
+        if notif: 
+            await notif.delete(delay=3)
+        await self.config.member(author).Sugar.set(max(0, current - qte))
+        
+        if not success:
+            return await ctx.reply(f"{cross} **Echec** · Vous perdez **{qte}x Sucre** sans obtenir de bonbons.",
                                    mention_author=False)
             
         itemsw = {i: 1 - (self.items[i]['sugar'] / 100) for i in self.items if 'sugar' in self.items[i]}
@@ -831,8 +849,13 @@ class Oktbr(commands.Cog):
             for m in all_members:
                 if all_members[m]['Guild'] != authorguild:
                     if all_members[m]['Sugar'] or all_members[m]['Pocket']:
-                        if all_members[m]['Steal'].get('LastTarget', "") != datetime.now().strftime('%d.%m.%Y'):
-                            targlist.append((ctx.guild.get_member(m).name, _GUILDS[all_members[m]['Guild']]['name']))
+                        
+                        if type(all_members[m]['Steal']['LastTarget']) is str:
+                            all_members[m]['Steal']['LastTarget'] = 0
+                        
+                        if all_members[m]['Steal'].get('LastTarget', 0) < time.time() - 28800:
+                            name = ctx.guild.get_member(m).name if len(ctx.guild.get_member(m).name) < len(ctx.guild.get_member(m).display_name) else ctx.guild.get_member(m).display_name
+                            targlist.append((name, _GUILDS[all_members[m]['Guild']]['name']))
             if targlist:
                 em = discord.Embed(title="Potentielles cibles de vol", description=box(tabulate(targlist[:10], headers=["Membre", "Guilde"])),
                                    color=HALLOWEEN_COLOR())
@@ -854,13 +877,17 @@ class Oktbr(commands.Cog):
             newtry = (authordata['Steal']['LastTry'] + 21600) - time.time()
             return await ctx.reply(f"{cross} **Vol impossible** · Vous avez déjà tenté de voler quelqu'un il y a moins de 6h. Réessayez dans *{humanize_timedelta(seconds=newtry)}*.", mention_author=False)
         
-        if userdata['Steal'].get('LastTarget', '') == datetime.now().strftime('%d.%m.%Y'):
-            return await ctx.reply(f"{cross} **Vol impossible** · Ce membre a déjà été visé par un vol aujourd'hui. Réessayez demain.", mention_author=False)
+        if type(userdata['Steal']['LastTarget']) is str:
+            userdata['Steal']['LastTarget'] = 0
+        
+        if userdata['Steal'].get('LastTarget', 0) >= time.time() - 28800:
+            newtry = (authordata['Steal']['LastTarget'] + 28800) - time.time()
+            return await ctx.reply(f"{cross} **Vol impossible** · Ce membre a déjà été visé par un vol il y a moins de 8h. Réessayez dans *{humanize_timedelta(seconds=newtry)}*.", mention_author=False)
         
         if authordata['Guild'] == userdata['Guild']:
             return await ctx.reply(f"{cross} **Même guilde** · Vous venez tous les deux de la même guilde. On ne vole pas les gens de sa propre équipe.", mention_author=False)
         
-        await self.config.member(user).Steal.set_raw('LastTarget', value=datetime.now().strftime('%d.%m.%Y'))
+        await self.config.member(user).Steal.set_raw('LastTarget', value=time.time())
         await self.config.member(author).Steal.set_raw('LastTry', value=time.time())
         
         async with ctx.typing():
@@ -1059,11 +1086,11 @@ class Oktbr(commands.Cog):
         emcolor = HALLOWEEN_COLOR()
         
         if 7 <= datetime.now().hour <= 21:
-            foe_pv = random.randint(75, 250)
+            foe_pv = random.randint(100, 250)
             sugar = random.randint(10, 30)
             boosted = False
         else:
-            foe_pv = random.randint(100, 350)
+            foe_pv = random.randint(100, 400)
             sugar = random.randint(15, 35)
             boosted = True
         sanity = round(sugar / 1.5)
@@ -1212,13 +1239,12 @@ class Oktbr(commands.Cog):
                         
             userguild = await self.check_user_guild(user)
             if userguild == 'vampire':
-                if cache['SanityVamp'].get(user.id, 0) <= time.time() - 450:
-                    if await self.config.member(user).Pocket():
-                        if cache['SickUser'].get(user.id, 0) + 3600 > time.time():
-                            cache['SanityVamp'][user.id] = time.time()
-                            
-                            cursan = await self.config.member(user).Sanity()
-                            await self.config.member(user).Sanity.set(min(100, cursan + 1))
+                if cache['SanityVamp'].get(user.id, 0) <= time.time() - 120:
+                    if cache['SickUser'].get(user.id, 0) + 3600 > time.time():
+                        cache['SanityVamp'][user.id] = time.time()
+                        
+                        cursan = await self.config.member(user).Sanity()
+                        await self.config.member(user).Sanity.set(min(100, cursan + 1))
             
             cache['EventCounter'] += 1
             if cache['EventCounter'] >= cache['EventCounterThreshold']:

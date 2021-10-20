@@ -547,7 +547,7 @@ class Oktbr(commands.Cog):
                 
                 all_members = await self.config.all_members(guild)
                 mlist = [(guild.get_member(m), _GUILDS[all_members[m]['Guild']]['name'], all_members[m]['Points']) for m in all_members]
-                topm = sorted(mlist, key=operator.itemgetter(1), reverse=True)
+                topm = sorted(mlist, key=operator.itemgetter(2), reverse=True)
                 em.add_field(name="Top 10 membres (Points personnels)", value=box(tabulate(topm[:10], headers=['Membre', 'Guilde', 'Points'])), inline=False)
             
                 em.set_footer(text="*Comprend les points des membres de la guilde et ceux des bannières")

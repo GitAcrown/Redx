@@ -817,7 +817,7 @@ class Oktbr(commands.Cog):
         itemsw = {i: 1 - (self.items[i]['sugar'] / 100) for i in self.items if 'sugar' in self.items[i]}
         itemid = random.choices(list(itemsw.keys()), list(itemsw.values()), k=1)[0]
         item = self.get_item(itemid)
-        itemqte = random.randint(max(1, round(qte/20)), max(5, round(qte/15)))
+        itemqte = random.randint(max(1, round(qte/25)), max(3, round(qte/15)))
         
         try:
             await self.pocket_add(ctx.author, item, itemqte)

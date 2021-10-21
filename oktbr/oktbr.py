@@ -789,7 +789,7 @@ class Oktbr(commands.Cog):
             elif 30 < qte < 50:
                 success = random.randint(0, 2) == 0
             elif 50 <= qte < 100:
-                success = random.uniform(0, 1) <= qte / 100
+                success = random.uniform(0, 1) <= qte / 90
             else:
                 success = True
             wait = 2 if success else 1.25

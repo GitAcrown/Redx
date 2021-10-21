@@ -1060,6 +1060,8 @@ class Oktbr(commands.Cog):
                                      "Je n'ai plus de bonbons à vous donner, à bientôt !",
                                      "Plus rien à donner, c'est fini."])
             
+        cache['EventType'] = ''
+            
         await spawn.remove_reaction("🍬", self.bot.user)
         if cache["EventUsers"]:
             tabl = []

@@ -505,7 +505,8 @@ class Oktbr(commands.Cog):
             
             gmpts = []
             for gm in contrib:
-                gmpts.append((gm.name, await self.config.member(gm).Points()))
+                if gm:
+                    gmpts.append((gm.name, await self.config.member(gm).Points()))
             best = sorted(gmpts, key=operator.itemgetter(1), reverse=True)
             besttabl = tabulate(best[:5], headers=('Membre', 'Points'))
             if best:
@@ -546,7 +547,7 @@ class Oktbr(commands.Cog):
                 em.add_field(name="Guildes", value=box(tabulate(classg, headers=['Guilde', 'Points*'])), inline=False)
                 
                 all_members = await self.config.all_members(guild)
-                mlist = [(guild.get_member(m), _GUILDS[all_members[m]['Guild']]['name'], all_members[m]['Points']) for m in all_members]
+                mlist = [(guild.get_member(m), _GUILDS[all_members[m]['Guild']]['name'], all_members[m]['Points']) for m in all_members if m]
                 topm = sorted(mlist, key=operator.itemgetter(2), reverse=True)
                 em.add_field(name="Top 10 membres (Points personnels)", value=box(tabulate(topm[:10], headers=['Membre', 'Guilde', 'Points'])), inline=False)
             
@@ -565,7 +566,7 @@ class Oktbr(commands.Cog):
         guildinfo = _GUILDS[guilde]
         members = await self.get_guild_members(guild, guilde)
         members_data = await self.config.all_members(guild)
-        mscore = [(m.name, members_data[m.id]['Points']) for m in members]
+        mscore = [(m.name, members_data[m.id]['Points']) for m in members if m]
         msort = sorted(mscore, key=operator.itemgetter(1), reverse=True)
         
         em = discord.Embed(color=guildinfo['color'])

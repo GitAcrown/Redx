@@ -738,7 +738,7 @@ class Oktbr(commands.Cog):
         else:
             authorguild = await self.config.member(author).Guild()
             if authorguild == 'sorcerer':
-                sugar = random.randint(item.sugar, item.sugar + 3) * qte
+                sugar = random.randint(item.sugar + 1, item.sugar + 3) * qte
                 await ctx.reply(f"{check} **Opération réussie** · Vous avez obtenu **{sugar}x Sucre** en recyclant ***{item.famount(qte)}*** [Bonus de Guilde].",
                                    mention_author=False)
             else:
@@ -789,7 +789,7 @@ class Oktbr(commands.Cog):
             elif 30 < qte < 50:
                 success = random.randint(0, 2) == 0
             elif 50 <= qte < 100:
-                success = random.uniform(0, 1) <= qte / 90
+                success = random.uniform(0, 1) <= qte / 95
             else:
                 success = True
             wait = 2 if success else 1.25
@@ -892,7 +892,7 @@ class Oktbr(commands.Cog):
         await self.config.member(author).Steal.set_raw('LastTry', value=time.time())
         
         async with ctx.typing():
-            luck = 0.20
+            luck = 0.25
             if authordata['Sanity'] > userdata['Sanity']:
                 luck += 0.10
             else:

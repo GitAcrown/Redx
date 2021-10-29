@@ -257,7 +257,7 @@ class Oktbr(commands.Cog):
                 'EventCD': time.time() - 600,
                 'EventCurrent': False,
                 
-                'KnockUsers': {}
+                'KnockUserss': {}
             }
         
         return self.cache[guild.id]
@@ -958,14 +958,14 @@ class Oktbr(commands.Cog):
         cache = self.get_cache(ctx.guild)
         check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         
-        if not author.id in cache['KnockUser']:
-            cache['KnockUser'][author.id] = {
+        if not author.id in cache['KnockUsers']:
+            cache['KnockUsers'][author.id] = {
                 'cooldown': 0,
                 'level': 1
             }
         
-        if cache['KnockUser'][author.id]['cooldown'] >= time.time():
-            newtry = cache['KnockUser'][author.id]['cooldown'] - time.time()
+        if cache['KnockUsers'][author.id]['cooldown'] >= time.time():
+            newtry = cache['KnockUsers'][author.id]['cooldown'] - time.time()
             return await ctx.reply(f"{cross} **Vous êtes fatigué** · Vous avez déjà ennuyé les voisins il y a peu de temps. Réessayez dans *{humanize_timedelta(seconds=newtry)}*.", mention_author=False)
         
         if await self.config.member(author).Sanity() < 50:
@@ -1028,7 +1028,7 @@ class Oktbr(commands.Cog):
         if author.id != 212312231428227072: # Lasagne
             args.append("Lasagne m'a dit que vous avez des bonbons, c'est vrai ? On ne peut jamais être sûr avec lui vous savez.")
         
-        lvl = cache['KnockUser'][author.id]['level']
+        lvl = cache['KnockUsers'][author.id]['level']
         emcolor = HALLOWEEN_COLOR()
         luck = luck_lvl[lvl]
         psb_cooldown = lvl_cd[lvl]
@@ -1075,8 +1075,8 @@ class Oktbr(commands.Cog):
                 r = f"{item.famount(qte)}"
                 await self.pocket_add(author, item, qte)
                 resultem.add_field(name="Gains", value=box(r))
-                cache['KnockUser'][author.id]['cooldown'] = time.time() + 3600
-                cache['KnockUser'][author.id]['level'] = cache['KnockUser'][author.id]['level'] + 1 if cache['KnockUser'][author.id]['level'] < 3 else 3
+                cache['KnockUsers'][author.id]['cooldown'] = time.time() + 3600
+                cache['KnockUsers'][author.id]['level'] = cache['KnockUsers'][author.id]['level'] + 1 if cache['KnockUsers'][author.id]['level'] < 3 else 3
             else:
                 txt += f"{rdm.mention} : *{random.choice(diags['L'])}*"
                 san = random.randint(lvl * 3, lvl * 5)
@@ -1085,11 +1085,11 @@ class Oktbr(commands.Cog):
                 new = max(0, current - san)
                 await self.config.member(author).Sanity.set(new)
                 resultem.add_field(name="Pertes", value=box(r))
-                cache['KnockUser'][author.id]['cooldown'] = time.time() + psb_cooldown
-                cache['KnockUser'][author.id]['level'] = 0
+                cache['KnockUsers'][author.id]['cooldown'] = time.time() + psb_cooldown
+                cache['KnockUsers'][author.id]['level'] = 0
                 
             resultem.description = txt
-            resultem.set_footer(text=f"Vous pourrez réessayer dans : {humanize_timedelta(seconds=cache['KnockUser'][author.id]['cooldown'] - time.time())}")
+            resultem.set_footer(text=f"Vous pourrez réessayer dans : {humanize_timedelta(seconds=cache['KnockUsers'][author.id]['cooldown'] - time.time())}")
             await msg.edit(embed=resultem)
             
     

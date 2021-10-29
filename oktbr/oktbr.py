@@ -923,7 +923,7 @@ class Oktbr(commands.Cog):
         if userdata['Pocket']:
             itemid = random.choice(list(userdata['Pocket'].keys()))
             item = self.get_item(itemid)
-            qte = random.randint(1, max(1, userdata['Pocket'][itemid] / 3))
+            qte = random.randint(1, max(1, round(userdata['Pocket'][itemid] / 3)))
             
             try:
                 await self.pocket_remove(user, item, qte)

@@ -1091,7 +1091,7 @@ class Oktbr(commands.Cog):
                 await self.config.member(author).Sanity.set(new)
                 resultem.add_field(name="Pertes", value=box(r))
                 cache['KnockUsers'][author.id]['cooldown'] = time.time() + psb_cooldown
-                cache['KnockUsers'][author.id]['level'] = 0
+                cache['KnockUsers'][author.id]['level'] = 1
                 
             resultem.description = txt
             resultem.set_footer(text=f"Vous pourrez réessayer dans : {humanize_timedelta(seconds=cache['KnockUsers'][author.id]['cooldown'] - time.time())}")

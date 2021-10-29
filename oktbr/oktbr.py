@@ -13,6 +13,7 @@ from typing_extensions import ParamSpecKwargs
 
 import discord
 from discord.ext.commands import Greedy
+from discord.player import FFmpegAudio
 from fuzzywuzzy import process
 from redbot.core import commands, Config, checks
 from redbot.core.data_manager import bundled_data_path
@@ -254,7 +255,9 @@ class Oktbr(commands.Cog):
                 'EventCounter': 0,
                 'EventCounterThreshold': 25,
                 'EventCD': time.time() - 600,
-                'EventCurrent': False
+                'EventCurrent': False,
+                
+                'KnockUsers': {}
             }
         
         return self.cache[guild.id]
@@ -851,7 +854,7 @@ class Oktbr(commands.Cog):
                 if all_members[m]['Guild'] != authorguild:
                     if all_members[m]['Sugar'] or all_members[m]['Pocket']:
                         
-                        if type(all_members[m]['Steal']['LastTarget']) is str:
+                        if type(all_members[m]['Steal'].get('LastTarget', '')) is str:
                             all_members[m]['Steal']['LastTarget'] = 0
                         
                         if all_members[m]['Steal'].get('LastTarget', 0) < time.time() - 28800:
@@ -900,16 +903,16 @@ class Oktbr(commands.Cog):
                 
             userguild = _GUILDS[userdata['Guild']]
             if userguild['weakvs'] == authordata['Guild']:
-                luck *= 2
+                luck *= 2.5
             
             cache = self.get_cache(ctx.guild)
-            if cache['UserActivity'].get(user.id, 0) < time.time() - 300:
+            if cache['UserActivity'].get(user.id, 0) < time.time() - 600:
                 luck /= 2
                 
             await asyncio.sleep(random.randint(2, 4))
             
         if random.uniform(0, 1) > luck:
-            if random.randint(0, 1) == 0 and authordata['Sugar']:
+            if random.randint(0, 2) == 0 and authordata['Sugar']:
                 sugar = random.randint(round(authordata['Sugar'] / 4), round(authordata['Sugar'] / 2))
                 await self.config.member(author).Sugar.set(authordata['Sugar'] - sugar)
                 await self.config.member(user).Sugar.set(userdata['Sugar'] + sugar)
@@ -946,12 +949,159 @@ class Oktbr(commands.Cog):
         else:
             return await ctx.reply(f"{cross}🍬 **Echec du vol** · Vous n'avez pas réussi à voler **{user.name}**, mais heureusement pour vous il/elle ne vous a pas attrapé.", mention_author=False)
     
+    
+    @commands.command(name='knock', aliases=['toque'])
+    @commands.max_concurrency(3, commands.BucketType.channel)
+    async def knock_doors(self, ctx):
+        """Tenter votre chance en essayant de toquer aux portes du voisinage"""
+        author = ctx.author
+        cache = self.get_cache(ctx.guild)
+        check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
+        
+        if not author.id in cache['KnockUser']:
+            cache['KnockUser'][author.id] = {
+                'cooldown': 0,
+                'level': 1
+            }
+        
+        if cache['KnockUser'][author.id]['cooldown'] >= time.time():
+            newtry = cache['KnockUser'][author.id]['cooldown'] - time.time()
+            return await ctx.reply(f"{cross} **Vous êtes fatigué** · Vous avez déjà ennuyé les voisins il y a peu de temps. Réessayez dans *{humanize_timedelta(seconds=newtry)}*.", mention_author=False)
+        
+        if await self.config.member(author).Sanity() < 50:
+            return await ctx.reply(f"{cross} **Vous n'êtes pas apte** · Vous devez avoir au moins 50% de Sanité afin de réaliser un tour du voisinage.", mention_author=False)
+        
+        
+        voisins = [m for m in ctx.guild.members if m not in await self.config.all_members(ctx.guild)]
+        voisins = [v for v in voisins if isinstance(v, discord.Member)]
+        
+        luck_lvl = {
+            1: 0.80,
+            2: 0.50,
+            3: 0.30
+        }
+        lvl_cd = {
+            1: 1800,
+            2: 7200,
+            3: 21600
+        }
+        diags = {
+            'Intro': [
+                "Je peux faire quelque chose pour vous ?",
+                "Oui ? Vous voulez quoi ?",
+                "Un soucis ? Que voulez-vous ?",
+                "Qui vient encore me faire chier ?"
+                ],
+            'W': [
+                "Hm. Ok. J'ai pitié de vous, voilà.",
+                "Bon, d'accord. Je reviens je vais te donner ce qui me reste...",
+                "Je suis de bon humeur aujourd'hui, voilà quelques friandises.",
+                "Vous m'avez convaincu. Voilà quelques bonbons :",
+                "Il m'en reste un paquet, tenez, prenez-en quelques uns.",
+                "Vous pouvez arrêter de crier s'il-vous-plait ? Prenez-les vos bonbons de merde."
+            ],
+            'L': [
+                "Hors de question, c'est pour les enfants les bonbons.",
+                "Vous faîtes quoi là ? C'est ridicule votre déguisement, dégagez.",
+                "Euh non. Retirez votre pied vous bloquez la porte, merci.",
+                "Depuis quand des adultes font la chasse aux bonbons ? Vous avez quel âge ? C'est non.",
+                "Dégagez ou j'appelle la police."
+            ]
+        }
+        args = [
+            "Arretez zebi vous allez encore niquer le bot, et on pourra plus rien faire de la soirée comme d’habitude. Vous savez pas y aller doucement avec les jeux ici. Mais bon sang quoi, ça demande juste un peu de bon sens. Avec vous il faut toujours que ça pète pour que vous réalisez que vous êtes allés trop loin.",
+            "Filez-moi vos bonbons, FILEZ-MOI LES BONBONS J'AI DIS",
+            "Svp monsieur donnez bonbons, bébé malade.",
+            "Je suis addict au sucre, si j'ai pas ma dose je vais commettre un crime.",
+            "C'est pour un défi avec des copains ahah... S'il-vous-plaît des bonbons ?",
+            "Auriez-vous quelques bonbons à donner ?",
+            "Avez-vous un peu de sucre qui vous encombre ?",
+            "ARGHOUARGH BOARGZABOING SuCrE",
+            "Cette proposition m'assure un maximum de chances pour obtenir des bonbons de votre part.",
+            "J'ai besoin de sucre ou je vais faire une crise d'e-poglycémie."
+        ]
+        
+        if author.id != 381880461015777291: # Keijax
+            args.append("Keijax m'a dit de vous dire que si vous me donnez pas de sucre il viendra en voler chez vous de toute manière.")
+        if author.id != 175014021366415360: # Magla
+            args.append("Saviez-vous que les Loups-Garous sont OP ? C'est Magla qui me l'a dit. Maintenant donnez les bonbecs.")
+        if author.id != 212312231428227072: # Lasagne
+            args.append("Lasagne m'a dit que vous avez des bonbons, c'est vrai ? On ne peut jamais être sûr avec lui vous savez.")
+        
+        lvl = cache['KnockUser'][author.id]['level']
+        emcolor = HALLOWEEN_COLOR()
+        luck = luck_lvl[lvl]
+        psb_cooldown = lvl_cd[lvl]
+        rdm = random.choice(voisins)
+        voisins.remove(rdm)
+        
+        props = random.sample(args, k=2)
+        em = discord.Embed(title=f"Chasse aux bonbons · *{rdm.name}*", 
+                            description=f"{rdm.mention} : *{random.choice(diags['Intro'])}*", color=emcolor)
+        em.set_thumbnail(url=rdm.avatar_url)
+        msg = await ctx.reply(embed=em, mention_author=False)
+        await asyncio.sleep(2)
+        
+        em.add_field(name="🇦 Proposition A", value=box(props[0], lang='yaml'))
+        em.add_field(name="🇧 Proposition B", value=box(props[1], lang='fix'))
+        
+        em.set_footer(text="Choisissez l'une des proposition pour le convaincre de vous donner quelque chose [Lvl. {level}]")
+        
+        await msg.edit(embed=em)
+        start_adding_reactions(msg, ['🇦', '🇧'])
+        try:
+            react, _ = await self.bot.wait_for("reaction_add",
+                                            check=lambda r, u: r.message.id == msg.id and r.emoji in ['🇦', '🇧'] and not u.bot,
+                                            timeout=30)
+        except asyncio.TimeoutError:
+            await msg.delete()
+            return
+        else:
+            choice = props[0] if react.emoji == '🇦' else props[1]
+            win = random.uniform(0.0, 1.0) <= luck
+            
+            resultem = discord.Embed(title=f"Chasse aux bonbons · *{rdm.name}*",
+                                    color=emcolor)
+            
+            txt = f"{rdm.mention} : *{random.choice(diags['Intro'])}*\n"
+            txt += f"{author.mention} : *{choice}*\n"
+            
+            if win:
+                txt += f"{rdm.mention} : *{random.choice(diags['W'])}*"
+                
+                rdm_item = random.choice(list(self.items.keys()))
+                item = self.get_item(rdm_item)
+                qte = random.randint(lvl, round(lvl*2.5))
+                r = f"{item.famount(qte)}"
+                await self.pocket_add(author, item, qte)
+                resultem.add_field(name="Gains", value=box(r))
+                cache['KnockUser'][author.id]['cooldown'] = time.time() + 3600
+                cache['KnockUser'][author.id]['level'] = cache['KnockUser'][author.id]['level'] + 1 if cache['KnockUser'][author.id]['level'] < 3 else 3
+            else:
+                txt += f"{rdm.mention} : *{random.choice(diags['L'])}*"
+                san = random.randint(lvl * 3, lvl * 5)
+                r = f"Sanité -{san}"
+                current = await self.config.member(author).Sanity()
+                new = max(0, current - san)
+                await self.config.member(author).Sanity.set(new)
+                resultem.add_field(name="Pertes", value=box(r))
+                cache['KnockUser'][author.id]['cooldown'] = time.time() + psb_cooldown
+                cache['KnockUser'][author.id]['level'] = 0
+                
+            resultem.description = txt
+            resultem.set_footer(text=f"Vous pourrez réessayer dans : {humanize_timedelta(seconds=cache['KnockUser'][author.id]['cooldown'] - time.time())}")
+            await msg.edit(embed=resultem)
+            
+    
 # EVENTS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    
         
     async def simple_item_spawn(self, channel: discord.TextChannel):
         rdm_item = random.choice(list(self.items.keys()))
         item = self.get_item(rdm_item)
-        qte = random.randint(1, 3)
+        if 7 <= datetime.now().hour <= 21:
+            qte = random.randint(1, 3)
+        else:
+            qte = random.randint(2, 5)
         emcolor = HALLOWEEN_COLOR()
         text = random.choice((f"Je donne **{item.famount(qte)}** au plus rapide ! Dépêchez-vous !",
                               f"Voici **{item.famount(qte)}** ! Premier arrivé, premier servi.",
@@ -963,7 +1113,7 @@ class Oktbr(commands.Cog):
         if item.icon:
             em.set_thumbnail(url=item.icon)
         
-        emojis = ['🍬','🍭','🍫','🍪']
+        emojis = ['🍬','🍭','🍫','🍪', '🍩']
         random.shuffle(emojis)
         emojis = emojis[:3]
         goodemoji = random.choice(emojis)
@@ -984,7 +1134,7 @@ class Oktbr(commands.Cog):
             try:
                 await self.pocket_add(user, item, qte)
             except:
-                sugar = int(item.sugar / 1.5) * qte
+                sugar = int(item.sugar / 1.25) * qte
                 current = await self.config.member(user).Sugar()
                 await self.config.member(user).Sugar.set(current + sugar)
                 wintxt = random.choice((f"{user.mention} gagne **{item.famount(qte)}**, transformé en **{sugar}x Sucre** par manque de place dans l'inventaire",
@@ -1089,14 +1239,16 @@ class Oktbr(commands.Cog):
         emcolor = HALLOWEEN_COLOR()
         
         if 7 <= datetime.now().hour <= 21:
-            foe_pv = random.randint(100, 250)
+            foe_pv = random.randint(150, 350)
             sugar = random.randint(10, 30)
+            winpts = 3
             boosted = False
         else:
-            foe_pv = random.randint(100, 400)
-            sugar = random.randint(15, 35)
+            foe_pv = random.randint(150, 400)
+            sugar = random.randint(20, 40)
+            winpts = 5
             boosted = True
-        sanity = round(sugar / 1.5)
+        sanity = round(sugar / 1.25)
             
         foe['pv'] = foe_pv
         
@@ -1117,7 +1269,7 @@ class Oktbr(commands.Cog):
         cache['EventMsg'] = spawn.id
         
         userlist = []
-        timeout = time.time() + 45
+        timeout = time.time() + 50
         while time.time() < timeout and cache['EventFoe']['pv'] > 0:
             if list(cache["EventUsers"].keys()) != userlist:
                 userlist = list(cache["EventUsers"].keys())
@@ -1134,7 +1286,7 @@ class Oktbr(commands.Cog):
                 nem.set_footer(text="🗡️ Atq. Physique | 🔮 Magie | 💨 Fuir")
                 nem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])), inline=False)
                 await spawn.edit(embed=nem)
-            await asyncio.sleep(0.75)
+            await asyncio.sleep(0.6)
         
         if cache['EventFoe']['pv'] <= 0:
             userlist = list(cache["EventUsers"].keys())
@@ -1160,7 +1312,7 @@ class Oktbr(commands.Cog):
                 await self.config.member(member).Sugar.set(current + sugar)
                 
                 pts = await self.config.member(member).Points()
-                await self.config.member(member).Points.set(pts + 2)
+                await self.config.member(member).Points.set(pts + winpts)
 
         elif cache['EventUsers']:
             userlist = list(cache["EventUsers"].keys())
@@ -1243,11 +1395,11 @@ class Oktbr(commands.Cog):
             userguild = await self.check_user_guild(user)
             if userguild == 'vampire':
                 if cache['SanityVamp'].get(user.id, 0) <= time.time() - 120:
-                    if cache['SickUser'].get(user.id, 0) + 3600 > time.time():
+                    if cache['SickUser'].get(user.id, 0) + 3600 < time.time():
                         cache['SanityVamp'][user.id] = time.time()
                         
                         cursan = await self.config.member(user).Sanity()
-                        await self.config.member(user).Sanity.set(min(100, cursan + 1))
+                        await self.config.member(user).Sanity.set(min(100, cursan + 2))
             
             cache['EventCounter'] += 1
             if cache['EventCounter'] >= cache['EventCounterThreshold']:

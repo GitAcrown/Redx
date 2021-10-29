@@ -1077,7 +1077,7 @@ class Oktbr(commands.Cog):
                     r = f"{item.famount(qte)}"
                 except:
                     current = await self.config.member(author).Sugar()
-                    await self.config.member(author).Sanity.set(current + qte * 4)
+                    await self.config.member(author).Sugar.set(current + qte * 4)
                     r = f"Sucre x{qte * 4} (Inv. Plein)"
                 resultem.add_field(name="Gains", value=box(r))
                 cache['KnockUsers'][author.id]['cooldown'] = time.time() + 3600

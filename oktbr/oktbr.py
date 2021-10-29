@@ -1072,8 +1072,13 @@ class Oktbr(commands.Cog):
                 rdm_item = random.choice(list(self.items.keys()))
                 item = self.get_item(rdm_item)
                 qte = random.randint(lvl, round(lvl*2.5))
-                r = f"{item.famount(qte)}"
-                await self.pocket_add(author, item, qte)
+                try:
+                    await self.pocket_add(author, item, qte)
+                    r = f"{item.famount(qte)}"
+                except:
+                    current = await self.config.member(author).Sugar()
+                    await self.config.member(author).Sanity.set(current + qte * 4)
+                    r = f"Sucre x{qte * 4} (Inv. Plein)"
                 resultem.add_field(name="Gains", value=box(r))
                 cache['KnockUsers'][author.id]['cooldown'] = time.time() + 3600
                 cache['KnockUsers'][author.id]['level'] = cache['KnockUsers'][author.id]['level'] + 1 if cache['KnockUsers'][author.id]['level'] < 3 else 3

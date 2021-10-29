@@ -1041,10 +1041,10 @@ class Oktbr(commands.Cog):
         psb_cooldown = lvl_cd[lvl]
         rdm = random.choice(voisins)
         voisins.remove(rdm)
-        
+        intro = random.choice(diags['Intro'])
         props = random.sample(args, k=2)
         em = discord.Embed(title=f"Chasse aux bonbons · *{rdm.name}*", 
-                            description=f"**{rdm.name}** : *{random.choice(diags['Intro'])}*", color=emcolor)
+                            description=f"**{rdm.name}** : *{intro}*", color=emcolor)
         em.set_thumbnail(url=rdm.avatar_url)
         msg = await ctx.reply(embed=em, mention_author=False)
         await asyncio.sleep(2)
@@ -1070,7 +1070,7 @@ class Oktbr(commands.Cog):
             resultem = discord.Embed(title=f"Chasse aux bonbons · *{rdm.name}*",
                                     color=emcolor)
             
-            txt = f"**{rdm.name}** : *{random.choice(diags['Intro'])}*\n"
+            txt = f"**{rdm.name}** : *{intro}*\n"
             txt += f"**{author.name}** : *{choice}*\n"
             
             if win:
@@ -1090,7 +1090,7 @@ class Oktbr(commands.Cog):
                 cache['KnockUsers'][author.id]['cooldown'] = time.time() + 3600
                 cache['KnockUsers'][author.id]['level'] = cache['KnockUsers'][author.id]['level'] + 1 if cache['KnockUsers'][author.id]['level'] < 3 else 3
             else:
-                txt += f"{rdm.mention} : *{random.choice(diags['L'])}*"
+                txt += f"**{rdm.name}** : *{random.choice(diags['L'])}*"
                 san = random.randint(lvl * 3, lvl * 5)
                 r = f"Sanité -{san}"
                 current = await self.config.member(author).Sanity()

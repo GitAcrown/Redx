@@ -1045,7 +1045,7 @@ class Oktbr(commands.Cog):
         em.add_field(name="🇦 Proposition A", value=box(props[0], lang='yaml'))
         em.add_field(name="🇧 Proposition B", value=box(props[1], lang='fix'))
         
-        em.set_footer(text="Choisissez l'une des proposition pour le convaincre de vous donner quelque chose [Lvl. {level}]")
+        em.set_footer(text=f"Choisissez l'une des proposition pour le convaincre de vous donner quelque chose [Lvl. {lvl}]")
         
         await msg.edit(embed=em)
         start_adding_reactions(msg, ['🇦', '🇧'])

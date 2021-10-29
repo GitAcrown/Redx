@@ -990,7 +990,10 @@ class Oktbr(commands.Cog):
                 "Je peux faire quelque chose pour vous ?",
                 "Oui ? Vous voulez quoi ?",
                 "Un soucis ? Que voulez-vous ?",
-                "Qui vient encore me faire chier ?"
+                "Qui vient encore me faire chier ?",
+                "Quoi encore ? C'est Keijax qui vous envoie ?",
+                "C'est quoi votre costume ridicule ? Vous voulez quoi ?",
+                "???"
                 ],
             'W': [
                 "Hm. Ok. J'ai pitié de vous, voilà.",
@@ -1018,7 +1021,11 @@ class Oktbr(commands.Cog):
             "Avez-vous un peu de sucre qui vous encombre ?",
             "ARGHOUARGH BOARGZABOING SuCrE",
             "Cette proposition m'assure un maximum de chances pour obtenir des bonbons de votre part.",
-            "J'ai besoin de sucre ou je vais faire une crise d'e-poglycémie."
+            "J'ai besoin de sucre ou je vais faire une crise d'e-poglycémie.",
+            "C'est un braquage. Donnez vos bonbons.",
+            "UwU Vous avez des bonbons SVP.",
+            "C'est l'Halloween donnez des bonbons ou un sort.",
+            "J'ai besoin de bonbons virtuels pour être premier sur un classement lui aussi virtuel sur un serveur malsain s'il-vous-plaît."
         ]
         
         if author.id != 381880461015777291: # Keijax

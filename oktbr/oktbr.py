@@ -1044,7 +1044,7 @@ class Oktbr(commands.Cog):
         
         props = random.sample(args, k=2)
         em = discord.Embed(title=f"Chasse aux bonbons · *{rdm.name}*", 
-                            description=f"{rdm.mention} : *{random.choice(diags['Intro'])}*", color=emcolor)
+                            description=f"**{rdm.name}** : *{random.choice(diags['Intro'])}*", color=emcolor)
         em.set_thumbnail(url=rdm.avatar_url)
         msg = await ctx.reply(embed=em, mention_author=False)
         await asyncio.sleep(2)
@@ -1058,7 +1058,7 @@ class Oktbr(commands.Cog):
         start_adding_reactions(msg, ['🇦', '🇧'])
         try:
             react, _ = await self.bot.wait_for("reaction_add",
-                                            check=lambda r, u: r.message.id == msg.id and r.emoji in ['🇦', '🇧'] and not u.bot,
+                                            check=lambda r, u: r.message.id == msg.id and r.emoji in ['🇦', '🇧'] and u == author,
                                             timeout=30)
         except asyncio.TimeoutError:
             await msg.delete()
@@ -1070,11 +1070,11 @@ class Oktbr(commands.Cog):
             resultem = discord.Embed(title=f"Chasse aux bonbons · *{rdm.name}*",
                                     color=emcolor)
             
-            txt = f"{rdm.mention} : *{random.choice(diags['Intro'])}*\n"
-            txt += f"{author.mention} : *{choice}*\n"
+            txt = f"**{rdm.name}** : *{random.choice(diags['Intro'])}*\n"
+            txt += f"**{author.name}** : *{choice}*\n"
             
             if win:
-                txt += f"{rdm.mention} : *{random.choice(diags['W'])}*"
+                txt += f"**{rdm.name}** : *{random.choice(diags['W'])}*"
                 
                 rdm_item = random.choice(list(self.items.keys()))
                 item = self.get_item(rdm_item)

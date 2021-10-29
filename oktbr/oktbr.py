@@ -976,9 +976,9 @@ class Oktbr(commands.Cog):
         voisins = [v for v in voisins if isinstance(v, discord.Member)]
         
         luck_lvl = {
-            1: 0.80,
+            1: 0.75,
             2: 0.50,
-            3: 0.30
+            3: 0.25
         }
         lvl_cd = {
             1: 1800,
@@ -1078,7 +1078,7 @@ class Oktbr(commands.Cog):
                 
                 rdm_item = random.choice(list(self.items.keys()))
                 item = self.get_item(rdm_item)
-                qte = random.randint(lvl, round(lvl*2.5))
+                qte = random.randint(lvl, lvl*2)
                 try:
                     await self.pocket_add(author, item, qte)
                     r = f"{item.famount(qte)}"
@@ -1313,7 +1313,7 @@ class Oktbr(commands.Cog):
             endem.add_field(name="Points de vie", value=box(cache['EventFoe']['pv'] if not boosted else f"{cache['EventFoe']['pv']}ᴮ", lang='css'))
             endem.set_footer(text="ASTUCE · " + random.choice(_ASTUCES))
             endem.add_field(name="Actions", value=box(tabulate(tabl, headers=["Membre", "Action", "Dommages"])), inline=False)
-            endem.add_field(name="Gains (Victoire)", value=f"- **Sucre +{sugar}**\n- **Points +2**\n› Pour tous les participants au combat (fuyards exclus)")
+            endem.add_field(name="Gains (Victoire)", value=f"- **Sucre +{sugar}**\n- **Points +{winpts}**\n› Pour tous les participants au combat (fuyards exclus)")
             
             all_members = await self.config.all_members(channel.guild)
             for u in [m for m in cache["EventUsers"] if cache["EventUsers"][m][0] != 'escape']:

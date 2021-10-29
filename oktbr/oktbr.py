@@ -257,7 +257,7 @@ class Oktbr(commands.Cog):
                 'EventCD': time.time() - 600,
                 'EventCurrent': False,
                 
-                'KnockUserss': {}
+                'KnockUsers': {}
             }
         
         return self.cache[guild.id]

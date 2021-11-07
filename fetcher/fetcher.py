@@ -191,32 +191,22 @@ class Fetcher(commands.Cog):
         else:
             await ctx.reply(f"**Aucun résultats** · La recherche dans les sources n'a pas donné de résultats")
 
-    @commands.command(name='webscreen')
-    async def screenshot_website(self, ctx, url: str):
-        """Renvoie un screen de la page web demandée
+    
+    @commands.command(name="quote")
+    @commands.cooldown(1, 900, commands.BucketType.member)
+    async def inspirobot_quote(self, ctx):
+        """Obtenir une citation générée par l'IA d'Inspirobot.me
         
-        Limité à 100 pages par mois et 2 par minute"""
-        key = await self.config.ScreenShotLayerKey()
-        encoded = quote(url, safe='')
-        r = f"http://api.screenshotlayer.com/api/capture?access_key={key}&url={encoded}&viewport=1440x900&fullpage=1"
-        async with ctx.typing():
-            getdata = requests.get(r)
-        if str(getdata.content).startswith("b'{"):
-            error = getdata.json()['error']['type']
-            return await ctx.reply(f"**Erreur avec l'API** · `{error}`")
+        Vous devez attendre 15m entre deux demandes"""
+        async def fetch_inspirobot_quote():
+            try:
+                async with self.session.request("GET", "http://inspirobot.me/api?generate=true") as page:
+                    pic = await page.text(encoding="utf-8")
+                    return pic
+            except Exception as e:
+                return None
         
-        em = discord.Embed(description=f'Screenshot de `{url}`', timestamp=ctx.message.created_at)
-        em.set_image(url=r)
+        em = discord.Embed(color=ctx.author.color)
+        em.set_image(url=await fetch_inspirobot_quote())
+        em.set_footer(text="Inspirobot.me", icon_url='https://inspirobot.me/website/images/inspirobot-dark-green.png')
         await ctx.reply(embed=em, mention_author=False)
-        
-    @commands.group(name="fetcherset")
-    @checks.is_owner()
-    async def fetcher_settings(self, ctx):
-        """Paramètres de propriétaire Fetcher"""
-        
-    @fetcher_settings.command(name="screenapikey")
-    async def set_screenshot_api_key(self, ctx, key: str):
-        """Change la clef utilisée pour l'api ScreenShotLayer"""
-        await self.config.ScreenShotLayerKey.set(key)
-        await ctx.send("**Clef modifiée** · La clef donnée sera désormais utilisée pour l'API de ScreenshotLayer")
-            

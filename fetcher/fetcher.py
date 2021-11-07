@@ -12,6 +12,8 @@ from redbot.core.utils.chat_formatting import box
 from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 from tabulate import tabulate
 
+import aiohttp
+
 logger = logging.getLogger("red.RedX.Fetcher")
 
 class Fetcher(commands.Cog):
@@ -26,6 +28,8 @@ class Fetcher(commands.Cog):
             'ScreenShotLayerKey': ''
         }
         self.config.register_global(**default_global)
+        
+        self.session = aiohttp.ClientSession()
         
         
 # MUGSHOTS ==============================================================    
@@ -205,8 +209,11 @@ class Fetcher(commands.Cog):
                     return pic
             except Exception as e:
                 return None
-        
+            
+        img = await fetch_inspirobot_quote()
+        if not img:
+            return await ctx.reply("**Erreur** · Impossible d'obtenir une citation depuis Inspirobot")
         em = discord.Embed(color=ctx.author.color)
-        em.set_image(url=await fetch_inspirobot_quote())
+        em.set_image(url=img)
         em.set_footer(text="Inspirobot.me", icon_url='https://inspirobot.me/website/images/inspirobot-dark-green.png')
         await ctx.reply(embed=em, mention_author=False)

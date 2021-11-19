@@ -53,9 +53,9 @@ class Jailbreak(commands.Cog):
     async def jailbreak_checks(self):
         all_guilds = await self.config.all_guilds()
         for g in all_guilds:
-            jail = await self.config.guild_from_id(g).Jail()
+            guild = self.bot.get_guild(g)
+            jail = await self.config.guild(guild).Jail()
             if jail:
-                guild = self.bot.get_guild(g)
                 for u in jail:
                     try:
                         user = guild.get_member(u)

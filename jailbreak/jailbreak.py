@@ -170,9 +170,9 @@ class Jailbreak(commands.Cog):
         
         Renvoie auto. vers la gestion des prisonniers si aucune sous-commande n'est précisée"""
         if ctx.invoked_subcommand is None:
-            return await ctx.invoke(self.jail_users, ctx=ctx, users=users, time=time, reason=reason)
+            return await ctx.invoke(self.jail_users, users=users, time=time, reason=reason)
     
-    @jail_main.commands(name='users', aliases=['user'])
+    @jail_main.commands(name='users')
     async def jail_users(self, ctx, users: Greedy[discord.Member], time: str = '', *, reason: str = ''):
         """Ajouter, retirer ou éditer une peine de prison d'un membre
         
@@ -204,7 +204,7 @@ class Jailbreak(commands.Cog):
         for user in users:
             await self.jail_manage_user(ctx, user, seconds, reason=reason)
         
-    @jail_main.commands(name='list', aliases=['liste'])
+    @jail_main.commands(name='list')
     async def jail_list(self, ctx):
         """Affiche une liste des membres actuellement emprisonnés"""
         guild = ctx.guild

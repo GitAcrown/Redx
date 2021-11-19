@@ -165,10 +165,12 @@ class Jailbreak(commands.Cog):
         
     @commands.group(name='jail', aliases=['p'], invoke_without_command=True)
     @checks.admin_or_permissions(manage_messages=True)
-    async def jail_main(self, ctx, source: str = None):
-        """Commandes de gestion de la prison"""
+    async def jail_main(self, ctx, users: Greedy[discord.Member], time: str = '', *, reason: str = ''):
+        """Commandes de gestion de la prison
+        
+        Renvoie auto. vers la gestion des prisonniers si aucune sous-commande n'est précisée"""
         if ctx.invoked_subcommand is None:
-            return await ctx.invoke(self.jail_users, source=source)
+            return await ctx.invoke(self.jail_users, ctx=ctx, users=users, time=time, reason=reason)
     
     @jail_main.commands(name='users', aliases=['user'])
     async def jail_users(self, ctx, users: Greedy[discord.Member], time: str = '', *, reason: str = ''):

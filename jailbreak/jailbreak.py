@@ -195,7 +195,7 @@ class Jailbreak(commands.Cog):
         try:
             tdelta = self.parse_timedelta(time)
         except ValueError:
-            return await ctx.reply(f"{cross} **Erreur** · Format du temps invalide, consultez `;help p users`")
+            return await ctx.reply(f"{cross} **Erreur** · Format de la commande invalide, consultez `;help p`")
         
         role = guild.get_role(settings['role'])
         if not role:
@@ -224,7 +224,7 @@ class Jailbreak(commands.Cog):
         if not jail:
             em.description = box("Prison vide")
         else:
-            tabl = [(guild.get_member(int(u)), datetime.now().fromtimestamp(jail[int(u)]['time']).strftime('%d/%m/%Y %H:%M')) for u in jail if guild.get_member(int(u))]
+            tabl = [(guild.get_member(int(u)), datetime.now().fromtimestamp(jail[u]['time']).strftime('%d/%m/%Y %H:%M')) for u in jail if guild.get_member(int(u))]
             em.description = box(tabulate(tabl, headers=('Membre', 'Sortie')))
         return await ctx.reply(embed=em, mention_author=False)
     

@@ -186,7 +186,7 @@ class Jailbreak(commands.Cog):
         Il est possible d'ajouter une raison après le temps
         En l'absence de précision d'un format de temps, les *minutes* sont utilisées"""
         guild = ctx.guild
-        cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
+        cross = self.bot.get_emoji(812451214179434551)
         settings = await self.config.guild(guild).Settings()
         if not time:
             time = f"{settings['default_time']}s"

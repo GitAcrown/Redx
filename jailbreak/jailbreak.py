@@ -100,6 +100,8 @@ class Jailbreak(commands.Cog):
                 msg = f"{check}🔒 **Prison** · Sortie de {user.mention} prévue à **{dtime.strftime('%H:%M')}**"
             if reason:
                 msg += f"\n__Raison :__ `{reason}`"
+        else:
+            return await self.jail_check_user(user)
         
         return await ctx.reply(msg, mention_author=False)
     
@@ -147,7 +149,6 @@ class Jailbreak(commands.Cog):
     
     
     def parse_timedelta(self, text: str) -> timedelta:
-        text = text.lower()
         result = re.compile(r'([+-])?(?:(\d+)([smhj]?))', re.DOTALL | re.IGNORECASE).findall(text)
         if not result:
             raise ValueError("Le texte ne contient aucune indication de temps")
@@ -165,15 +166,15 @@ class Jailbreak(commands.Cog):
         
     @commands.group(name='jail', aliases=['p'], invoke_without_command=True)
     @checks.admin_or_permissions(manage_messages=True)
-    async def jail_main(self, ctx, users: Greedy[discord.Member], time: str = '', *, reason: str = ''):
+    async def jail_main(self, ctx, users: Greedy[discord.Member], duration: str = None, *, reason: str = ''):
         """Commandes de gestion de la prison
         
         Renvoie auto. vers la gestion des prisonniers si aucune sous-commande n'est précisée"""
         if ctx.invoked_subcommand is None:
-            return await ctx.invoke(self.jail_users, users=users, time=time, reason=reason)
+            return await ctx.invoke(self.jail_users, users=users, duration=duration, reason=reason)
     
     @jail_main.command(name='users')
-    async def jail_users(self, ctx, users: Greedy[discord.Member], time: str = '', *, reason: str = ''):
+    async def jail_users(self, ctx, users: Greedy[discord.Member], duration: str = None, *, reason: str = ''):
         """Ajouter, retirer ou éditer une peine de prison d'un membre
         
         __**Format du temps de peine**__
@@ -188,9 +189,11 @@ class Jailbreak(commands.Cog):
         guild = ctx.guild
         cross = self.bot.get_emoji(812451214179434551)
         settings = await self.config.guild(guild).Settings()
-        if not time:
-            time = f"{settings['default_time']}s"
         
+        if not duration:
+            time = f"{settings['default_time']}s"
+        else:
+            time = duration.lower()
         try:
             tdelta = self.parse_timedelta(time)
         except ValueError:
@@ -200,8 +203,11 @@ class Jailbreak(commands.Cog):
         if not role:
             return await ctx.reply(f"{cross} **Erreur** · Le rôle de prisonnier n'a pas été configuré")
     
+        jail = await self.config.guild(guild).Jail()
         seconds = (datetime.now() + tdelta).timestamp()
         for user in users:
+            if str(user.id) in jail and not duration:
+                seconds = 0
             await self.jail_manage_user(ctx, user, seconds, reason=reason)
         
     @jail_main.command(name='list')
@@ -215,7 +221,7 @@ class Jailbreak(commands.Cog):
         if not jail:
             em.description = box("Prison vide")
         else:
-            tabl = [(guild.get_member(u), datetime.now().fromtimestamp(jail[u]).strftime('%d/%m/%Y %H:%M')) for u in jail if guild.get_member(u)]
+            tabl = [(guild.get_member(u), datetime.now().fromtimestamp(jail[u]['time']).strftime('%d/%m/%Y %H:%M')) for u in jail if guild.get_member(u)]
             em.description = box(tabulate(tabl, headers=('Membre', 'Sortie')))
         return await ctx.reply(embed=em, mention_author=False)
     

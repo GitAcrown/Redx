@@ -120,10 +120,11 @@ class Jailbreak(commands.Cog):
         seconds, channelid = data.values()
         if seconds <= int(time.time()):
             channel = guild.get_channel(channelid)
-            await self.jail_clear_userid(guild, str(user.id))
+            await self.config.guild(guild).Jail.clear_raw(user)
             try:
                 await user.remove_roles(role, reason="Fin de peine")
             except:
+                await self.jail_clear_userid(guild, str(user.id))
                 return await channel.send(f"{cross}🔓 **Prison** · **{user}** a été sorti de force")
             
             msg = f"{check}🔓 **Prison** · Fin de peine de **{user}**"

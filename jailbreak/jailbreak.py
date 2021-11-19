@@ -183,8 +183,8 @@ class Jailbreak(commands.Cog):
         
         Il est possible d'ajouter une raison après le temps
         En l'absence de précision d'un format de temps, les *minutes* sont utilisées"""
-        guild, author = ctx.guild, ctx.author
-        check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
+        guild = ctx.guild
+        cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
         settings = await self.config.guild(guild).Settings()
         if not time:
             time = f"{settings['default_time']}s"
@@ -203,7 +203,7 @@ class Jailbreak(commands.Cog):
             await self.jail_manage_user(ctx, user, seconds, reason=reason)
         
     @jail_main.commands(name='list', aliases=['liste'])
-    async def jail_users(self, ctx):
+    async def jail_list(self, ctx):
         """Affiche une liste des membres actuellement emprisonnés"""
         guild = ctx.guild
         em = discord.Embed(title="Membres emprisonnés", color=await ctx.embed_color())

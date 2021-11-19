@@ -125,10 +125,17 @@ class Jailbreak(commands.Cog):
                 await user.remove_roles(role, reason="Fin de peine")
             except:
                 await self.jail_clear_userid(guild, str(user.id))
-                return await channel.send(f"{cross}🔓 **Prison** · **{user}** a été sorti de force")
+                return await channel.send(f"{cross}🔓 **Sortie de prison** · **{user}** a été sorti de force")
             
-            msg = f"{check}🔓 **Prison** · Fin de peine de **{user}**"
+            msg = f"{check}🔓 **Sortie de prison** · Fin de peine de **{user}**"
             return await channel.send(msg)
+        elif role not in user.roles:
+            try:
+                await self.config.guild(guild).Jail.clear_raw(str(user.id))
+            except:
+                pass
+            channel = guild.get_channel(channelid)
+            return await channel.send(f"{check}🔓 **Sortie de prison** · **{user}** a été sorti manuellement [Détection auto.]")
         
     async def jail_clear_userid(self, guild: discord.Guild, user_id: str):
         cross = self.bot.get_emoji(812451214179434551)
@@ -140,9 +147,9 @@ class Jailbreak(commands.Cog):
         else:
             user = self.bot.get_user(int(user_id))
             if user:
-                msg = f"{cross}🔓 **Prison** · **{user}** n'a pu être sorti proprement\n*La raison la plus probable est que ce membre a quitté le serveur avant la fin de sa peine*"
+                msg = f"{cross}🔓 **Sortie de prison** · **{user}** n'a pu être sorti proprement\n*La raison la plus probable est que ce membre a quitté le serveur avant la fin de sa peine*"
             else:
-                msg = f"{cross}🔓 **Prison** · **ID:{user_id}** n'a pu être sorti proprement\n*La raison la plus probable est que ce membre a quitté le serveur avant la fin de sa peine*"
+                msg = f"{cross}🔓 **Sortie de prison** · **ID:{user_id}** n'a pu être sorti proprement\n*La raison la plus probable est que ce membre a quitté le serveur avant la fin de sa peine*"
         channel = guild.get_channel(channelid)
         return await channel.send(msg)
     

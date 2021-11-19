@@ -217,7 +217,7 @@ class Jailbreak(commands.Cog):
     async def jail_list_users(self, ctx):
         """Affiche une liste des membres actuellement emprisonnés"""
         guild = ctx.guild
-        em = discord.Embed(title="Membres emprisonnés", color=await ctx.embed_color())
+        em = discord.Embed(title="🔐 Membres emprisonnés", color=await ctx.embed_color())
         em.set_footer(text="Gérez les peines avec la commande ';p'")
         
         jail = await self.config.guild(guild).Jail()

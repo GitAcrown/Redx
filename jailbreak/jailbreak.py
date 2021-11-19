@@ -53,12 +53,12 @@ class Jailbreak(commands.Cog):
     async def jailbreak_checks(self):
         all_guilds = await self.config.all_guilds()
         for g in all_guilds:
-            guild = self.bot.get_guild(g)
-            jail = await self.config.guild(guild).Jail()
+            jail = await self.config.guild_from_id(g).Jail()
             if jail:
+                guild = self.bot.get_guild(g)
                 for u in jail:
                     try:
-                        user = guild.get_member(u)
+                        user = guild.get_member(int(u))
                     except:
                         await self.jail_clear_userid(u)
                     else:
@@ -224,7 +224,7 @@ class Jailbreak(commands.Cog):
         if not jail:
             em.description = box("Prison vide")
         else:
-            tabl = [(guild.get_member(u), datetime.now().fromtimestamp(jail[u]['time']).strftime('%d/%m/%Y %H:%M')) for u in jail if guild.get_member(u)]
+            tabl = [(guild.get_member(int(u)), datetime.now().fromtimestamp(jail[int(u)]['time']).strftime('%d/%m/%Y %H:%M')) for u in jail if guild.get_member(int(u))]
             em.description = box(tabulate(tabl, headers=('Membre', 'Sortie')))
         return await ctx.reply(embed=em, mention_author=False)
     

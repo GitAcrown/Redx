@@ -120,7 +120,7 @@ class Jailbreak(commands.Cog):
         seconds, channelid = data.values()
         if seconds <= int(time.time()):
             channel = guild.get_channel(channelid)
-            await self.config.guild(guild).Jail.clear_raw(user)
+            await self.config.guild(guild).Jail.clear_raw(str(user.id))
             try:
                 await user.remove_roles(role, reason="Fin de peine")
             except:

@@ -166,7 +166,7 @@ class Jailbreak(commands.Cog):
         
     @commands.group(name='jail', aliases=['p'], invoke_without_command=True)
     @checks.admin_or_permissions(manage_messages=True)
-    async def jail_main(self, ctx, users: Greedy[discord.Member], duration: str = None, *, reason: str = ''):
+    async def jail_main(self, ctx, users: Greedy[discord.Member], duration: str = '', *, reason: str = ''):
         """Commandes de gestion de la prison
         
         Renvoie auto. vers la gestion des prisonniers si aucune sous-commande n'est précisée"""
@@ -174,7 +174,7 @@ class Jailbreak(commands.Cog):
             return await ctx.invoke(self.jail_users, users=users, duration=duration, reason=reason)
     
     @jail_main.command(name='users')
-    async def jail_users(self, ctx, users: Greedy[discord.Member], duration: str = None, *, reason: str = ''):
+    async def jail_users(self, ctx, users: Greedy[discord.Member], duration: str = '', *, reason: str = ''):
         """Ajouter, retirer ou éditer une peine de prison d'un membre
         
         __**Format du temps de peine**__
@@ -185,7 +185,7 @@ class Jailbreak(commands.Cog):
         Exemples : `30m` | `+6h30m` | `-2h30`
         
         Il est possible d'ajouter une raison après le temps
-        En l'absence de précision d'un format de temps, les *minutes* sont utilisées"""
+        En l'absence de précision d'un format de temps, des minutes sont utilisées"""
         guild = ctx.guild
         cross = self.bot.get_emoji(812451214179434551)
         settings = await self.config.guild(guild).Settings()
@@ -204,10 +204,15 @@ class Jailbreak(commands.Cog):
             return await ctx.reply(f"{cross} **Erreur** · Le rôle de prisonnier n'a pas été configuré")
     
         jail = await self.config.guild(guild).Jail()
-        seconds = (datetime.now() + tdelta).timestamp()
         for user in users:
-            if str(user.id) in jail and not duration:
+            if str(user.id) in jail and duration == '':
                 seconds = 0
+            elif str(user.id) in jail:
+                dtime = datetime.now().fromtimestamp(jail[str(user.id)]['time'])
+                seconds = (dtime + tdelta).timestamp()
+            else:
+                seconds = (datetime.now() + tdelta).timestamp()
+                
             await self.jail_manage_user(ctx, user, seconds, reason=reason)
         
     @jail_main.command(name='list')

@@ -105,7 +105,7 @@ class Jailbreak(commands.Cog):
     
     async def jail_check_user(self, user: discord.Member):
         guild = user.guild
-        check, cross = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551)
+        check, cross, alert = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551), self.bot.get_emoji(913597560483106836)
         
         settings = await self.config.guild(guild).Settings()
         role = guild.get_role(settings['role'])
@@ -125,7 +125,7 @@ class Jailbreak(commands.Cog):
                 await user.remove_roles(role, reason="Fin de peine")
             except:
                 await self.jail_clear_userid(guild, str(user.id))
-                return await channel.send(f"{cross}🔓 **Sortie de prison** · **{user}** a été sorti de force")
+                return await channel.send(f"{alert}🔓 **Sortie de prison** · **{user}** a été sorti de force")
             
             msg = f"{check}🔓 **Sortie de prison** · Fin de peine de **{user}**"
             return await channel.send(msg)
@@ -135,7 +135,7 @@ class Jailbreak(commands.Cog):
             except:
                 pass
             channel = guild.get_channel(channelid)
-            return await channel.send(f"{check}🔓 **Sortie de prison** · **{user}** a été sorti manuellement [Détection auto.]")
+            return await channel.send(f"{alert}🔓 **Sortie de prison** · **{user}** a été sorti manuellement [Détection auto.]")
         
     async def jail_clear_userid(self, guild: discord.Guild, user_id: str):
         cross = self.bot.get_emoji(812451214179434551)

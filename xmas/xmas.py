@@ -1031,7 +1031,7 @@ class XMas(commands.Cog):
             f"L'équipe des **{teaminfo['name']}** remporte __{giftname} [Tier 3]__ grâce à {winner.mention} !",
             f"{winner.mention} fait gagner __{giftname} [Tier 3]__ à son équipe, les **{teaminfo['name']}** !",
             ))
-        newem.footer(text="Astuce · " + random.choice(_ASTUCES))
+        newem.set_footer(text="Astuce · " + random.choice(_ASTUCES))
         await channel.send(embed=newem)
         
     async def question_country(self, channel: discord.TextChannel): # Trouver le pays à partir de la capitale
@@ -1103,7 +1103,7 @@ class XMas(commands.Cog):
             f"L'équipe des **{teaminfo['name']}** remporte __{giftname} [Tier 3]__ grâce à {winner.mention} !",
             f"{winner.mention} fait gagner __{giftname} [Tier 3]__ à son équipe, les **{teaminfo['name']}** !",
             ))
-        newem.footer(text="Astuce · " + random.choice(_ASTUCES))
+        newem.set_footer(text="Astuce · " + random.choice(_ASTUCES))
         await channel.send(embed=newem)
 
     @commands.Cog.listener()

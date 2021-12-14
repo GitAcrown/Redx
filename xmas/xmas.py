@@ -127,7 +127,7 @@ class XMas(commands.Cog):
         for g in all_guilds:
             guild = self.bot.get_guild(g)
             
-            if all_guilds[g]['LastDestChange'] + 500 < time.time():
+            if all_guilds[g]['LastDestChange'] + 2700 < time.time():
                 await self.config.guild(guild).LastDestChange.set(time.time())
                 lastdst = await self.fill_destinations(guild)
                 lastdst = lastdst[0]
@@ -664,7 +664,7 @@ class XMas(commands.Cog):
         
         lastdest = await self.config.guild(guild).LastDestChange()
         lastdest = lastdest if lastdest else time.time()
-        nxtdest = lastdest + 500
+        nxtdest = lastdest + 2700
         dtxt = datetime.now().fromtimestamp(nxtdest).strftime('%H:%M')
         em.add_field(name="Prochaine dest. vers", value=box(dtxt))
         

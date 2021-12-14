@@ -160,7 +160,7 @@ class XMas(commands.Cog):
         
 # CACHE ----------------------------------------
 
-    def hget_cache(self, guild: discord.Guild):
+    def get_cache(self, guild: discord.Guild):
         if guild.id not in self.cache:
             self.cache[guild.id] = {
                 'status': 0,

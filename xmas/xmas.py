@@ -539,7 +539,7 @@ class XMas(commands.Cog):
             for gtid in gifts:
                 giftname = self.gifts[gifts[gtid]['id']]
                 glist.append((gtid, giftname, gifts[gtid]['tier']))
-            gtxt = '\n'.join([f'• **{i}** · *{n}*[{tier}]' for i, n, tier in glist])
+            gtxt = '\n'.join([f'• **{i}** · *{n}* [T{tier}]' for i, n, tier in glist])
             em.add_field(name="Cadeaux actuellement à livrer", value=gtxt if gtxt else f"Aucun cadeau n'est à livrer pour *{currentdest}*", inline=False)
             em.set_footer(text=f"Actuellement à : {currentdest} ({self.countries[currentdest]})")
             return em
@@ -569,7 +569,7 @@ class XMas(commands.Cog):
         embeds = []
         for t in tabls:
             em = discord.Embed(color=teaminfo['color'], title=f"Cadeaux à livrer · {teaminfo['name']}")
-            em.description = '\n'.join([f'• **{i}** · *{n}*[{tier}] __{d}__' for i, n, tier, d in t])
+            em.description = '\n'.join([f'• **{i}** · *{n}*  [T{tier}] ➞ __{d}__' for i, n, tier, d in t])
             em.set_footer(text="Livrez un cadeau en faisant ';ship <ID>' ou ';deliver <ID>'")
             embeds.append(em)
         

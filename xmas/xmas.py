@@ -672,7 +672,7 @@ class XMas(commands.Cog):
         dtxt = datetime.now().fromtimestamp(nxtdest).strftime('%H:%M')
         em.add_field(name="Prochaine dest. vers", value=box(dtxt))
         
-        em.set_footer(text="Consultez les cadeaux à livrer avec ';team' ou ';gifts'")
+        em.set_footer(text="Consultez les cadeaux à livrer dans ';team' ou avec ';gifts'")
         await ctx.reply(embed=em, mention_author=False)
         
     @commands.command(name='upgrade', aliases=['amelio'])

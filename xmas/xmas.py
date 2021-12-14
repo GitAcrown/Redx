@@ -121,7 +121,7 @@ class XMas(commands.Cog):
         
 # LOOP --------------------------------------------
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(seconds=30.0)
     async def xmas_checks(self):
         all_guilds = await self.config.all_guilds()
         for g in all_guilds:
@@ -333,7 +333,7 @@ class XMas(commands.Cog):
         if gift_key not in gifts:
             raise KeyError(f"Le cadeau {gift_key} n'existe pas")
         
-        await self.config.guild(guild).Teams.set_raw(team, 'Gifts', gift_key, 'tier', value=gifts[gift_key] + add_lvl)
+        await self.config.guild(guild).Teams.set_raw(team, 'Gifts', gift_key, 'tier', value=gifts[gift_key]['tier'] + add_lvl)
         
         
     async def get_gift_points(self, gift_data: dict) -> int:

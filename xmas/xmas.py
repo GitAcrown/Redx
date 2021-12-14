@@ -711,10 +711,12 @@ class XMas(commands.Cog):
             if inv.get(u, 0) < upgrade[u]:
                 return await ctx.reply(f"{cross} **Impossible** · Vous ne possédez pas tous les items demandés.", mention_author=False)
         
-        for ui in upgrade:
-            await self.inventory_remove(user, self.get_item(ui), upgrade[ui])
-        
-        await self.team_upgrade_gift(guild, userteam, gift_key)
+        async with ctx.typing():
+            await asyncio.sleep(random.randint(1, 2))
+            for ui in upgrade:
+                await self.inventory_remove(user, self.get_item(ui), upgrade[ui])
+            
+            await self.team_upgrade_gift(guild, userteam, gift_key)
         await ctx.reply(f"{check} **Amélioration effectuée** · Le cadeau **{gift_key}** contenant *{gname}* est désormais __Tier {gift['tier'] + 1}__ !", mention_author=False)
         
         
@@ -745,11 +747,13 @@ class XMas(commands.Cog):
             return await ctx.reply(f"{alert} **Impossible** · L'équipe adverse n'a pas de cadeaux à livrer !")
         
         cache['CoalCD'] = time.time()
-        try:
-            await self.coal_remove(guild, userteam, qte)
-        except:
-            return await ctx.reply(f"{cross} **Erreur** · Il est probable que votre équipe ne possède pas cette quantité de Charbon. Réessayez avec une plus petite valeur.",
-                                   mention_author=False)
+        async with ctx.typing():
+            await asyncio.sleep(random.randint(2, 3))
+            try:
+                await self.coal_remove(guild, userteam, qte)
+            except:
+                return await ctx.reply(f"{cross} **Erreur** · Il est probable que votre équipe ne possède pas cette quantité de Charbon. Réessayez avec une plus petite valeur.",
+                                    mention_author=False)
         
         if random.randint(0, qte) == 0:
             return await ctx.reply(f"{cross} **Echec** · Vous n'avez pas réussi à saboter un cadeau de l'équipe adverse, dommage !")

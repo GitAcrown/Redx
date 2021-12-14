@@ -85,18 +85,20 @@ class XMas(commands.Cog):
             'Wishes': {}
         }
         
-        default_team = {
-            'Points': 0,
-            'Gifts': {},
-            'Coal': 0
-        }
-
         default_guild = {
             'LastDestChange': 0,
             'Destinations': [],
             'Teams': {
-                'green': default_team,
-                'red': default_team
+                'green': {
+                    'Points': 0,
+                    'Gifts': {},
+                    'Coal': 0
+                },
+                'red': {
+                    'Points': 0,
+                    'Gifts': {},
+                    'Coal': 0
+                }
             },
             'Settings': {
                 'event_channel': None,
@@ -285,7 +287,7 @@ class XMas(commands.Cog):
     async def get_team_gift(self, guild: discord.Guild, gift_key: str):
         gift_key = gift_key.upper()
         teams = await self.config.guild(guild).Teams()
-        for t in teams:
+        for t in ('green', 'red'):
             if gift_key in teams[t]['Gifts']:
                 return t, teams[t]['Gifts'][gift_key]
         return None, None
@@ -612,7 +614,9 @@ class XMas(commands.Cog):
         team, gift = await self.get_team_gift(guild, gift_key)
         if not gift:
             return await ctx.reply(f"{cross} **ID de cadeau inconnu** · Consultez la liste des cadeaux à livrer avec `;gifts`")
-        if team != await self.check_team(user):
+        
+        userteam = await self.check_team(user)
+        if team != userteam:
             return await ctx.reply(f"{cross} **ID de cadeau invalide** · Ce cadeau est à l'équipe adverse !")
 
         dests = await self.fill_destinations(guild)

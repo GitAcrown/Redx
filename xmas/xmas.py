@@ -31,12 +31,12 @@ class XMasError(Exception):
 TEAMS_PRP = {
     'green' : {
         'name': "Lutins Verts",
-        'icon': '',
+        'icon': 'https://i.imgur.com/I7GOqDe.png',
         'color': 0x2bd914
         },
     'red': {
         'name': "Lutins Rouges",
-        'icon': '',
+        'icon': 'https://i.imgur.com/alAIF1i.png',
         'color': 0xfc0303
     }
 }
@@ -184,7 +184,7 @@ class XMas(commands.Cog):
 # VOYAGE & GIFTS ----------------------------------
 
     async def send_alert(self, guild: discord.Guild, embed: discord.Embed):
-        channel_id = await self.config.guild(guild).Settings.get('alert_channel')
+        channel_id = await self.config.guild(guild).Settings.get_raw('alert_channel')
         if not channel_id:
             raise KeyError("Aucun channel d'alerte n'a été configuré")
         

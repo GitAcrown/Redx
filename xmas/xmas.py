@@ -529,7 +529,7 @@ class XMas(commands.Cog):
             desc = f"**Points** · {teamdata['Points'] + await self.team_members_points(guild, t)}\n"
             desc += f"› Dont points de membres · {await self.team_members_points(guild, t)}\n"
             desc += f"**Cadeaux à distribuer** · {len(await self.team_gifts(guild, t))}\n"
-            desc += f"**Charbon** · x{await self.config.guild(guild).Teams.get_raw(t, 'Coal')}"
+            desc += f"**Charbon** · {await self.config.guild(guild).Teams.get_raw(t, 'Coal')}"
             em.description = desc
             
             currentdest = await self.fill_destinations(guild)
@@ -541,6 +541,20 @@ class XMas(commands.Cog):
                 glist.append((gtid, giftname, gifts[gtid]['tier']))
             gtxt = '\n'.join([f'• **{i}** · *{n}* [T{tier}]' for i, n, tier in glist])
             em.add_field(name="Cadeaux actuellement à livrer", value=gtxt if gtxt else f"Aucun cadeau n'est à livrer pour *{currentdest}*", inline=False)
+            
+            contrib = await self.team_members(guild, t)
+            gmpts = []
+            for mu in contrib:
+                gm = guild.get_member(mu)
+                if gm:
+                    gmpts.append((gm.name, await self.config.member(gm).Points()))
+            best = sorted(gmpts, key=operator.itemgetter(1), reverse=True)
+            besttabl = tabulate(best[:5], headers=('Membre', 'Points'))
+            if best:
+                em.add_field(name="Top 5 contributeurs", value=box(besttabl), inline=False)
+            else:
+                em.add_field(name="Top 5 contributeurs", value=box("Aucun contributeur pour le moment"))
+            
             em.set_footer(text=f"Actuellement à : {currentdest} ({self.countries[currentdest]})")
             return em
         
@@ -837,6 +851,9 @@ class XMas(commands.Cog):
             
             post_em.set_footer(text="Astuce · " + random.choice(_ASTUCES))
             
+            userpts = await self.config.member(user).Points()
+            await self.config.member(user).Points.set(userpts + 5)
+            
             await spawn.edit(embed=post_em)
             await spawn.remove_reaction(goodemoji, self.bot.user)
             await spawn.delete(delay=20)
@@ -986,6 +1003,9 @@ class XMas(commands.Cog):
         
         await self.team_add_gift(guild, team, **giftdata)
         
+        userpts = await self.config.member(winner).Points()
+        await self.config.member(winner).Points.set(userpts + 5)
+        
         newem = discord.Embed(title=f"❄️ Jeu des fêtes • Soucis de GPS", color=emcolor)
         newem.description = random.choice((
             f"C'est l'équipe des **{teaminfo['name']}** qui remporte __{giftname} [Tier 3]__ grâce à {winner.mention} !",
@@ -1053,6 +1073,9 @@ class XMas(commands.Cog):
         await spawn.delete()
         
         await self.team_add_gift(guild, team, **giftdata)
+        
+        userpts = await self.config.member(winner).Points()
+        await self.config.member(winner).Points.set(userpts + 5)
         
         newem = discord.Embed(title=f"❄️ Jeu des fêtes • Soucis de GPS", color=emcolor)
         newem.description = random.choice((

@@ -996,7 +996,7 @@ class XMas(commands.Cog):
         cache['EventWinner'] = None
         em.add_field(name="Question", value=box(question, lang='css'))
         em.set_footer(text="» Répondez dans le tchat pour tenter d'obtenir un cadeau pour votre équipe")
-        spawn = await spawn.edit(embed=em)
+        await spawn.edit(embed=em)
         cache['EventType'] = 'question_capital'
         
         timeout = time.time() + 25
@@ -1067,7 +1067,7 @@ class XMas(commands.Cog):
         cache['EventWinner'] = None
         em.add_field(name="Question", value=box(question, lang='css'))
         em.set_footer(text="» Répondez dans le tchat pour tenter d'obtenir un cadeau pour votre équipe")
-        spawn = await spawn.edit(embed=em)
+        await spawn.edit(embed=em)
         cache['EventType'] = 'question_country'
         
         timeout = time.time() + 25

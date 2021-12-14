@@ -1086,7 +1086,7 @@ class XMas(commands.Cog):
                         'question_capital': 0.75,
                         'question_country': 0.75          
                     }
-                    event = random.choices(list(events_poss.keys()), weights=list(events_poss.values()), k=1)
+                    event = random.choices(list(events_poss.keys()), weights=list(events_poss.values()), k=1)[0]
                     if event == 'simple_item_spawn':
                         await self.simple_item_spawn(channel)
                     elif event == 'group_item_spawn':

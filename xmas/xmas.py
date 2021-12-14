@@ -541,6 +541,7 @@ class XMas(commands.Cog):
             gtxt = '\n'.join([f'• **{i}** · *{n}*[{tier}]' for i, n, tier in glist])
             em.add_field(name="Cadeaux actuellement à livrer", value=gtxt if gtxt else f"Aucun cadeau n'est à livrer pour *{currentdest}*", inline=False)
             em.set_footer(text=f"Actuellement à : {currentdest} ({self.countries[currentdest]})")
+            return em
         
         embeds = [await get_info(userteam), await get_info('red' if userteam is 'green' else 'green')]
         await menu(ctx, embeds, DEFAULT_CONTROLS)

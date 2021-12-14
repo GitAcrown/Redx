@@ -679,7 +679,7 @@ class XMas(commands.Cog):
         teaminfo = TEAMS_PRP[userteam]
         
         gteam, gift = await self.get_team_gift(guild, gift_key)
-        ginfo = self.gifts[gift['id']]
+        gname = self.gifts[gift['id']]
         if gteam != userteam:
             return await ctx.reply(f"{cross} **Erreur** · Ce cadeau n'existe pas ou n'est pas de votre équipe. Vérifiez l'identifiant.")
         
@@ -688,7 +688,7 @@ class XMas(commands.Cog):
         
         upgrade = await self.team_check_upgrade(guild, gift_key)
         
-        em = discord.Embed(color=teaminfo['color'], title=f"Améliorer un cadeau · `{gift_key}` *{ginfo['name']}*")
+        em = discord.Embed(color=teaminfo['color'], title=f"Améliorer un cadeau · `{gift_key}` *{gname}*")
         em.description = f"**Voulez-vous améliorer ce cadeau pour le faire passer en __Tier {gift['tier'] + 1}__ ?**"
         tabl = [(self.items[i]['name'], upgrade[i]) for i in upgrade]
         em.add_field(name="Items demandés", value=box(tabulate(tabl, headers=('Item', 'Qté'))), inline=False)
@@ -714,7 +714,7 @@ class XMas(commands.Cog):
             await self.inventory_remove(user, self.get_item(ui), upgrade[ui])
         
         await self.team_upgrade_gift(guild, userteam, gift_key)
-        await ctx.reply(f"{check} **Amélioration effectuée** · Le cadeau **{gift_key}** contenant *{ginfo['name']}* est désormais __Tier {ginfo['tier'] + 1} !", mention_author=False)
+        await ctx.reply(f"{check} **Amélioration effectuée** · Le cadeau **{gift_key}** contenant *{gname}* est désormais __Tier {gift['tier'] + 1} !", mention_author=False)
         
         
     @commands.command(name='coal', aliases=['charbon'])

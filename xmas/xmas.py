@@ -714,7 +714,7 @@ class XMas(commands.Cog):
             await self.inventory_remove(user, self.get_item(ui), upgrade[ui])
         
         await self.team_upgrade_gift(guild, userteam, gift_key)
-        await ctx.reply(f"{check} **Amélioration effectuée** · Le cadeau **{gift_key}** contenant *{gname}* est désormais __Tier {gift['tier'] + 1} !", mention_author=False)
+        await ctx.reply(f"{check} **Amélioration effectuée** · Le cadeau **{gift_key}** contenant *{gname}* est désormais __Tier {gift['tier'] + 1}__ !", mention_author=False)
         
         
     @commands.command(name='coal', aliases=['charbon'])

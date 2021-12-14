@@ -221,7 +221,7 @@ class XMas(commands.Cog):
         teams = await self.config.guild(guild).Teams()
         destgifts = {}
         for t in teams:
-            other_team = 'red' if t == 'green' else 'green'
+            other_team = [c for c in ('red', 'green') if c != t][0]
             if t not in destgifts:
                 destgifts[t] = []
             for g in teams[t]['Gifts']:
@@ -564,7 +564,7 @@ class XMas(commands.Cog):
             em.set_footer(text=f"Actuellement à : {currentdest} ({self.countries[currentdest]})")
             return em
         
-        embeds = [await get_info(userteam), await get_info('red' if userteam is 'green' else 'green')]
+        embeds = [await get_info(userteam), await get_info([c for c in ('red', 'green') if c != userteam][0])]
         await menu(ctx, embeds, DEFAULT_CONTROLS)
             
     @commands.command(name='gifts', aliases=['g'])
@@ -739,7 +739,7 @@ class XMas(commands.Cog):
             await ctx.reply(f"{alert} **Qté modifiée** · Vous ne pouvez pas utiliser plus de 10x Charbon à la fois, j'ai donc réduit pour vous la quantité misée.",
                                    mention_author=False)
             
-        otherteam = 'red' if userteam is 'green' else 'green'
+        otherteam = [c for c in ('red', 'green') if c != userteam][0]
         tgifts = await self.team_gifts(guild, otherteam)
         if not tgifts:
             return await ctx.reply(f"{alert} **Impossible** · L'équipe adverse n'a pas de cadeaux à livrer !")

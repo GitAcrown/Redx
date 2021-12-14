@@ -1074,6 +1074,7 @@ class XMas(commands.Cog):
             cache['counter'] += random.randint(0, 1)
             if cache['counter'] > cache['trigger']:
                 if cache['last_spawn'] < time.time() - 900 and not cache['CurrentEvent']:
+                    logger.info("Lancement Event")
                     cache['counter'] = 0
                     cache['CurrentEvent'] = True
                     channel = guild.get_channel(settings['event_channel'])
@@ -1089,14 +1090,19 @@ class XMas(commands.Cog):
                     event = random.choices(list(events_poss.keys()), weights=list(events_poss.values()), k=1)[0]
                     if event == 'simple_item_spawn':
                         await self.simple_item_spawn(channel)
+                        logger.info("Launch. Simple Item Spawn")
                     elif event == 'group_item_spawn':
                         await self.group_item_spawn(channel)
+                        logger.info("Launch. Group Item Spawn")
                     elif event == 'simple_gift_spawn':
                         await self.simple_gift_spawn(channel)
+                        logger.info("Launch. Simple Gift Spawn")
                     elif event == 'question_capital':
                         await self.question_capital(channel)
+                        logger.info("Launch. Question Capitale")
                     else:
                         await self.question_country(channel)
+                        logger.info("Launch. Question Country")
                     
                     cache['CurrentEvent'] = False
                     cache['EventType'] = ''

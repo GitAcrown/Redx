@@ -44,9 +44,13 @@ TEAMS_PRP = {
 _ASTUCES = [
     "Vous remportez des voeux en livrant les cadeaux de votre équipe",
     "Plus vous utilisez de charbon pour saboter un cadeau adverse, plus vos chances de réussite sont importantes !",
-    "Les deux équipes n'ont pas de spécificité",
+    "Les deux équipes n'ont pas de stats qui leurs sont propres",
     "Lorsque vous livrez un cadeau, vous remportez des points personnels en plus de points pour votre équipe !",
-    "Si vous ne livrez pas un cadeau, l'équipe adverse gagne du charbon proportionnellement au grade du cadeau perdu."
+    "Si vous ne livrez pas un cadeau, l'équipe adverse gagne du charbon proportionnellement au grade du cadeau perdu.",
+    "Vos items personnels vous servent à améliorer les cadeaux de votre équipe, avec ';upgrade'",
+    "Le charbon sert à saboter les cadeaux ennemis, consultez ';help coal' pour en savoir plus",
+    "Les cadeaux donnés à l'occasion des questions de capitales sont automatiquement de tier 3",
+    "La position du traineau change environ toutes les 45m, surveillez bien les prochaines destinations avec ';map'"
 ]
     
 logger = logging.getLogger("red.RedX.XMas")

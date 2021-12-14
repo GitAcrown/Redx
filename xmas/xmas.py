@@ -728,7 +728,13 @@ class XMas(commands.Cog):
             qte = 10
             await ctx.reply(f"{alert} **Qté modifiée** · Vous ne pouvez pas utiliser plus de 10x Charbon à la fois, j'ai donc réduit pour vous la quantité misée.",
                                    mention_author=False)
+            
+        otherteam = 'red' if userteam is 'green' else 'green'
+        tgifts = await self.team_gifts(guild, otherteam)
+        if not tgifts:
+            return await ctx.reply(f"{alert} **Impossible** · L'équipe adverse n'a pas de cadeaux à livrer !")
         
+        cache['CoalCD'] = time.time()
         try:
             await self.coal_remove(guild, userteam, qte)
         except:
@@ -738,9 +744,6 @@ class XMas(commands.Cog):
         if random.randint(0, qte) == 0:
             return await ctx.reply(f"{cross} **Echec** · Vous n'avez pas réussi à saboter un cadeau de l'équipe adverse, dommage !")
         
-        otherteam = 'red' if userteam is 'green' else 'green'
-        cache['CoalCD'] = time.time()
-        tgifts = await self.team_gifts(guild, otherteam)
         rdm = random.choice(list(tgifts.keys()))
         currentgift = await self.config.guild(guild).Teams.get_raw(otherteam, 'Gifts', rdm)
         if currentgift['tier'] > 1:

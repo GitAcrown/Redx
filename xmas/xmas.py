@@ -970,7 +970,7 @@ class XMas(commands.Cog):
         
         giftdata = {'gift_id': random.choice(list(self.gifts.keys())), 'tier': 3, 'destination': dest}
         giftname = self.gifts[giftdata['gift_id']]
-        country = random.choice(self.countries)
+        country = random.choice(list(self.countries.keys()))
         
         rdm_capitals = random.sample(list({c: self.countries[c] for c in self.countries if c != country}.values()), k=3)
         good_capital = self.countries[country]

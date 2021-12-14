@@ -1062,7 +1062,7 @@ class XMas(commands.Cog):
                 return 
             
             guild = message.guild
-            settings = await self.config.guild(guild).all()
+            settings = await self.config.guild(guild).Settings()
             cache = self.get_cache(guild)
             
             if cache['EventType'].startswith('question') and cache['EventAnswer']:

@@ -973,7 +973,7 @@ class XMas(commands.Cog):
         country = random.choice(list(self.countries.keys()))
         
         rdm_capitals = random.sample(list({c: self.countries[c] for c in self.countries if c != country}.values()), k=3)
-        good_capital = self.countries[country]
+        good_capital = [self.countries[country]]
         all_capitals = rdm_capitals + good_capital
         random.shuffle(all_capitals)
         
@@ -1045,7 +1045,7 @@ class XMas(commands.Cog):
         
         rdm_capitals = random.sample(list({c: self.countries[c] for c in self.countries if self.countries[c] != capital}.keys()), k=3)
         good_capital = [c for c in self.countries if  self.countries[c] == capital][0]
-        all_capitals = rdm_capitals + good_capital
+        all_capitals = rdm_capitals + [good_capital]
         random.shuffle(all_capitals)
         
         em = discord.Embed(title=f"❄️ Jeu des fêtes • Soucis de GPS", color=emcolor)

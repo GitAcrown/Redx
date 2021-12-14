@@ -537,7 +537,7 @@ class XMas(commands.Cog):
             gifts = await self.check_gifts(guild, currentdest, for_team=t)
             glist = []
             for gtid in gifts:
-                giftname = self.gifts[gifts[gtid]['id']]['name']
+                giftname = self.gifts[gifts[gtid]['id']]
                 glist.append((gtid, giftname, gifts[gtid]['tier']))
             gtxt = '\n'.join([f'• **{i}** · *{n}*[{tier}]' for i, n, tier in glist])
             em.add_field(name="Cadeaux actuellement à livrer", value=gtxt if gtxt else f"Aucun cadeau n'est à livrer pour *{currentdest}*", inline=False)
@@ -555,14 +555,15 @@ class XMas(commands.Cog):
         team = await self.check_team(user)
         teaminfo = TEAMS_PRP[team]
         
-        gifts = await self.team_gifts(guild, team)
+        teamgifts = await self.team_gifts(guild, team)
         glist = []
         dests = await self.fill_destinations(guild)
         for d in dests:
             localgifts = await self.check_gifts(guild, d, for_team=team)
             for gtid in localgifts:
-                giftname = self.gifts[gifts[gtid]['id']]['name']
-                glist.append((gtid, giftname, gifts[gtid]['tier'], d if len(d) < 20 else d[:17] + '⋯'))
+                tg = teamgifts[gtid]
+                giftname = self.gifts[tg['id']]
+                glist.append((gtid, giftname, teamgifts[gtid]['tier'], d if len(d) < 20 else d[:17] + '⋯'))
         
         tabls = [glist[x:x+20] for x in range(0, len(glist), 20)]
         embeds = []
@@ -614,14 +615,14 @@ class XMas(commands.Cog):
         userpts = await self.config.member(user).Points()
         await self.config.member(user).Points.set(userpts + 10)
         
-        await ctx.send(f"{check} 🎁 **Livraison effectuée** · Le cadeau **{gift_key}** contenant *{self.gifts[gift['id']]['name']}* a été livré à {dest} !\nL'équipe des {teaminfo['name']} remporte **+{pts} Points** et {user.mention} en remporte 10.")
+        await ctx.send(f"{check} 🎁 **Livraison effectuée** · Le cadeau **{gift_key}** contenant *{self.gifts[gift['id']]}* a été livré à {dest} !\nL'équipe des {teaminfo['name']} remporte **+{pts} Points** et {user.mention} en remporte 10.")
     
         wishesrdm = random.choices(list(self.gifts.keys()), k=random.randint(1, 3))
         wishes = {w: wishesrdm.count(w) for w in set(wishesrdm)}
         wl = []
         for w in wishes:
             await self.wish_add(user, w, wishes[w])
-            wl.append(f"`{self.gifts[w]['name']} x{wishes[w]}`")
+            wl.append(f"`{self.gifts[w]} x{wishes[w]}`")
         
         if wishes:
             await ctx.reply(f"☄️ **Voeux gagnés** · Vous remportez {' '.join(wl)} pour avoir livré le cadeau avec succès !")

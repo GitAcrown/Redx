@@ -952,8 +952,8 @@ class XMas(commands.Cog):
     def normalize(self, texte: str):
         """Normalise le texte en retirant accents, majuscules et tirets"""
         texte = texte.lower()
-        norm = [l for l in "neeecaaiiuuoo "]
-        modif = [l for l in "ñéêèçàäîïûùöô-"]
+        norm = [l for l in "neeecaaiiuuoo   "]
+        modif = [l for l in "ñéêèçàäîïûùöô-'."]
         fin_texte = texte
         for char in texte:
             if char in modif:
@@ -1117,7 +1117,7 @@ class XMas(commands.Cog):
             cache = self.get_cache(guild)
             
             if cache['EventType'].startswith('question') and cache['EventAnswer']:
-                if self.normalize(message.content) == cache['EventAnswer']:
+                if self.normalize(message.content) == self.normalize(cache['EventAnswer']):
                     cache['EventWinner'] = message.author.id
                 
             

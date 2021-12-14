@@ -171,7 +171,7 @@ class XMas(commands.Cog):
                 'last_message': None,
                 'last_spawn': 0,
                 'counter': 0,
-                'trigger': 75,
+                'trigger': 25,
                 'resume_counter': [],
                 
                 'CurrentEvent': False,
@@ -1162,7 +1162,7 @@ class XMas(commands.Cog):
                     cache['CurrentEvent'] = False
                     cache['EventType'] = ''
                     cache['last_spawn'] = time.time()
-                    cache['trigger'] = random.randint(50, 75)
+                    cache['trigger'] = random.randint(40, 60)
                     
                     
     @commands.Cog.listener()

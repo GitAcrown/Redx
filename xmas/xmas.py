@@ -160,7 +160,7 @@ class XMas(commands.Cog):
         
 # CACHE ----------------------------------------
 
-    def get_cache(self, guild: discord.Guild):
+    def hget_cache(self, guild: discord.Guild):
         if guild.id not in self.cache:
             self.cache[guild.id] = {
                 'status': 0,
@@ -1006,7 +1006,7 @@ class XMas(commands.Cog):
             counter += 1
             if counter == 5:
                 helptxt = "\n".join([f'• {i}' for i in all_capitals])
-                em.add_field(name="Aide", value=box(helptxt, lang='fix', inline=False))
+                em.add_field(name="Aide", value=box(helptxt, lang='fix'), inline=False)
                 await spawn.edit(embed=em)
             await asyncio.sleep(1)
             

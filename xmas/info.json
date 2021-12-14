@@ -1,0 +1,11 @@
+{
+    "author": ["Acrone"],
+	"description": "Jeu évènement Noël 2021",
+	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help XMas` pour voir les commandes disponibles.",
+	"short": "Jeu évènement Noël 2021",
+	"tags": ["fun", "economy", "games"],
+    "requirements" : [],
+    "required_cogs": {},
+	"type": "COG",
+	"end_user_data_statement": "This cog does not store personal data."
+}

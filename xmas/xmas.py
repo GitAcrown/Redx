@@ -45,7 +45,8 @@ _ASTUCES = [
     "Vous remportez des voeux en livrant les cadeaux de votre équipe",
     "Plus vous utilisez de charbon pour saboter un cadeau adverse, plus vos chances de réussite sont importantes !",
     "Les deux équipes n'ont pas de spécificité",
-    "Lorsque vous livrez un cadeau, vous remportez des points personnels en plus de points pour votre équipe !"
+    "Lorsque vous livrez un cadeau, vous remportez des points personnels en plus de points pour votre équipe !",
+    "Si vous ne livrez pas un cadeau, l'équipe adverse gagne du charbon proportionnellement au grade du cadeau perdu."
 ]
     
 logger = logging.getLogger("red.RedX.XMas")
@@ -227,7 +228,7 @@ class XMas(commands.Cog):
                     if apply_remove:
                         await self.team_remove_gift(guild, t, g)
                         gifttier = teams[t]['Gifts'][g]['tier']
-                        await self.coal_add(guild, other_team, gifttier * 3)
+                        await self.coal_add(guild, other_team, gifttier * 2)
                         
         return destgifts if not for_team else destgifts.get(for_team, None) 
     
@@ -686,7 +687,7 @@ class XMas(commands.Cog):
         
         
     @commands.command(name='coal', aliases=['charbon'])
-    async def use_coal(self, ctx, qte: int = 1):
+    async def use_coal(self, ctx, qte: int):
         """Utiliser du charbon pour réduire les niveaux des cadeaux de l'autre équipe
         
         Plus la quantité de charbon utilisée est grande (de 1 à 10) plus les chances de toucher un cadeau adverse sont hautes"""
@@ -716,6 +717,7 @@ class XMas(commands.Cog):
             return await ctx.reply(f"{cross} **Echec** · Vous n'avez pas réussi à saboter un cadeau de l'équipe adverse, dommage !")
         
         otherteam = 'red' if userteam is 'green' else 'green'
+        cache['CoalCD'] = time.time()
         tgifts = await self.team_gifts(guild, otherteam)
         rdm = random.choice(list(tgifts.keys()))
         currentgift = await self.config.guild(guild).Teams.get_raw(otherteam, 'Gifts', rdm)
@@ -819,6 +821,12 @@ class XMas(commands.Cog):
             post_em = discord.Embed(title="❄️ Jeu des fêtes • Sortie d'ateliers", 
                                     description=wintxt,
                                     color=emcolor)
+            
+            if random.randint(0, 2) == 0:
+                cqte = random.randint(2, 6)
+                await self.coal_add(guild, team, cqte)
+                post_em.add_field(name="BONUS Réussite critique", value="**+{cqte} Charbon**")
+            
             post_em.set_footer(text="Astuce · " + random.choice(_ASTUCES))
             
             await spawn.edit(embed=post_em)
@@ -1070,17 +1078,25 @@ class XMas(commands.Cog):
                     cache['CurrentEvent'] = True
                     channel = guild.get_channel(settings['event_channel'])
                     
-                    events = {
-                        'simple_item_spawn': (1.0 , self.simple_item_spawn),
-                        'group_item_spawn': (0.90, self.group_item_spawn),
-                        'simple_gift_spawn': (0.8, self.simple_gift_spawn),
-                        'question_capital': (0.75, self.question_capital),
-                        'question_country': (0.75, self.question_country)
-                    }
-                    
                     await asyncio.sleep(random.randint(2, 4))
-                    event = random.choices(list(events.keys()), weights=[events[i][0] for i in events], k=1)[0]
-                    await events[event][1](channel)
+                    events_poss = {
+                        'simple_item_spawn': 1.0,
+                        'group_item_spawn': 0.90,
+                        'simple_gift_spawn': 0.8,
+                        'question_capital': 0.75,
+                        'question_country': 0.75          
+                    }
+                    event = random.choices(list(events_poss.keys()), weights=list(events_poss.values()), k=1)
+                    if event == 'simple_item_spawn':
+                        await self.simple_item_spawn(channel)
+                    elif event == 'group_item_spawn':
+                        await self.group_item_spawn(channel)
+                    elif event == 'simple_gift_spawn':
+                        await self.simple_gift_spawn(channel)
+                    elif event == 'question_capital':
+                        await self.question_capital(channel)
+                    else:
+                        await self.question_country(channel)
                     
                     cache['CurrentEvent'] = False
                     cache['EventType'] = ''

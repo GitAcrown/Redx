@@ -126,7 +126,8 @@ class XMas(commands.Cog):
             
             if all_guilds[g]['LastDestChange'] + 3600 < time.time():
                 await self.config.guild(guild).LastDestChange.set(time.time())
-                lastdst = await self.fill_destinations(guild)[0]
+                lastdst = await self.fill_destinations(guild)
+                lastdst = lastdst[0]
                 dst = await self.next_destination(guild)
                 
                 em = discord.Embed(color=XMAS_COLOR())
@@ -135,8 +136,6 @@ class XMas(commands.Cog):
                 await self.send_alert(guild, em)
                 
                 await self.check_gifts(guild, lastdst, apply_remove=True)
-            
-            all_members = await self.config.all_members(guild)
             
                    
     @xmas_checks.before_loop
@@ -215,7 +214,7 @@ class XMas(commands.Cog):
         current = await self.config.guild(guild).Destinations()
         return current
                 
-    async def check_gifts(self, guild: discord.Guild, destination: str, apply_remove: bool = False) -> dict:
+    async def check_gifts(self, guild: discord.Guild, destination: str, apply_remove: bool = False, *, for_team: str = None) -> dict:
         teams = await self.config.guild(guild).Teams()
         destgifts = {}
         for t in teams:
@@ -230,7 +229,7 @@ class XMas(commands.Cog):
                         gifttier = teams[t]['Gifts'][g]['tier']
                         await self.coal_add(guild, other_team, gifttier * 3)
                         
-        return destgifts
+        return destgifts if not for_team else destgifts.get(for_team, None) 
     
     async def gen_gift_uid(self, guild: discord.Guild):
         teams = await self.config.guild(guild).Teams()
@@ -523,7 +522,7 @@ class XMas(commands.Cog):
         
         async def get_info(t: str) -> discord.Embed:
             teaminfo = TEAMS_PRP[t]
-            teamdata = await self.config.guild(guild).Teams.get(t)
+            teamdata = await self.config.guild(guild).Teams.get_raw(t)
             em = discord.Embed(color=teaminfo['color'], title=f"**{teaminfo['name']}**")
             em.set_thumbnail(url=teaminfo['icon'])
             desc = f"**Points** · {teamdata['Points'] + await self.team_members_points(guild, t)}\n"
@@ -532,8 +531,9 @@ class XMas(commands.Cog):
             desc += f"**Charbon** · x{await self.config.guild(guild).Teams.get_raw(t, 'Coal')}"
             em.description = desc
             
-            currentdest = await self.fill_destinations(guild)[0]
-            gifts = await self.check_gifts(guild, currentdest)[t]
+            currentdest = await self.fill_destinations(guild)
+            currentdest = currentdest[0]
+            gifts = await self.check_gifts(guild, currentdest, for_team=t)
             glist = []
             for gtid in gifts:
                 giftname = self.gifts[gifts[gtid]['gift_id']]['name']
@@ -557,7 +557,7 @@ class XMas(commands.Cog):
         glist = []
         dests = await self.fill_destinations(guild)
         for d in dests:
-            localgifts = await self.check_gifts(guild, d)[team]
+            localgifts = await self.check_gifts(guild, d, for_team=team)
             for gtid in localgifts:
                 giftname = self.gifts[gifts[gtid]['gift_id']]['name']
                 glist.append((gtid, giftname, gifts[gtid]['tier'], d if len(d) < 20 else d[:17] + '⋯'))
@@ -628,7 +628,8 @@ class XMas(commands.Cog):
     async def disp_dests_map(self, ctx):
         """Affiche les 10 prochaines destinations"""
         guild = ctx.guild
-        dests = await self.fill_destinations(guild)[:10]
+        dests = await self.fill_destinations(guild)
+        dests = dests[:10]
         txt = "\n".join([f"{'•' if dests.index(d) == 0 else '·'} {d} ({self.countries[d]})" for d in dests])
         em = discord.Embed(color=XMAS_COLOR(), title=f"Prochaines destinations")
         em.description = box(txt, lang='css')

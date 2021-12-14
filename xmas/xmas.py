@@ -125,7 +125,7 @@ class XMas(commands.Cog):
         for g in all_guilds:
             guild = self.bot.get_guild(g)
             
-            if all_guilds[g]['LastDestChange'] + 3600 < time.time():
+            if all_guilds[g]['LastDestChange'] + 500 < time.time():
                 await self.config.guild(guild).LastDestChange.set(time.time())
                 lastdst = await self.fill_destinations(guild)
                 lastdst = lastdst[0]
@@ -489,29 +489,31 @@ class XMas(commands.Cog):
         if not giftid:
             return await ctx.reply(f"{alert} **Cadeau inconnu** · Vérifiez le nom du cadeau ou tapez son numéro", mention_author=False)
         
-        if await self.wish_remove(user, giftid, 3):
-            if random.randint(0, 2):
-                dests = await self.fill_destinations(guild)
-                dest = random.choice(dests[10:])
-                
-                giftdata = {'gift_id': giftid, 'tier': 1, 'destination': dest} 
-                await self.team_add_gift(guild, team, **giftdata)
-                em = discord.Embed(color=teaminfo['color'])
-                em.set_author(name=f"Craft de cadeaux · Réussite", icon_url=user.avatar_url)
-                em.description = f"{check} Vous avez créé **{self.gifts[giftid]} [Tier 1]** pour votre équipe, les *{teaminfo['name']}*."
-                em.set_footer(text="Consultez les cadeaux à livrer avec ';gifts'")
-            else:
-                em = discord.Embed(color=teaminfo['color'])
-                em.set_author(name=f"Craft de cadeaux · Echec", icon_url=user.avatar_url)
-                em.description = f"{cross} Vous n'avez pas réussi à créer un cadeau pour votre équipe, les *{teaminfo['name']}*."
-                em.set_footer(text="Consultez les cadeaux à livrer avec ';gifts'")
-            await ctx.reply(embed=em, mention_author=False)
-        else:
+        try: 
+            await self.wish_remove(user, giftid, 3)
+        except:
             em = discord.Embed(color=teaminfo['color'])
             em.set_author(name=f"Craft de cadeaux · Erreur", icon_url=user.avatar_url)
             em.description = f"{alert} Vous n'avez pas assez de voeux pour crafter un cadeau. Collectez au moins 3x voeux d'un même cadeau pour le créer."
             em.set_footer(text="Consultez vos voeux disponibles avec ';craft'")
-            await ctx.reply(embed=em, mention_author=False)
+            return await ctx.reply(embed=em, mention_author=False)
+        
+        if random.randint(0, 2):
+            dests = await self.fill_destinations(guild)
+            dest = random.choice(dests[10:])
+            
+            giftdata = {'gift_id': giftid, 'tier': 1, 'destination': dest} 
+            await self.team_add_gift(guild, team, **giftdata)
+            em = discord.Embed(color=teaminfo['color'])
+            em.set_author(name=f"Craft de cadeaux · Réussite", icon_url=user.avatar_url)
+            em.description = f"{check} Vous avez créé **{self.gifts[giftid]} [Tier 1]** pour votre équipe, les *{teaminfo['name']}*."
+            em.set_footer(text="Consultez les cadeaux à livrer avec ';gifts'")
+        else:
+            em = discord.Embed(color=teaminfo['color'])
+            em.set_author(name=f"Craft de cadeaux · Echec", icon_url=user.avatar_url)
+            em.description = f"{cross} Vous n'avez pas réussi à créer un cadeau pour votre équipe, les *{teaminfo['name']}*."
+            em.set_footer(text="Consultez les cadeaux à livrer avec ';gifts'")
+        await ctx.reply(embed=em, mention_author=False)
             
             
     @commands.command(name='team', aliases=['teams'])
@@ -639,7 +641,7 @@ class XMas(commands.Cog):
             wl.append(f"`{self.gifts[w]} x{wishes[w]}`")
         
         if wishes:
-            await ctx.reply(f"☄️ **Voeux gagnés** · Vous remportez {' '.join(wl)} pour avoir livré le cadeau avec succès !")
+            await ctx.reply(f"☄️ **Voeux gagnés** · Vous remportez des voeux pour {' '.join(wl)} pour avoir livré le cadeau avec succès !")
     
     @commands.command(name='map', aliases=['dest'])
     async def disp_dests_map(self, ctx):
@@ -653,7 +655,7 @@ class XMas(commands.Cog):
         
         lastdest = await self.config.guild(guild).LastDestChange()
         lastdest = lastdest if lastdest else time.time()
-        nxtdest = lastdest + 3600
+        nxtdest = lastdest + 500
         dtxt = datetime.now().fromtimestamp(nxtdest).strftime('%H:%M')
         em.add_field(name="Prochaine dest. vers", value=box(dtxt))
         

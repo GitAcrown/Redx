@@ -538,11 +538,12 @@ class XMas(commands.Cog):
             
             currentdest = await self.fill_destinations(guild)
             currentdest = currentdest[0]
-            gifts = await self.check_gifts(guild, currentdest, for_team=t)
+            teamgifts = await self.check_gifts(guild, currentdest, for_team=t)
             glist = []
-            for gtid in gifts:
-                giftname = self.gifts[gifts[gtid]['id']]
-                glist.append((gtid, giftname, gifts[gtid]['tier']))
+            for gtid in teamgifts:
+                tg = teamgifts[gtid]
+                giftname = self.gifts[tg['id']]
+                glist.append((gtid, giftname, teamgifts[gtid]['tier']))
             gtxt = '\n'.join([f'• **{i}** · *{n}* [T{tier}]' for i, n, tier in glist])
             em.add_field(name="Cadeaux actuellement à livrer", value=gtxt if gtxt else f"Aucun cadeau n'est à livrer pour *{currentdest}*", inline=False)
             

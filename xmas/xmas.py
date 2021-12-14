@@ -545,6 +545,7 @@ class XMas(commands.Cog):
                 tg = teamgifts[gtid]
                 giftname = self.gifts[tg['id']]
                 glist.append((gtid, giftname, tg['tier']))
+            glist = glist[:5]
             gtxt = '\n'.join([f'• **{i}** · *{n}* [T{tier}]' for i, n, tier in glist])
             em.add_field(name="Cadeaux actuellement à livrer", value=gtxt if gtxt else f"Aucun cadeau n'est à livrer pour *{currentdest}*", inline=False)
             

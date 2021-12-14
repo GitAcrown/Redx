@@ -130,13 +130,13 @@ class XMas(commands.Cog):
                 lastdst = await self.fill_destinations(guild)
                 lastdst = lastdst[0]
                 dst = await self.next_destination(guild)
+                await self.check_gifts(guild, lastdst, apply_remove=True)
                 
                 em = discord.Embed(color=XMAS_COLOR())
                 em.description = f"**Arrivée à** · __{dst}__ ({self.countries[dst]})"
                 em.set_footer(text="Astuce · " + random.choice(_ASTUCES))
                 await self.send_alert(guild, em)
                 
-                await self.check_gifts(guild, lastdst, apply_remove=True)
             
                    
     @xmas_checks.before_loop
@@ -612,6 +612,8 @@ class XMas(commands.Cog):
         team, gift = await self.get_team_gift(guild, gift_key)
         if not gift:
             return await ctx.reply(f"{cross} **ID de cadeau inconnu** · Consultez la liste des cadeaux à livrer avec `;gifts`")
+        if team != await self.check_team(user):
+            return await ctx.reply(f"{cross} **ID de cadeau invalide** · Ce cadeau est à l'équipe adverse !")
 
         dests = await self.fill_destinations(guild)
         dest = dests[0]

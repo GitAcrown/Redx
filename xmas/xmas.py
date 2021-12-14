@@ -962,7 +962,7 @@ class XMas(commands.Cog):
         return fin_texte
         
     
-    async def question_capital(self, channel: discord.TextChannel): # Trouver la capitale
+    async def question_capital(self, channel: discord.TextChannel): # Trouver la capitale à partir du pays
         guild = channel.guild
         dests = await self.fill_destinations(guild)
         dest = random.choice(dests[5:])
@@ -973,8 +973,8 @@ class XMas(commands.Cog):
         country = random.choice(list(self.countries.keys()))
         
         rdm_capitals = random.sample(list({c: self.countries[c] for c in self.countries if c != country}.values()), k=3)
-        good_capital = [self.countries[country]]
-        all_capitals = rdm_capitals + good_capital
+        good_capital = self.countries[country]
+        all_capitals = rdm_capitals + [good_capital]
         random.shuffle(all_capitals)
         
         em = discord.Embed(title=f"❄️ Jeu des fêtes • Soucis de GPS", color=emcolor)
@@ -994,18 +994,19 @@ class XMas(commands.Cog):
         
         cache = self.get_cache(guild)
         cache['EventWinner'] = None
+        cache['EventAnswer'] = good_capital
+        cache['EventType'] = 'question_capital'
         em.add_field(name="Question", value=box(question, lang='css'))
         em.set_footer(text="» Répondez dans le tchat pour tenter d'obtenir un cadeau pour votre équipe")
         await spawn.edit(embed=em)
-        cache['EventType'] = 'question_capital'
         
         timeout = time.time() + 25
         counter = 0
         while time.time() < timeout and not cache["EventWinner"]:
             counter += 1
             if counter == 5:
-                helptxt = "\n".join([f'{i}' for i in all_capitals])
-                em.add_field(name="Aide", value=box(helptxt, lang='fix'))
+                helptxt = "\n".join([f'• {i}' for i in all_capitals])
+                em.add_field(name="Aide", value=box(helptxt, lang='fix', inline=False))
                 await spawn.edit(embed=em)
             await asyncio.sleep(1)
             
@@ -1033,7 +1034,7 @@ class XMas(commands.Cog):
         newem.footer(text="Astuce · " + random.choice(_ASTUCES))
         await channel.send(embed=newem)
         
-    async def question_country(self, channel: discord.TextChannel): # Trouver le pays
+    async def question_country(self, channel: discord.TextChannel): # Trouver le pays à partir de la capitale
         guild = channel.guild
         dests = await self.fill_destinations(guild)
         dest = random.choice(dests[5:])
@@ -1043,10 +1044,10 @@ class XMas(commands.Cog):
         giftname = self.gifts[giftdata['gift_id']]
         capital = random.choice(list(self.countries.values()))
         
-        rdm_capitals = random.sample(list({c: self.countries[c] for c in self.countries if self.countries[c] != capital}.keys()), k=3)
-        good_capital = [c for c in self.countries if  self.countries[c] == capital][0]
-        all_capitals = rdm_capitals + [good_capital]
-        random.shuffle(all_capitals)
+        rdm_countries = random.sample(list({c: self.countries[c] for c in self.countries if self.countries[c] != capital}.keys()), k=3)
+        good_country = [c for c in self.countries if  self.countries[c] == capital][0]
+        all_countries = rdm_countries + [good_country]
+        random.shuffle(all_countries)
         
         em = discord.Embed(title=f"❄️ Jeu des fêtes • Soucis de GPS", color=emcolor)
         introtext = random.choice((
@@ -1065,18 +1066,19 @@ class XMas(commands.Cog):
         
         cache = self.get_cache(guild)
         cache['EventWinner'] = None
+        cache['EventAnswer'] = good_country
+        cache['EventType'] = 'question_country'
         em.add_field(name="Question", value=box(question, lang='css'))
         em.set_footer(text="» Répondez dans le tchat pour tenter d'obtenir un cadeau pour votre équipe")
         await spawn.edit(embed=em)
-        cache['EventType'] = 'question_country'
         
         timeout = time.time() + 25
         counter = 0
         while time.time() < timeout and not cache["EventWinner"]:
             counter += 1
             if counter == 5:
-                helptxt = "\n".join([f'{i}' for i in all_capitals])
-                em.add_field(name="Aide", value=box(helptxt, lang='fix'))
+                helptxt = "\n".join([f'• {i}' for i in all_countries])
+                em.add_field(name="Aide", value=box(helptxt, lang='fix'), inline=False)
                 await spawn.edit(embed=em)
             await asyncio.sleep(1)
             

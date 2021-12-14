@@ -537,7 +537,7 @@ class XMas(commands.Cog):
             gifts = await self.check_gifts(guild, currentdest, for_team=t)
             glist = []
             for gtid in gifts:
-                giftname = self.gifts[gifts[gtid]['gift_id']]['name']
+                giftname = self.gifts[gifts[gtid]['id']]['name']
                 glist.append((gtid, giftname, gifts[gtid]['tier']))
             gtxt = '\n'.join([f'• **{i}** · *{n}*[{tier}]' for i, n, tier in glist])
             em.add_field(name="Cadeaux actuellement à livrer", value=gtxt if gtxt else f"Aucun cadeau n'est à livrer pour *{currentdest}*", inline=False)
@@ -561,7 +561,7 @@ class XMas(commands.Cog):
         for d in dests:
             localgifts = await self.check_gifts(guild, d, for_team=team)
             for gtid in localgifts:
-                giftname = self.gifts[gifts[gtid]['gift_id']]['name']
+                giftname = self.gifts[gifts[gtid]['id']]['name']
                 glist.append((gtid, giftname, gifts[gtid]['tier'], d if len(d) < 20 else d[:17] + '⋯'))
         
         tabls = [glist[x:x+20] for x in range(0, len(glist), 20)]
@@ -614,7 +614,7 @@ class XMas(commands.Cog):
         userpts = await self.config.member(user).Points()
         await self.config.member(user).Points.set(userpts + 10)
         
-        await ctx.send(f"{check} 🎁 **Livraison effectuée** · Le cadeau **{gift_key}** contenant *{self.gifts[gift['gift_id']]['name']}* a été livré à {dest} !\nL'équipe des {teaminfo['name']} remporte **+{pts} Points** et {user.mention} en remporte 10.")
+        await ctx.send(f"{check} 🎁 **Livraison effectuée** · Le cadeau **{gift_key}** contenant *{self.gifts[gift['id']]['name']}* a été livré à {dest} !\nL'équipe des {teaminfo['name']} remporte **+{pts} Points** et {user.mention} en remporte 10.")
     
         wishesrdm = random.choices(list(self.gifts.keys()), k=random.randint(1, 3))
         wishes = {w: wishesrdm.count(w) for w in set(wishesrdm)}
@@ -635,6 +635,13 @@ class XMas(commands.Cog):
         txt = "\n".join([f"{'•' if dests.index(d) == 0 else '·'} {d} ({self.countries[d]})" for d in dests])
         em = discord.Embed(color=XMAS_COLOR(), title=f"Prochaines destinations")
         em.description = box(txt, lang='css')
+        
+        lastdest = await self.config.guild(guild).LastDestChange()
+        lastdest = lastdest if lastdest else time.time()
+        nxtdest = lastdest + 3600
+        dtxt = datetime.now().fromtimestamp(nxtdest).strftime('%H:%M')
+        em.add_field(name="Prochaine dest. vers", value=box(dtxt))
+        
         em.set_footer(text="Consultez les cadeaux à livrer avec ';team' ou ';gifts'")
         await ctx.reply(embed=em, mention_author=False)
         
@@ -648,7 +655,7 @@ class XMas(commands.Cog):
         teaminfo = TEAMS_PRP[userteam]
         
         gteam, gift = await self.get_team_gift(guild, gift_key)
-        ginfo = self.gifts[gift['gift_id']]
+        ginfo = self.gifts[gift['id']]
         if gteam != userteam:
             return await ctx.reply(f"{cross} **Erreur** · Ce cadeau n'existe pas ou n'est pas de votre équipe. Vérifiez l'identifiant.")
         
@@ -723,7 +730,7 @@ class XMas(commands.Cog):
         currentgift = await self.config.guild(guild).Teams.get_raw(otherteam, 'Gifts', rdm)
         if currentgift['tier'] > 1:
             await self.config.guild(guild).Teams.set_raw(otherteam, 'Gifts', rdm, 'tier', value=currentgift['tier'] - 1)
-            await ctx.reply(f"{check} **Cadeau saboté** · Vous avez réussi à saboter le cadeau **{rdm}** (contenant *{self.gifts[currentgift['gift_id']]}*) de l'équipe des *{TEAMS_PRP[otherteam]['name']}* en le faisant passer du __Tier {currentgift['tier']}__ au __Tier {currentgift['tier'] - 1}__ !")
+            await ctx.reply(f"{check} **Cadeau saboté** · Vous avez réussi à saboter le cadeau **{rdm}** (contenant *{self.gifts[currentgift['id']]}*) de l'équipe des *{TEAMS_PRP[otherteam]['name']}* en le faisant passer du __Tier {currentgift['tier']}__ au __Tier {currentgift['tier'] - 1}__ !")
         else:
             if qte > 1:
                 await self.coal_add(guild, userteam, round(qte / 2))
@@ -814,9 +821,9 @@ class XMas(commands.Cog):
             teaminfo = TEAMS_PRP[team]
             await self.team_add_gift(guild, team, **giftdata)
             wintxt = random.choice((
-                f"C'est l'équipe des **{teaminfo['name']}** qui part avec __{giftname}[T{giftdata['tier']}]__ grâce à {user.mention} !",
-                f"L'équipe des **{teaminfo['name']}** remporte __{giftname}[T{giftdata['tier']}]__ grâce à {user.mention} !",
-                f"{user.mention} fait gagner __{giftname}[T{giftdata['tier']}]__ à son équipe, les **{teaminfo['name']}** !",
+                f"C'est l'équipe des **{teaminfo['name']}** qui part avec __{giftname} [T{giftdata['tier']}]__ grâce à {user.mention} !",
+                f"L'équipe des **{teaminfo['name']}** remporte __{giftname} [T{giftdata['tier']}]__ grâce à {user.mention} !",
+                f"{user.mention} fait gagner __{giftname} [T{giftdata['tier']}]__ à son équipe, les **{teaminfo['name']}** !",
             ))
             post_em = discord.Embed(title="❄️ Jeu des fêtes • Sortie d'ateliers", 
                                     description=wintxt,
@@ -825,7 +832,7 @@ class XMas(commands.Cog):
             if random.randint(0, 2) == 0:
                 cqte = random.randint(2, 6)
                 await self.coal_add(guild, team, cqte)
-                post_em.add_field(name="BONUS Réussite critique", value="**+{cqte} Charbon**")
+                post_em.add_field(name="BONUS Réussite critique", value=f"**+{cqte} Charbon**")
             
             post_em.set_footer(text="Astuce · " + random.choice(_ASTUCES))
             

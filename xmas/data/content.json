@@ -254,8 +254,12 @@
         "50": "Rosebud premium",
         "51": "Porte blindée",
         "52": "Nitro Vapeur",
-        "53": "Un rôle de Loup-Garou",
-        "54": "Un set de Mots-Croisés"
+        "53": "Rôle de Loup-Garou",
+        "54": "Set de Mots-Croisés",
+        "55": "Homme parfait",
+        "56": "Femme parfaite",
+        "57": "Gourmette dorée",
+        "58": "KitchenAid rouge"
     },
     "items": {
         "chocolat": {

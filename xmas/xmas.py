@@ -143,8 +143,11 @@ class XMas(commands.Cog):
                 em = discord.Embed(color=XMAS_COLOR())
                 em.description = f"**Arrivée à** · __{dst}__ ({self.countries[dst]})"
                 em.set_footer(text="Astuce · " + random.choice(_ASTUCES))
-                await self.send_alert(guild, em)
+                await self.send_alert(guild, em, expiration=300)
                 
+                msg = f"{dst} ({self.countries[dst]})"
+                activ = discord.Activity(name=msg, type=discord.ActivityType.competing)
+                await self.bot.change_presence(activity=activ)
             
                    
     @xmas_checks.before_loop
@@ -191,13 +194,15 @@ class XMas(commands.Cog):
     
 # VOYAGE & GIFTS ----------------------------------
 
-    async def send_alert(self, guild: discord.Guild, embed: discord.Embed):
+    async def send_alert(self, guild: discord.Guild, embed: discord.Embed, expiration: int = None):
         channel_id = await self.config.guild(guild).Settings.get_raw('alert_channel')
         if not channel_id:
             raise KeyError("Aucun channel d'alerte n'a été configuré")
         
         channel = guild.get_channel(channel_id)
-        await channel.send(embed=embed)
+        alert = await channel.send(embed=embed)
+        if expiration:
+            await alert.delete(delay=expiration)
 
     async def fill_destinations(self, guild: discord.Guild):
         current = await self.config.guild(guild).Destinations()

@@ -792,8 +792,8 @@ class XMas(commands.Cog):
                                    mention_author=False)
         
         cache = self.get_cache(guild)
-        if cache['CoalCD'].get(userteam, 0) + 1800 > time.time():
-            new = (cache['CoalCD'].get(userteam, 0) + 1800) - time.time()
+        if cache['CoalCD'].get(userteam, 0) + 2700 > time.time():
+            new = (cache['CoalCD'].get(userteam, 0) + 2700) - time.time()
             return await ctx.reply(f"{cross} **Cooldown** · Vous devez patienter encore *{humanize_timedelta(seconds=new)}* avant de pouvoir réutiliser du Charbon pour saboter les cadeaux adverses.",
                                    mention_author=False)
         
@@ -807,7 +807,7 @@ class XMas(commands.Cog):
         if not tgifts:
             return await ctx.reply(f"{alert} **Impossible** · L'équipe adverse n'a pas de cadeaux à livrer !")
         
-        cache['CoalCD'] = time.time()
+        cache['CoalCD'][userteam] = time.time()
         async with ctx.typing():
             await asyncio.sleep(random.randint(2, 3))
             try:

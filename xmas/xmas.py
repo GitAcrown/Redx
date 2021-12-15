@@ -1190,9 +1190,9 @@ class XMas(commands.Cog):
                     events_poss = {
                         'simple_item_spawn': 1.0,
                         'group_item_spawn': 0.90,
-                        'simple_gift_spawn': 0.8,
-                        'question_capital': 0.75,
-                        'question_country': 0.75          
+                        'simple_gift_spawn': 0.90,
+                        'question_capital': 0.70,
+                        'question_country': 0.70          
                     }
                     event = random.choices(list(events_poss.keys()), weights=list(events_poss.values()), k=1)[0]
                     if event == 'simple_item_spawn':

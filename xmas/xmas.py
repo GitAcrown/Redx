@@ -9,12 +9,14 @@ from datetime import date, datetime
 from typing import KeysView, List, Tuple, Union, Set, Any, Dict
 from copy import copy
 import string
+import typing
 
 import discord
 from discord.ext import tasks
 from discord.ext.commands import Greedy
 from discord.ext.commands.converter import IDConverter
 from discord.ext.commands.errors import PrivateMessageOnly
+from discord.utils import MAX_ASYNCIO_SECONDS
 from fuzzywuzzy import process
 from redbot.core import commands, Config, checks
 from redbot.core.commands.commands import Command
@@ -627,6 +629,64 @@ class XMas(commands.Cog):
         
         embeds = [await get_info(userteam), await get_info([c for c in ('red', 'green') if c != userteam][0])]
         await menu(ctx, embeds, DEFAULT_CONTROLS)
+        
+    @commands.command(name='teamtop')
+    async def show_teams_top(self, ctx, top: typing.Optional[int] = 20, team: str = None):
+        """Affiche un top des contributeurs de votre team
+        
+        Changez le paramètre [top] pour obtenir un top plus ou moins complet
+        Vous pouvez rentrer un nom de team pour consulter une autre team que la votre ou 'global' pour voir le top global"""
+        guild = ctx.guild
+        check, cross, alert = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551), self.bot.get_emoji(913597560483106836)
+        
+        
+        if team:
+            team = team.lower()
+            
+            if team == 'global':
+                em = discord.Embed(title="Classement Global de l'Event", color=XMAS_COLOR())
+                
+                teams = await self.config.guild(guild).Guilds()
+                glist = [(TEAMS_PRP[t]['name'], await self.team_members_points(guild, t) + await self.config.guild(guild).Teams.get_raw(t, 'Points')) for t in teams]
+                classg = sorted(glist, key=operator.itemgetter(1), reverse=True)
+                em.add_field(name="Teams", value=box(tabulate(classg)), inline=False)
+                
+                all_members = await self.config.all_members(guild)
+                mlist = [(guild.get_member(m), TEAMS_PRP[all_members[m]['Team']]['name'], all_members[m]['Points']) for m in all_members if m]
+                topm = sorted(mlist, key=operator.itemgetter(2), reverse=True)
+                em.add_field(name="Top 10 contributeurs (Points perso.)", value=box(tabulate(topm[:10], headers=['Membre', 'Team', 'Points'])), inline=False)
+            
+                em.set_footer(text="*Comprend les points des membres de la team et ceux de l'équipe (livraisons de cadeaux)")
+                return await ctx.reply(embed=em, mention_author=False)
+                            
+            if team not in list(TEAMS_PRP.keys()):
+                isname = [g for g in TEAMS_PRP if TEAMS_PRP[g]['name'].lower() == team]
+                if isname:
+                    team = isname[0]
+                else:
+                    return await ctx.reply(f"{alert} **Nom invalide** · Ce nom ne correspond à aucune guilde existante.",mention_author=False)
+        else:
+            team = await self.check_team(ctx.author)
+            
+        teaminfo = TEAMS_PRP[team]
+        members = await self.team_members(guild, team)
+        members = [guild.get_member(m) for m in members]
+        members_data = await self.config.all_members(guild)
+        mscore = [(m.name, members_data[m.id]['Points']) for m in members if m]
+        msort = sorted(mscore, key=operator.itemgetter(1), reverse=True)
+        
+        em = discord.Embed(color=teaminfo['color'])
+        em.set_author(name=f"Team des {teaminfo['name']}", icon_url=teaminfo['icon'])
+        em.description = box(tabulate(msort[:top], headers=['Membre', 'Points']))
+        pts = await self.team_members_points(guild, team) + await self.config.guild(guild).Teams.get_raw(team, 'Points')
+        em.set_footer(text=f"Total de l'équipe : {pts}")
+        
+        try:
+            await ctx.reply(embed=em, mention_author=False)
+        except:
+            await ctx.reply(f"{alert} **Top trop grand** · Impossible d'afficher une liste aussi longue. Réduisez le nombre au paramètre [top].",
+                                   mention_author=False)
+            
             
     @commands.command(name='gifts', aliases=['g'])
     async def disp_team_gifts(self, ctx):
@@ -1367,3 +1427,13 @@ class XMas(commands.Cog):
         else:
             await self.config.guild(guild).Settings.clear_raw('green_role')
             await ctx.send(f"Rôle vert retiré · Rôle supprimé.")
+
+
+    @xmas_settings.command(name="resetdata")
+    async def reset_members_team_data(self, ctx):
+        """Reset les données des membres et des équipes
+        
+        Action irréversible"""
+        await self.config.clear_all_members(ctx.guild)
+        await self.config.guild(ctx.guild).clear_raw('Teams')
+        await ctx.send(f"Données reset · Les données des membres et des équipes ont été supprimées avec succès.")

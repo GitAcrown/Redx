@@ -646,8 +646,7 @@ class XMas(commands.Cog):
             if team == 'global':
                 em = discord.Embed(title="Classement Global de l'Event", color=XMAS_COLOR())
                 
-                teams = await self.config.guild(guild).Guilds()
-                glist = [(TEAMS_PRP[t]['name'], await self.team_members_points(guild, t) + await self.config.guild(guild).Teams.get_raw(t, 'Points')) for t in teams]
+                glist = [(TEAMS_PRP[t]['name'], await self.team_members_points(guild, t) + await self.config.guild(guild).Teams.get_raw(t, 'Points')) for t in ('red', 'green')]
                 classg = sorted(glist, key=operator.itemgetter(1), reverse=True)
                 em.add_field(name="Teams", value=box(tabulate(classg)), inline=False)
                 

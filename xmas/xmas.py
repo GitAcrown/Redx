@@ -868,6 +868,7 @@ class XMas(commands.Cog):
                                    mention_author=False)
         
         ucache['last'] = time.time()
+        ucache['dest'] = curdest
         await self.config.member(user).SlowCache.set(ucache)
         all_members = await self.config.all_members(guild)
         for u in [i for i in all_members if i != user.id and all_members[i]['SlowCache']['dest'] == curdest]:

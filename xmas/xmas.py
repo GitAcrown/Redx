@@ -1162,7 +1162,7 @@ class XMas(commands.Cog):
                     cache['CurrentEvent'] = False
                     cache['EventType'] = ''
                     cache['last_spawn'] = time.time()
-                    cache['trigger'] = random.randint(40, 60)
+                    cache['trigger'] = random.randint(30, 50)
                     
                     
     @commands.Cog.listener()

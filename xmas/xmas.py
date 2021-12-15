@@ -328,7 +328,7 @@ class XMas(commands.Cog):
         seed = f"{gift_key}:{tier}"
         rng = random.Random(seed)
         
-        items = rng.sample(list(self.items.keys()), k=rng.randint(tier, len(self.items)))
+        items = rng.sample(list(self.items.keys()), k=rng.randint(tier, len(self.items) - 1))
         return {i: rng.randint(tier, tier * 3) for i in items}
     
     async def team_upgrade_gift(self, guild: discord.Guild, team: str, gift_key: str, *, add_lvl: int = 1):

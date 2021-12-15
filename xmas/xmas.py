@@ -108,7 +108,9 @@ class XMas(commands.Cog):
             },
             'Settings': {
                 'event_channel': None,
-                'alert_channel': None
+                'alert_channel': None,
+                'red_role': None,
+                'green_role': None
             }
         }
         
@@ -282,6 +284,40 @@ class XMas(commands.Cog):
             total += await self.config.member_from_ids(guild.id, m).Points()
         return total
     
+    async def update_user_team_role(self, user: discord.Member, remove_role: bool = False):
+        guild = user.guild
+        team = await self.check_team(user)
+        sett = await self.config.guild(guild).Settings()
+        redid, greenid = sett.get(f'red_role', None), sett.get(f'green_role', None)
+        if not (redid and greenid):
+            raise KeyError("Rôles de couleur d'équipe non configurés")
+        
+        red, green = guild.get_role(redid), guild.get_role(greenid)
+        if not (red and green):
+            raise KeyError("Rôles de couleur d'équipe non existants")
+        
+        if remove_role:
+            try:
+                await user.remove_roles(green, reason="Suppression de rôle d'équipe")
+            except:
+                pass
+            try:
+                await user.remove_roles(red, reason="Suppression de rôle d'équipe")
+            except:
+                pass
+            return
+        
+        if team == 'red':
+            if green in user.roles:
+                await user.remove_roles(green, reason="Changement de rôle d'équipe")
+            if red not in user.roles:
+                await user.add_roles(red, reason=f"Ajout du rôle d'équipe (Event de Noël)") 
+        else:
+            if red in user.roles:
+                await user.remove_roles(red, reason="Changement de rôle d'équipe")
+            if green not in user.roles:
+                await user.add_roles(green, reason=f"Ajout du rôle d'équipe (Event de Noël)") 
+    
     # Cadeaux (Team)
     
     def fetch_gift_id(self, text: str):
@@ -445,6 +481,7 @@ class XMas(commands.Cog):
         current = await self.config.guild(guild).Teams.get_raw(team, 'Coal')
         return await self.coal_set(guild, team, current - amount)
     
+    
 # COMMANDES ======================================
 
     @commands.command(name='inv', aliases=['pck'])
@@ -536,6 +573,8 @@ class XMas(commands.Cog):
         user = ctx.author
         guild = ctx.guild
         userteam = await self.check_team(user)
+        
+        await self.update_user_team_role(user)
         
         async def get_info(t: str) -> discord.Embed:
             teaminfo = TEAMS_PRP[t]
@@ -693,9 +732,12 @@ class XMas(commands.Cog):
         teaminfo = TEAMS_PRP[userteam]
         
         gteam, gift = await self.get_team_gift(guild, gift_key)
+        if not gift:
+            return await ctx.reply(f"{alert} **Erreur** · Ce cadeau n'existe pas ou n'est pas de votre équipe. Vérifiez l'identifiant.")
+        
         gname = self.gifts[gift['id']]
         if gteam != userteam:
-            return await ctx.reply(f"{cross} **Erreur** · Ce cadeau n'existe pas ou n'est pas de votre équipe. Vérifiez l'identifiant.")
+            return await ctx.reply(f"{alert} **Erreur** · Ce cadeau n'existe pas ou n'est pas de votre équipe. Vérifiez l'identifiant.")
         
         if gift['max_tier'] <= gift['tier']:
             return await ctx.reply(f"{alert} **Niveau maximal** · Ce cadeau a déjà atteint son Tier maximal (**T{gift['tier']}**) et ne peut être amélioré davantage.")
@@ -1248,3 +1290,20 @@ class XMas(commands.Cog):
         await self.config.member(user).Team.set(teamname)
         await ctx.send(f"Team modifiée · {user.mention} a rejoint la team des ***{TEAMS_PRP[teamname]['name']}***.")
             
+            
+    @xmas_settings.command(name="roles")
+    async def set_user_guild(self, ctx, red_role: discord.Role = None, green_role: discord.Role = None):
+        """Modifier les rôles utilisés pour l'event"""
+        guild = ctx.guild
+        if red_role:
+            await self.config.guild(guild).Settings.set_raw('red_role', value=red_role.id)
+            await ctx.send(f"Rôle rouge ajouté · Rôle réglé sur {red_role.name}.")
+        else:
+            await self.config.guild(guild).Settings.clear_raw('red_role')
+            await ctx.send(f"Rôle rouge retiré · Rôle supprimé.")
+        if green_role:
+            await self.config.guild(guild).Settings.set_raw('green_role', value=green_role.id)
+            await ctx.send(f"Rôle vert ajouté · Rôle réglé sur {green_role.name}.")
+        else:
+            await self.config.guild(guild).Settings.clear_raw('green_role')
+            await ctx.send(f"Rôle vert retiré · Rôle supprimé.")

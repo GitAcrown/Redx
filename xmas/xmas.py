@@ -826,7 +826,7 @@ class XMas(commands.Cog):
     async def simple_gift_spawn(self, channel: discord.TextChannel):
         guild = channel.guild
         dests = await self.fill_destinations(guild)
-        dest = random.choice(dests[5:])
+        dest = random.choice(dests[3:])
         city = self.countries[dest]
         emcolor = XMAS_COLOR()
         
@@ -971,7 +971,7 @@ class XMas(commands.Cog):
     async def question_capital(self, channel: discord.TextChannel): # Trouver la capitale à partir du pays
         guild = channel.guild
         dests = await self.fill_destinations(guild)
-        dest = random.choice(dests[5:])
+        dest = random.choice(dests[3:])
         emcolor = XMAS_COLOR()
         
         giftdata = {'gift_id': random.choice(list(self.gifts.keys())), 'tier': 3, 'destination': dest}
@@ -1043,7 +1043,7 @@ class XMas(commands.Cog):
     async def question_country(self, channel: discord.TextChannel): # Trouver le pays à partir de la capitale
         guild = channel.guild
         dests = await self.fill_destinations(guild)
-        dest = random.choice(dests[5:])
+        dest = random.choice(dests[3:])
         emcolor = XMAS_COLOR()
         
         giftdata = {'gift_id': random.choice(list(self.gifts.keys())), 'tier': 3, 'destination': dest}

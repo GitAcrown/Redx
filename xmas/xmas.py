@@ -89,7 +89,11 @@ class XMas(commands.Cog):
             'Team': None,
             'Inventory': {},
             'Points': 0,
-            'Wishes': {}
+            'Wishes': {},
+            'SlowCache': {
+                'last': 0,
+                'dest': ''
+            }
         }
         
         default_guild = {
@@ -148,9 +152,6 @@ class XMas(commands.Cog):
                 em.set_footer(text="Astuce · " + random.choice(_ASTUCES))
                 await self.send_alert(guild, em, expiration=300)
                 
-                cache = self.get_cache(guild)
-                cache['SlowUsers'] = {}
-                
                 if guild.id == 204585334925819904:
                     amsg = f"{dst} ({self.countries[dst]})"
                     activ = discord.Activity(name=amsg, type=discord.ActivityType.competing)
@@ -195,7 +196,6 @@ class XMas(commands.Cog):
                 'EventWinner': None,
                 'EventAnswer': '',
                 
-                'SlowUsers': {},
                 'SlowDest': '',
                 
                 'CoalCD': {}
@@ -848,14 +848,12 @@ class XMas(commands.Cog):
         check, cross, alert = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551), self.bot.get_emoji(913597560483106836)
         
         cache = self.get_cache(guild)
-        if not user.id in cache['SlowUsers']:
-            cache['SlowUsers'][user.id] = {
-                'last': 0,
-                'dest': ''
-            }
+        
+        userdata = await self.config.member(user).all()
+        ucache = userdata.get('SlowCache', {'last': 0, 'dest': ''})
             
-        if cache['SlowUsers'][user.id]['last'] + 3600 > time.time():
-            new = (cache['SlowUsers'][user.id]['last'] + 3600) - time.time()
+        if ucache['last'] + 3600 > time.time():
+            new = (ucache['last'] + 3600) - time.time()
             return await ctx.reply(f"{cross} **Cooldown** · Vous devez patienter encore *{humanize_timedelta(seconds=new)}* avant de pouvoir voter de nouveau pour ralentir le traineau.",
                                    mention_author=False)
         
@@ -865,13 +863,14 @@ class XMas(commands.Cog):
             return await ctx.reply(f"{alert} **Inutile** · Le traineau a déjà été ralenti pour la position actuelle.",
                                    mention_author=False)
             
-        if cache['SlowUsers'][user.id]['last'] == curdest:
+        if ucache['dest'] == curdest:
             return await ctx.reply(f"{alert} **Inutile** · Vous avez déjà voté pour la position actuelle.",
                                    mention_author=False)
         
-        cache['SlowUsers'][user.id]['last'] = time.time()
-        tt = time.time()
-        for u in [i for i in cache['SlowUsers'] if i != user.id and cache['SlowUsers'][i]['last'] == curdest]:
+        ucache['last'] = time.time()
+        await self.config.member(user).SlowCache.set(ucache)
+        all_members = await self.config.all_members(guild)
+        for u in [i for i in all_members if i != user.id and all_members[i]['SlowCache']['dest'] == curdest]:
             otheru = guild.get_member(u)
             if await self.check_team(otheru) != await self.check_team(user):
                 cache['SlowDest'] = curdest

@@ -145,9 +145,10 @@ class XMas(commands.Cog):
                 em.set_footer(text="Astuce · " + random.choice(_ASTUCES))
                 await self.send_alert(guild, em, expiration=300)
                 
-                msg = f"{dst} ({self.countries[dst]})"
-                activ = discord.Activity(name=msg, type=discord.ActivityType.competing)
-                await self.bot.change_presence(activity=activ)
+                if guild.id == 204585334925819904:
+                    amsg = f"{dst} ({self.countries[dst]})"
+                    activ = discord.Activity(name=amsg, type=discord.ActivityType.competing)
+                    await self.bot.change_presence(activity=activ)
             
                    
     @xmas_checks.before_loop

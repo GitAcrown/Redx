@@ -848,8 +848,14 @@ class XMas(commands.Cog):
         check, cross, alert = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551), self.bot.get_emoji(913597560483106836)
         
         cache = self.get_cache(guild)
-        if cache['SlowUsers'].get(user.id, 0) + 3600 > time.time():
-            new = (cache['SlowUsers'].get(user.id, 0) + 3600) - time.time()
+        if not user.id in cache['SlowUsers']:
+            cache['SlowUsers'][user.id] = {
+                'last': 0,
+                'dest': ''
+            }
+            
+        if cache['SlowUsers'][user.id]['last'] + 3600 > time.time():
+            new = (cache['SlowUsers'][user.id]['last'] + 3600) - time.time()
             return await ctx.reply(f"{cross} **Cooldown** · Vous devez patienter encore *{humanize_timedelta(seconds=new)}* avant de pouvoir voter de nouveau pour ralentir le traineau.",
                                    mention_author=False)
         
@@ -858,10 +864,14 @@ class XMas(commands.Cog):
         if cache['SlowDest'] == curdest:
             return await ctx.reply(f"{alert} **Inutile** · Le traineau a déjà été ralenti pour la position actuelle.",
                                    mention_author=False)
+            
+        if cache['SlowUsers'][user.id]['last'] == curdest:
+            return await ctx.reply(f"{alert} **Inutile** · Vous avez déjà voté pour la position actuelle.",
+                                   mention_author=False)
         
-        cache['SlowUsers'][user.id] = time.time()
+        cache['SlowUsers'][user.id]['last'] = time.time()
         tt = time.time()
-        for u in [i for i in cache['SlowUsers'] if i != user.id]:
+        for u in [i for i in cache['SlowUsers'] if i != user.id and cache['SlowUsers'][i]['last'] == curdest]:
             otheru = guild.get_member(u)
             if await self.check_team(otheru) != await self.check_team(user):
                 cache['SlowDest'] = curdest

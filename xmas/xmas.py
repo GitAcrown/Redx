@@ -28,6 +28,8 @@ XMAS_COLOR = lambda: random.choice([0x487F57, 0xF2DEB1, 0x7E4138, 0xB7534E])
 class XMasError(Exception):
     """Classe de base pour les erreurs spécifiques à XMas"""
     
+DEST_TIME = lambda: 3600 if 2 <= datetime.now().hour <= 9 else 1200
+    
 TEAMS_PRP = {
     'green' : {
         'name': "Lutins Verts",
@@ -131,7 +133,7 @@ class XMas(commands.Cog):
         for g in all_guilds:
             guild = self.bot.get_guild(g)
             
-            if all_guilds[g]['LastDestChange'] + 2700 < time.time():
+            if all_guilds[g]['LastDestChange'] + DEST_TIME() < time.time():
                 await self.config.guild(guild).LastDestChange.set(time.time())
                 lastdst = await self.fill_destinations(guild)
                 lastdst = lastdst[0]
@@ -668,7 +670,7 @@ class XMas(commands.Cog):
         
         lastdest = await self.config.guild(guild).LastDestChange()
         lastdest = lastdest if lastdest else time.time()
-        nxtdest = lastdest + 2700
+        nxtdest = lastdest + DEST_TIME()
         dtxt = datetime.now().fromtimestamp(nxtdest).strftime('%H:%M')
         em.add_field(name="Prochaine dest. vers", value=box(dtxt))
         

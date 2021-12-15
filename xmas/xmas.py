@@ -516,7 +516,7 @@ class XMas(commands.Cog):
         await ctx.reply(embed=em, mention_author=False)
     
     @commands.command(name='craft')
-    async def user_craft_gift(self, ctx, gift: str = None):
+    async def user_craft_gift(self, ctx, *, gift: str = None):
         """Permet de créer des cadeaux avec des voeux
         
         Affiche votre inventaire de voeux si aucun ID de cadeau n'est précisé"""
@@ -786,6 +786,10 @@ class XMas(commands.Cog):
         guild = ctx.guild
         check, cross, alert = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551), self.bot.get_emoji(913597560483106836)
         userteam = await self.check_team(user)
+        
+        if qte < 1:
+            return await ctx.reply(f"{alert} **Valeur invalide** · Vous ne pouvez pas utiliser moins d'un charbon.",
+                                   mention_author=False)
         
         cache = self.get_cache(guild)
         if cache['CoalCD'].get(userteam, 0) + 1800 > time.time():

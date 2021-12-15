@@ -639,7 +639,6 @@ class XMas(commands.Cog):
         guild = ctx.guild
         check, cross, alert = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551), self.bot.get_emoji(913597560483106836)
         
-        
         if team:
             team = team.lower()
             
@@ -653,7 +652,7 @@ class XMas(commands.Cog):
                 all_members = await self.config.all_members(guild)
                 mlist = [(guild.get_member(m), TEAMS_PRP[all_members[m]['Team']]['name'], all_members[m]['Points']) for m in all_members if m]
                 topm = sorted(mlist, key=operator.itemgetter(2), reverse=True)
-                em.add_field(name="Top {top} contributeurs (Points perso.)*", value=box(tabulate(topm[:top], headers=['Membre', 'Team', 'Points'])), inline=False)
+                em.add_field(name=f"Top {top} contributeurs (Points perso.)*", value=box(tabulate(topm[:top], headers=['Membre', 'Team', 'Points'])), inline=False)
             
                 em.set_footer(text="*Comprend les points des membres de la team et ceux de l'équipe (livraisons de cadeaux)")
                 try:
@@ -661,7 +660,8 @@ class XMas(commands.Cog):
                 except:
                     await ctx.reply(f"{alert} **Top trop grand** · Impossible d'afficher une liste aussi longue. Réduisez le nombre au paramètre [top].",
                                         mention_author=False)
-                            
+                return
+            
             if team not in list(TEAMS_PRP.keys()):
                 isname = [g for g in TEAMS_PRP if TEAMS_PRP[g]['name'].lower() == team]
                 if isname:

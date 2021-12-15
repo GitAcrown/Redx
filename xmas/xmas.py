@@ -1193,10 +1193,10 @@ class XMas(commands.Cog):
                     await asyncio.sleep(random.randint(2, 4))
                     events_poss = {
                         'simple_item_spawn': 1.0,
-                        'group_item_spawn': 0.90,
+                        'group_item_spawn': 1.0,
                         'simple_gift_spawn': 0.90,
-                        'question_capital': 0.70,
-                        'question_country': 0.70          
+                        'question_capital': 0.65,
+                        'question_country': 0.65          
                     }
                     event = random.choices(list(events_poss.keys()), weights=list(events_poss.values()), k=1)[0]
                     if event == 'simple_item_spawn':

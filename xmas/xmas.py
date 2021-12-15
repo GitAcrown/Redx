@@ -653,10 +653,14 @@ class XMas(commands.Cog):
                 all_members = await self.config.all_members(guild)
                 mlist = [(guild.get_member(m), TEAMS_PRP[all_members[m]['Team']]['name'], all_members[m]['Points']) for m in all_members if m]
                 topm = sorted(mlist, key=operator.itemgetter(2), reverse=True)
-                em.add_field(name="Top 10 contributeurs (Points perso.)", value=box(tabulate(topm[:10], headers=['Membre', 'Team', 'Points'])), inline=False)
+                em.add_field(name="Top {top} contributeurs (Points perso.)*", value=box(tabulate(topm[:top], headers=['Membre', 'Team', 'Points'])), inline=False)
             
                 em.set_footer(text="*Comprend les points des membres de la team et ceux de l'équipe (livraisons de cadeaux)")
-                return await ctx.reply(embed=em, mention_author=False)
+                try:
+                    await ctx.reply(embed=em, mention_author=False)
+                except:
+                    await ctx.reply(f"{alert} **Top trop grand** · Impossible d'afficher une liste aussi longue. Réduisez le nombre au paramètre [top].",
+                                        mention_author=False)
                             
             if team not in list(TEAMS_PRP.keys()):
                 isname = [g for g in TEAMS_PRP if TEAMS_PRP[g]['name'].lower() == team]

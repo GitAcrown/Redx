@@ -861,7 +861,7 @@ class XMas(commands.Cog):
         
         cache['SlowUsers'][user.id] = time.time()
         tt = time.time()
-        for u in [i for i in cache['SlowUsers'] if cache['SlowUsers'][i] + 3600 <= tt]:
+        for u in [i for i in cache['SlowUsers'] if i != user.id]:
             otheru = guild.get_member(u)
             if await self.check_team(otheru) != await self.check_team(user):
                 cache['SlowDest'] = curdest

@@ -726,7 +726,7 @@ class XMas(commands.Cog):
         lastdest = lastdest if lastdest else time.time()
         nxtdest = lastdest + DEST_TIME()
         dtxt = datetime.now().fromtimestamp(nxtdest).strftime('%H:%M')
-        em.add_field(name="Prochaine dest. vers", value=box(dtxt))
+        em.add_field(name="Prochaine dest. vers", value=box(f"{dtxt} ➞ {dests[1]}"))
         
         em.set_footer(text="Consultez les cadeaux à livrer dans ';team' ou avec ';gifts'")
         await ctx.reply(embed=em, mention_author=False)
@@ -867,7 +867,7 @@ class XMas(commands.Cog):
                 cache['SlowDest'] = curdest
                 lastchange = await self.config.guild(guild).LastDestChange()
                 diff = 1800 if 2 <= datetime.now().hour <= 9 else 900
-                await self.config.guild(guild).LastDestChange.set(lastchange - diff)
+                await self.config.guild(guild).LastDestChange.set(lastchange + diff)
                 return await ctx.reply(f"{check} **Traineau ralenti** · Le traineau va rester {int(diff / 60)}m de plus à notre position actuelle, **{curdest}**.",
                                    mention_author=False)
         await ctx.reply(f"{check} **Vote pris en compte** · Il faut qu'un membre de l'équipe adverse vote aussi pour ralentir le traineau pour la position actuelle.",

@@ -495,7 +495,7 @@ class XMas(commands.Cog):
         teaminfo = TEAMS_PRP[team]
         userdata = await self.config.member(user).all()
         
-        await self.update_user_team_role(user)aj
+        await self.update_user_team_role(user)
         
         em = discord.Embed(color=teaminfo['color'])
         em.set_author(name=f"{user.name}", icon_url=user.avatar_url)

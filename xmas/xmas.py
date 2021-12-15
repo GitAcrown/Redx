@@ -28,7 +28,7 @@ XMAS_COLOR = lambda: random.choice([0x487F57, 0xF2DEB1, 0x7E4138, 0xB7534E])
 class XMasError(Exception):
     """Classe de base pour les erreurs spécifiques à XMas"""
     
-DEST_TIME = lambda: 3600 if 2 <= datetime.now().hour <= 9 else 1200
+DEST_TIME = lambda: 3600 if 2 <= datetime.now().hour <= 9 else 1800
     
 TEAMS_PRP = {
     'green' : {
@@ -52,7 +52,8 @@ _ASTUCES = [
     "Vos items personnels vous servent à améliorer les cadeaux de votre équipe, avec ';upgrade'",
     "Le charbon sert à saboter les cadeaux ennemis, consultez ';help coal' pour en savoir plus",
     "Les cadeaux donnés à l'occasion des questions de capitales sont automatiquement de tier 3",
-    "La position du traineau change environ toutes les 45m, surveillez bien les prochaines destinations avec ';map'"
+    "La position du traineau change environ toutes les 30m le jour et 1h la nuit, surveillez bien les prochaines destinations avec ';map'",
+    "Vous pouvez voter pour ralentir temporairement le traineau, afin qu'il reste plus longtemps à une destination. Utilisez ';slow' pour cela."
 ]
     
 logger = logging.getLogger("red.RedX.XMas")
@@ -147,6 +148,9 @@ class XMas(commands.Cog):
                 em.set_footer(text="Astuce · " + random.choice(_ASTUCES))
                 await self.send_alert(guild, em, expiration=300)
                 
+                cache = self.get_cache(guild)
+                cache['SlowUsers'] = {}
+                
                 if guild.id == 204585334925819904:
                     amsg = f"{dst} ({self.countries[dst]})"
                     activ = discord.Activity(name=amsg, type=discord.ActivityType.competing)
@@ -190,6 +194,9 @@ class XMas(commands.Cog):
                 
                 'EventWinner': None,
                 'EventAnswer': '',
+                
+                'SlowUsers': {},
+                'SlowDest': '',
                 
                 'CoalCD': {}
             }
@@ -828,6 +835,43 @@ class XMas(commands.Cog):
             if qte > 1:
                 await self.coal_add(guild, userteam, round(qte / 2))
             await ctx.reply(f"{check} **Echec** · Vous avez tenté de saboter un cadeau qui était déjà au tier le plus bas... Dommage !\nLa moitié de votre Charbon a été remboursé.")
+    
+    
+    @commands.command(name='slow')
+    async def vote_slow(self, ctx):
+        """Voter pour ralentir temporairement le traineau
+        
+        Vous pouvez voter une fois par heure
+        Il faut réunir au moins un vote d'un membre de chaque équipe pour ralentir le traineau (15m le jour, 30m la nuit)"""
+        user = ctx.author
+        guild = ctx.guild
+        check, cross, alert = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551), self.bot.get_emoji(913597560483106836)
+        
+        cache = self.get_cache(guild)
+        if cache['SlowUsers'].get(user.id, 0) + 3600 > time.time():
+            new = (cache['SlowUsers'].get(user.id, 0) + 3600) - time.time()
+            return await ctx.reply(f"{cross} **Cooldown** · Vous devez patienter encore *{humanize_timedelta(seconds=new)}* avant de pouvoir voter de nouveau pour ralentir le traineau.",
+                                   mention_author=False)
+        
+        curdest = await self.fill_destinations(guild)
+        curdest = curdest[0]
+        if cache['SlowDest'] == curdest:
+            return await ctx.reply(f"{alert} **Inutile** · Le traineau a déjà été ralenti pour la position actuelle.",
+                                   mention_author=False)
+        
+        cache['SlowUsers'][user.id] = time.time()
+        tt = time.time()
+        for u in [i for i in cache['SlowUsers'] if cache['SlowUsers'][i] + 3600 <= tt]:
+            otheru = guild.get_member(u)
+            if await self.check_team(otheru) != await self.check_team(user):
+                cache['SlowDest'] = curdest
+                lastchange = await self.config.guild(guild).LastDestChange()
+                diff = 1800 if 2 <= datetime.now().hour <= 9 else 900
+                await self.config.guild(guild).LastDestChange.set(lastchange - diff)
+                return await ctx.reply(f"{check} **Traineau ralenti** · Le traineau va rester {int(diff / 60)}m de plus à notre position actuelle, **{curdest}**.",
+                                   mention_author=False)
+        await ctx.reply(f"{check} **Vote pris en compte** · Il faut qu'un membre de l'équipe adverse vote aussi pour ralentir le traineau pour la position actuelle.",
+                                   mention_author=False)
     
 # LISTENERS --------------------------------------
 

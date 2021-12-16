@@ -749,7 +749,8 @@ class XMas(commands.Cog):
         giftds = set([gifts[n]['destination'] for n in gifts])
         
         txt = "\n".join([f"{'•' if dests.index(d) == 0 else '·'} {d} ({self.countries[d]}) {'🎁' if d in giftds else ''}" for d in dests])
-        em = discord.Embed(color=XMAS_COLOR(), title=f"Prochaines destinations")
+        em = discord.Embed(color=XMAS_COLOR())
+        em.set_author(name="Prochaines destinations", icon_url=TEAMS_PRP[team]['icon'])
         em.description = box(txt, lang='css')
         
         lastdest = await self.config.guild(guild).LastDestChange()

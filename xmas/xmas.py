@@ -1182,11 +1182,11 @@ class XMas(commands.Cog):
         em.set_footer(text="» Répondez dans le tchat pour tenter d'obtenir un cadeau pour votre équipe")
         await spawn.edit(embed=em)
         
-        timeout = time.time() + 25
+        timeout = time.time() + 30
         counter = 0
         while time.time() < timeout and not cache["EventWinner"]:
             counter += 1
-            if counter == 5:
+            if counter == 7:
                 helptxt = "\n".join([f'• {i}' for i in all_capitals])
                 em.add_field(name="Aide", value=box(helptxt, lang='fix'), inline=False)
                 await spawn.edit(embed=em)
@@ -1254,11 +1254,11 @@ class XMas(commands.Cog):
         em.set_footer(text="» Répondez dans le tchat pour tenter d'obtenir un cadeau pour votre équipe")
         await spawn.edit(embed=em)
         
-        timeout = time.time() + 25
+        timeout = time.time() + 30
         counter = 0
         while time.time() < timeout and not cache["EventWinner"]:
             counter += 1
-            if counter == 5:
+            if counter == 7:
                 helptxt = "\n".join([f'• {i}' for i in all_countries])
                 em.add_field(name="Aide", value=box(helptxt, lang='fix'), inline=False)
                 await spawn.edit(embed=em)

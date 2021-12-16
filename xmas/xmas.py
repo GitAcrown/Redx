@@ -293,40 +293,6 @@ class XMas(commands.Cog):
             total += await self.config.member_from_ids(guild.id, m).Points()
         return total
     
-    async def update_user_team_role(self, user: discord.Member, remove_role: bool = False):
-        guild = user.guild
-        team = await self.check_team(user)
-        sett = await self.config.guild(guild).Settings()
-        redid, greenid = sett.get(f'red_role', None), sett.get(f'green_role', None)
-        if not (redid and greenid):
-            raise KeyError("Rôles de couleur d'équipe non configurés")
-        
-        red, green = guild.get_role(redid), guild.get_role(greenid)
-        if not (red and green):
-            raise KeyError("Rôles de couleur d'équipe non existants")
-        
-        if remove_role:
-            try:
-                await user.remove_roles(green, reason="Suppression de rôle d'équipe")
-            except:
-                pass
-            try:
-                await user.remove_roles(red, reason="Suppression de rôle d'équipe")
-            except:
-                pass
-            return
-        
-        if team == 'red':
-            if green in user.roles:
-                await user.remove_roles(green, reason="Changement de rôle d'équipe")
-            if red not in user.roles:
-                await user.add_roles(red, reason=f"Ajout du rôle d'équipe (Event de Noël)") 
-        else:
-            if red in user.roles:
-                await user.remove_roles(red, reason="Changement de rôle d'équipe")
-            if green not in user.roles:
-                await user.add_roles(green, reason=f"Ajout du rôle d'équipe (Event de Noël)") 
-    
     # Cadeaux (Team)
     
     def fetch_gift_id(self, text: str):
@@ -504,8 +470,6 @@ class XMas(commands.Cog):
         teaminfo = TEAMS_PRP[team]
         userdata = await self.config.member(user).all()
         
-        await self.update_user_team_role(user)
-        
         em = discord.Embed(color=teaminfo['color'])
         em.set_author(name=f"{user.name}", icon_url=user.avatar_url)
         
@@ -584,8 +548,6 @@ class XMas(commands.Cog):
         user = ctx.author
         guild = ctx.guild
         userteam = await self.check_team(user)
-        
-        await self.update_user_team_role(user)
         
         async def get_info(t: str) -> discord.Embed:
             teaminfo = TEAMS_PRP[t]
@@ -781,7 +743,12 @@ class XMas(commands.Cog):
         guild = ctx.guild
         dests = await self.fill_destinations(guild)
         dests = dests[:10]
-        txt = "\n".join([f"{'•' if dests.index(d) == 0 else '·'} {d} ({self.countries[d]})" for d in dests])
+        
+        team = await self.check_team(ctx.author)
+        gifts = await self.team_gifts(guild, team)
+        giftds = set([gifts[n]['destination'] for n in gifts])
+        
+        txt = "\n".join([f"{'•' if dests.index(d) == 0 else '·'} {d} ({self.countries[d]}) {'🎁' if d in giftds else ''}" for d in dests])
         em = discord.Embed(color=XMAS_COLOR(), title=f"Prochaines destinations")
         em.description = box(txt, lang='css')
         
@@ -945,6 +912,44 @@ class XMas(commands.Cog):
                                    mention_author=False)
         await ctx.reply(f"{check} **Vote pris en compte** · Il faut qu'un membre de l'équipe adverse vote aussi pour ralentir le traineau pour la position actuelle.",
                                    mention_author=False)
+        
+    @commands.command(name='hat', aliases=['bonnet'])
+    async def toggle_user_hat(self, ctx):
+        """Activer/désactiver l'affichage de son équipe par le biais d'un rôle avec un icône de bonnet de la couleur de votre équipe"""
+        guild = ctx.guild
+        user = ctx.author
+        check, cross, alert = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551), self.bot.get_emoji(913597560483106836)
+        
+        team = await self.check_team(user)
+        sett = await self.config.guild(guild).Settings()
+        redid, greenid = sett.get(f'red_role', None), sett.get(f'green_role', None)
+        if not (redid and greenid):
+            return await ctx.reply(f"{cross} **Rôles non configurés**",
+                                   mention_author=False)
+        
+        red, green = guild.get_role(redid), guild.get_role(greenid)
+        if not (red and green):
+            return await ctx.reply(f"{cross} **Rôles configurés mais inexistants**",
+                                   mention_author=False)
+        
+        if team == 'red' and red in user.roles:
+            await user.remove_roles(red, reason="Désactivation du bonnet d'équipe")
+            return await ctx.reply(f"{check} **Rôle Lutin Rouge retiré** · Vous avez retiré votre bonnet", mention_author=False)
+        elif team == 'red':
+            await user.add_roles(red, reason=f"Ajout du rôle d'équipe") 
+            if green in user.roles:
+                await user.remove_roles(green, reason="Changement de rôle d'équipe")
+            return await ctx.reply(f"{check} **Rôle Lutin Rouge ajouté** · Vous avez enfilé votre bonnet", mention_author=False)
+                
+            
+        if team == 'green' and green in user.roles:
+            await user.remove_roles(green, reason="Désactivation du bonnet d'équipe")
+            return await ctx.reply(f"{check} **Rôle Lutin Vert retiré**  · Vous avez retiré votre bonnet", mention_author=False)
+        elif team == 'green':
+            await user.add_roles(green, reason=f"Ajout du rôle d'équipe") 
+            if red in user.roles:
+                await user.remove_roles(red, reason="Changement de rôle d'équipe")
+            return await ctx.reply(f"{check} **Rôle Lutin Vert ajouté** · Vous avez enfilé votre bonnet", mention_author=False)
     
 # LISTENERS --------------------------------------
 
@@ -1400,7 +1405,7 @@ class XMas(commands.Cog):
             await ctx.send(f"Salon ALERTE retiré · Salon des alertes supprimé.")
         
     @xmas_settings.command(name="teamset")
-    async def set_user_guild(self, ctx, user: discord.Member, teamname: str):
+    async def set_user_team(self, ctx, user: discord.Member, teamname: str):
         """Modifier la team d'un membre
         
         __Noms normalisés des guildes :__
@@ -1415,7 +1420,7 @@ class XMas(commands.Cog):
             
             
     @xmas_settings.command(name="roles")
-    async def set_user_guild(self, ctx, red_role: discord.Role = None, green_role: discord.Role = None):
+    async def set_event_roles(self, ctx, red_role: discord.Role = None, green_role: discord.Role = None):
         """Modifier les rôles utilisés pour l'event"""
         guild = ctx.guild
         if red_role:

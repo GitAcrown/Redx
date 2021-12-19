@@ -524,9 +524,9 @@ class XMas(commands.Cog):
             em.set_footer(text="Consultez vos voeux disponibles avec ';craft'")
             return await ctx.reply(embed=em, mention_author=False)
         
-        if random.randint(0, 2):
+        if random.randint(0, 4):
             dests = await self.fill_destinations(guild)
-            dest = random.choice(dests[10:])
+            dest = random.choice(dests[5:])
             
             giftdata = {'gift_id': giftid, 'tier': 1, 'destination': dest} 
             await self.team_add_gift(guild, team, **giftdata)
@@ -727,7 +727,7 @@ class XMas(commands.Cog):
         
         await ctx.send(f"{check} 🎁 **Livraison effectuée** · Le cadeau **{gift_key}** contenant *{self.gifts[gift['id']]}* a été livré à {dest} !\nL'équipe des {teaminfo['name']} remporte **+{pts} Points** et {user.mention} en remporte 10.")
     
-        wishesrdm = random.choices(list(self.gifts.keys()), k=random.randint(1, 3))
+        wishesrdm = random.choices(list(self.gifts.keys()), k=random.randint(2, 3))
         wishes = {w: wishesrdm.count(w) for w in set(wishesrdm)}
         wl = []
         for w in wishes:
@@ -1187,11 +1187,11 @@ class XMas(commands.Cog):
         counter = 0
         while time.time() < timeout and not cache["EventWinner"]:
             counter += 1
-            if counter == 7:
+            if counter == 30:
                 helptxt = "\n".join([f'• {i}' for i in all_capitals])
                 em.add_field(name="Aide", value=box(helptxt, lang='fix'), inline=False)
                 await spawn.edit(embed=em)
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.2)
             
         if not cache['EventWinner']:
             em.description = "Personne n'a pu répondre à la question ! Tant pis."
@@ -1259,11 +1259,11 @@ class XMas(commands.Cog):
         counter = 0
         while time.time() < timeout and not cache["EventWinner"]:
             counter += 1
-            if counter == 7:
+            if counter == 30:
                 helptxt = "\n".join([f'• {i}' for i in all_countries])
                 em.add_field(name="Aide", value=box(helptxt, lang='fix'), inline=False)
                 await spawn.edit(embed=em)
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.2)
             
         if not cache['EventWinner']:
             em.description = "Personne n'a pu répondre à la question ! Tant pis."

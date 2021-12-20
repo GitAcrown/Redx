@@ -502,7 +502,7 @@ class XMas(commands.Cog):
         if not gift:
             wishes = await self.wish_list(user)
             wishes_table = [(int(w), f"{self.gifts[w]}", wishes[w]) for w in wishes]
-            wishes_table = sorted(wishes_table, key=operator.itemgetter(0))
+            wishes_table = sorted(wishes_table, key=operator.itemgetter(2), reverse=True)
             em = discord.Embed(color=teaminfo['color'])
             em.set_author(name=f"Voeux obtenus", icon_url=user.avatar_url)
             if wishes_table:

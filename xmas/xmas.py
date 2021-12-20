@@ -488,7 +488,7 @@ class XMas(commands.Cog):
         em.set_footer(text=f"{teaminfo['name']}", icon_url=teaminfo['icon'])
         await ctx.reply(embed=em, mention_author=False)
     
-    @commands.command(name='craft')
+    @commands.command(name='craft', aliases=['voeux'])
     async def user_craft_gift(self, ctx, *, gift: str = None):
         """Permet de créer des cadeaux avec des voeux
         
@@ -501,15 +501,23 @@ class XMas(commands.Cog):
         
         if not gift:
             wishes = await self.wish_list(user)
-            wishes_table = [(w, f"{self.gifts[w]}", wishes[w]) for w in wishes]
+            wishes_table = [(int(w), f"{self.gifts[w]}", wishes[w]) for w in wishes]
+            wishes_table = sorted(wishes_table, key=operator.itemgetter(0))
             em = discord.Embed(color=teaminfo['color'])
             em.set_author(name=f"Voeux obtenus", icon_url=user.avatar_url)
             if wishes_table:
-                em.description = box(tabulate(wishes_table, headers=('ID', 'Cadeau', 'Qte')), lang='css')
+                tables = [wishes_table[x:x+20] for x in range(0, len(wishes_table), 20)]
+                n = 1
+                for wt in tables:
+                    em.description = box(tabulate(wt, headers=('ID', 'Cadeau', 'Qte')), lang='css')
+                    em.set_footer(text=f"Craftez un cadeau en faisant ';craft <ID>' | Page {n}")
+                    await ctx.reply(embed=em, mention_author=False)
+                    n += 1
+                return
             else:
                 em.description = box("Inventaire de voeux vide", lang='css')
-            em.set_footer(text="Craftez un cadeau en faisant ';craft <ID>'")
-            return await ctx.reply(embed=em, mention_author=False)
+                em.set_footer(text="Obtenez des voeux en livrant les cadeaux de votre équipe")
+                return await ctx.reply(embed=em, mention_author=False)
 
         giftid = self.fetch_gift_id(gift)
         if not giftid:

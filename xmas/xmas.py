@@ -348,7 +348,7 @@ class XMas(commands.Cog):
         rng = random.Random(seed)
         
         items = rng.sample(list(self.items.keys()), k=rng.randint(tier, len(self.items) - 1))
-        return {i: rng.randint(tier, tier * 3) for i in items}
+        return {i: rng.randint(tier, tier * 2) for i in items}
     
     async def team_upgrade_gift(self, guild: discord.Guild, team: str, gift_key: str, *, add_lvl: int = 1):
         gift_key = gift_key.upper()
@@ -965,7 +965,7 @@ class XMas(commands.Cog):
     async def simple_item_spawn(self, channel: discord.TextChannel):
         rdm_item = random.choice(list(self.items.keys()))
         item = self.get_item(rdm_item)
-        qte = random.randint(2, 4)
+        qte = random.randint(2, 5)
         emcolor = XMAS_COLOR()
         text = random.choice((f"Des enfants vous offrent **{item.famount(qte)}** !",
                               f"Voici **{item.famount(qte)}** ! Premier arrivé, premier servi.",
@@ -1309,7 +1309,8 @@ class XMas(commands.Cog):
             
             if cache['EventType'].startswith('question') and cache['EventAnswer']:
                 if self.normalize(message.content) == self.normalize(cache['EventAnswer']):
-                    cache['EventWinner'] = message.author.id
+                    if not cache['EventWinner']:
+                        cache['EventWinner'] = message.author.id
                 
             
             cache['last_message'] = time.time()
@@ -1325,9 +1326,9 @@ class XMas(commands.Cog):
                     events_poss = {
                         'simple_item_spawn': 1.0,
                         'group_item_spawn': 1.0,
-                        'simple_gift_spawn': 0.90,
-                        'question_capital': 0.65,
-                        'question_country': 0.65          
+                        'simple_gift_spawn': 0.80,
+                        'question_capital': 0.50,
+                        'question_country': 0.50          
                     }
                     event = random.choices(list(events_poss.keys()), weights=list(events_poss.values()), k=1)[0]
                     if event == 'simple_item_spawn':

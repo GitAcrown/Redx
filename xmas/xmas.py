@@ -150,6 +150,7 @@ QUEST_INFO = {
     'get_biscuit2': {
         'level': 2,
         'desc': "Obtenir x5 `Biscuit`",
+        'threshold': 5,
         'prize': 'items'
     }
 }
@@ -193,6 +194,7 @@ class XMas(commands.Cog):
                 'dest': ''
             },
             'Quest': {},
+            'QuestLast': '',
             'QuestGetMP': True
         }
         
@@ -1186,9 +1188,15 @@ class XMas(commands.Cog):
         
         quest = await self.config.member(user).Quest()
         if not quest:
+            curtime = 'AM' if 0 <= datetime.now().hour <= 11 else 'PM'
+            curtime += datetime.now().strftime('%d%m')
+            if await self.config.member(user).QuestLast() == curtime:
+                return await ctx.reply(f"{cross} **Mission déjà accomplie** · Vous pourrez avoir de nouveau une mission à midi/minuit", mention_author=False)
+                
             rdmq = random.choice(list(QUEST_INFO.keys()))
             thre = QUEST_INFO[rdmq]['threshold']
             quest = await self.set_quest(user, rdmq, thre)
+            await self.config.member(user).QuestLast.set(curtime)
             
         complete = await self.check_quest(user)
         em = discord.Embed(color=XMAS_COLOR())

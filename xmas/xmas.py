@@ -1191,7 +1191,7 @@ class XMas(commands.Cog):
             curtime = 'AM' if 0 <= datetime.now().hour <= 11 else 'PM'
             curtime += datetime.now().strftime('%d%m')
             if await self.config.member(user).QuestLast() == curtime:
-                return await ctx.reply(f"{cross} **Mission déjà accomplie** · Vous pourrez avoir de nouveau une mission à midi/minuit", mention_author=False)
+                return await ctx.reply(f"{cross} **Aucune mission disponible** · Vous pourrez avoir de nouveau une mission à midi/minuit", mention_author=False)
                 
             rdmq = random.choice(list(QUEST_INFO.keys()))
             thre = QUEST_INFO[rdmq]['threshold']
@@ -1256,9 +1256,10 @@ class XMas(commands.Cog):
             post_em.set_footer(text="Astuce · " + random.choice(_ASTUCES))
             
             userquest = await self.config.member(user).Quest()
-            qtitle = f'get_{item.id}'
-            if userquest['id'].startswith(qtitle):
-                await self.update_quest(user, userquest['id'], qte)
+            if userquest:
+                qtitle = f'get_{item.id}'
+                if userquest['id'].startswith(qtitle):
+                    await self.update_quest(user, userquest['id'], qte)
             
             await spawn.edit(embed=post_em)
             await spawn.remove_reaction(goodemoji, self.bot.user)
@@ -1634,9 +1635,10 @@ class XMas(commands.Cog):
                                 cache["EventUsers"][user.id] = item
                                 
                             userquest = await self.config.member(user).Quest()
-                            qtitle = f'get_{item.id}'
-                            if userquest['id'].startswith(qtitle):
-                                await self.update_quest(user, userquest['id'])
+                            if userquest:
+                                qtitle = f'get_{item.id}'
+                                if userquest['id'].startswith(qtitle):
+                                    await self.update_quest(user, userquest['id'])
                     
 
     @commands.group(name="xmasset")

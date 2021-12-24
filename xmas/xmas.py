@@ -612,7 +612,7 @@ class XMas(commands.Cog):
         tb = ''
         if prize == "coal":
             cqte = qlevel * 2
-            await self.coal_add(user.guild, userteam, )
+            await self.coal_add(user.guild, userteam)
             tb = f"Charbon x{cqte}"
         elif prize == "items":
             rdm_item = random.choice(list(self.items.keys()))

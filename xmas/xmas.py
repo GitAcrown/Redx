@@ -462,6 +462,7 @@ class XMas(commands.Cog):
         return gifts
     
     async def team_check_upgrade(self, guild: discord.Guild, gift_key: str) -> dict:
+        gift_key = gift_key.upper()
         _, gift = await self.get_team_gift(guild, gift_key)
         tier = gift['tier']
         seed = f"{gift_key}:{tier}"
@@ -880,6 +881,7 @@ class XMas(commands.Cog):
         if not gift_key:
             return await ctx.reply(f"{alert} **Précisez le cadeau à livrer** · Consultez la liste des cadeaux à livrer avec `;gifts`")
         
+        gift_key = gift_key.upper()
         team, gift = await self.get_team_gift(guild, gift_key)
         if not gift:
             return await ctx.reply(f"{cross} **ID de cadeau inconnu** · Consultez la liste des cadeaux à livrer avec `;gifts`")
@@ -980,6 +982,7 @@ class XMas(commands.Cog):
             
             return await menu(ctx, embeds, DEFAULT_CONTROLS)
         
+        gift_key = gift_key.upper()
         gteam, gift = await self.get_team_gift(guild, gift_key)
         if not gift:
             return await ctx.reply(f"{alert} **Erreur** · Ce cadeau n'existe pas ou n'est pas de votre équipe. Vérifiez l'identifiant.")
@@ -1186,10 +1189,10 @@ class XMas(commands.Cog):
         user = ctx.author
         check, cross, alert = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551), self.bot.get_emoji(913597560483106836)
         
+        curtime = 'AM' if 0 <= datetime.now().hour <= 11 else 'PM'
+        curtime += datetime.now().strftime('%d%m')
         quest = await self.config.member(user).Quest()
         if not quest:
-            curtime = 'AM' if 0 <= datetime.now().hour <= 11 else 'PM'
-            curtime += datetime.now().strftime('%d%m')
             if await self.config.member(user).QuestLast() == curtime:
                 return await ctx.reply(f"{cross} **Aucune mission disponible** · Vous pourrez avoir de nouveau une mission à midi/minuit", mention_author=False)
                 
@@ -1200,7 +1203,7 @@ class XMas(commands.Cog):
             
         complete = await self.check_quest(user)
         em = discord.Embed(color=XMAS_COLOR())
-        em.set_author(name=f"{user} · Quête actuelle", icon_url=user.avatar_url)
+        em.set_author(name=f"{user} · Quête actuelle ({'AM' if 0 <= datetime.now().hour <= 11 else 'PM'})", icon_url=user.avatar_url)
         
         qinfo = QUEST_INFO[quest['id']]
         em.description = f"📜 **Mission** · *{qinfo['desc']}*"

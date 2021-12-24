@@ -771,13 +771,37 @@ class XMas(commands.Cog):
         await ctx.reply(embed=em, mention_author=False)
         
     @commands.command(name='upgrade', aliases=['amelio'])
-    async def main_upgrade_gift(self, ctx, gift_key: str):
+    async def main_upgrade_gift(self, ctx, gift_key: str = None):
         """Améliorer un cadeau possédé afin de le faire monter en tier (grade)"""
         user = ctx.author
         guild = ctx.guild
         check, cross, alert = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551), self.bot.get_emoji(913597560483106836)
         userteam = await self.check_team(user)
         teaminfo = TEAMS_PRP[userteam]
+        
+        if not gift_key:
+            inv = await self.config.member(user).Inventory()
+            gifts = await self.team_gifts(guild, userteam)
+            gup = []
+            for g in gifts:
+                if gifts[g]['max_tier'] > gifts[g]['tier']:
+                    up = await self.team_check_upgrade(guild, gift_key)
+                    for u in up:
+                        if inv.get(u, 0) < up[u]:
+                            break
+                        gup.append((g, self.gifts[gifts[g]['id']], f"T{gifts[g]['tier']} ➞ T{gifts[g]['tier'] + 1}"))
+            if not gup:
+                return await ctx.reply(f"{alert} **Aucun cadeau à améliorer** · Vous ne pouvez pas améliorer de cadeau soit parce qu'il n'y en a pas à améliorer soit parce que vous n'avez pas les items nécessaires pour le faire.")
+            
+            tables = [gup[x:x+20] for x in range(0, len(gup), 20)]
+            embeds = []
+            for t in tables:
+                em = discord.Embed(color=teaminfo['color'], title=f"Améliorations possibles · {teaminfo['name']}")
+                em.description = box('\n'.join([f'• {gkey} · {gname} ({tierup})' for gkey, gname, tierup in t]))
+                em.set_footer(text="Améliorez un cadeau avec ';upgrade <ID>'")
+                embeds.append(em)
+            
+            return await menu(ctx, embeds, DEFAULT_CONTROLS)
         
         gteam, gift = await self.get_team_gift(guild, gift_key)
         if not gift:

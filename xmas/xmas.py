@@ -55,8 +55,104 @@ _ASTUCES = [
     "Le charbon sert à saboter les cadeaux ennemis, consultez ';help coal' pour en savoir plus",
     "Les cadeaux donnés à l'occasion des questions de capitales sont automatiquement de tier 3",
     "La position du traineau change environ toutes les 30m le jour et 1h la nuit, surveillez bien les prochaines destinations avec ';map'",
-    "Vous pouvez voter pour ralentir temporairement le traineau, afin qu'il reste plus longtemps à une destination. Utilisez ';slow' pour cela."
+    "Vous pouvez voter pour ralentir temporairement le traineau, afin qu'il reste plus longtemps à une destination. Utilisez ';slow' pour cela.",
+    "Les quêtes sont mises à jour et réinitialisées à midi et à minuit",
+    "Si vous avez pas terminé une quête avant la vérification auto. (12h/00h) vous perdrez votre progression",
+    "Vous pouvez activer/désactiver votre bonnet avec ';bonnet'",
+    "Vous pouvez activer/désactiver la réception de MP en cas d'accomplissement de quête avec ';questmp'"
 ]
+
+QUEST_INFO = {
+    'upgrade_any': {
+        'level': 1,
+        'desc': "Améliorer n'importe quel cadeau",
+        'threshold': 1,
+        'prize': 'items'
+    },
+    'upgrade_T3': {
+        'level': 2,
+        'desc': "Faire passer un cadeau en tier 3",
+        'threshold': 1,
+        'prize': 'items'
+    },
+    'upgrade_T45': {
+        'level': 3,
+        'desc': "Faire passer un cadeau en tier 4 ou 5",
+        'threshold': 1,
+        'prize': 'items'
+    },
+    'event_question': {
+        'level': 1,
+        'desc': "Obtenir un cadeau par le biais d'un évènement 'Soucis de GPS'",
+        'threshold': 1,
+        'prize': 'coal'
+    },
+    'event_questionhard': {
+        'level': 3,
+        'desc': "Obtenir 3 cadeaux par le biais d'un évènement 'Soucis de GPS'",
+        'threshold': 3,
+        'prize': 'items'
+    },
+    'get_chocolat1': {
+        'level': 1,
+        'desc': "Obtenir x3 `Chocolat`",
+        'threshold': 3,
+        'prize': 'items'
+    },
+    'get_chocolat2': {
+        'level': 2,
+        'desc': "Obtenir x5 `Chocolat`",
+        'threshold': 5,
+        'prize': 'items'
+    },
+    'get_sucreorge1': {
+        'level': 1,
+        'desc': "Obtenir x3 `Sucre d'Orge`",
+        'threshold': 3,
+        'prize': 'items'
+    },
+    'get_sucreorge2': {
+        'level': 2,
+        'desc': "Obtenir x5 `Sucre d'Orge`",
+        'threshold': 5,
+        'prize': 'items'
+    },
+    'get_papillote1': {
+        'level': 1,
+        'desc': "Obtenir x3 `Papillote`",
+        'threshold': 3,
+        'prize': 'items'
+    },
+    'get_papillote2': {
+        'level': 2,
+        'desc': "Obtenir x5 `Papillote`",
+        'threshold': 5,
+        'prize': 'items'
+    },
+    'get_painepice1': {
+        'level': 1,
+        'desc': "Obtenir x3 `Pain d'Epices`",
+        'threshold': 3,
+        'prize': 'items'
+    },
+    'get_painepice2': {
+        'level': 2,
+        'desc': "Obtenir x5 `Pain d'Epices`",
+        'threshold': 5,
+        'prize': 'items'
+    },
+    'get_biscuit1': {
+        'level': 1,
+        'desc': "Obtenir x3 `Biscuit`",
+        'threshold': 3,
+        'prize': 'items'
+    },
+    'get_biscuit2': {
+        'level': 2,
+        'desc': "Obtenir x5 `Biscuit`",
+        'prize': 'items'
+    }
+}
     
 logger = logging.getLogger("red.RedX.XMas")
 
@@ -95,7 +191,9 @@ class XMas(commands.Cog):
             'SlowCache': {
                 'last': 0,
                 'dest': ''
-            }
+            },
+            'Quest': {},
+            'QuestGetMP': True
         }
         
         default_guild = {
@@ -118,7 +216,8 @@ class XMas(commands.Cog):
                 'alert_channel': None,
                 'red_role': None,
                 'green_role': None
-            }
+            },
+            'QuestCheck': ''
         }
         
         default_global = {
@@ -159,7 +258,26 @@ class XMas(commands.Cog):
                     activ = discord.Activity(name=amsg, type=discord.ActivityType.competing)
                     await self.bot.change_presence(activity=activ)
             
-                   
+            curtime = 'AM' if 0 <= datetime.now().hour <= 11 else 'PM'
+            curtime += datetime.now().strftime('%d%m')
+            if curtime != all_guilds[g].get('QuestCheck', ''):
+                for m in guild.members:
+                    complete = await self.check_quest(m)
+                    if not complete:
+                        await self.clear_quest(m)
+                    else:
+                        if await self.config.member(m).QuestGetMP():
+                            em = discord.Embed(color=XMAS_COLOR())
+                            em.set_author(name=f"{m} · Quête accomplie", icon_url=m.avatar_url)
+                            em.description = f"Vous avez accompli votre quête, vous remportez **{complete}**"
+                            em.set_footer(text="Si ce MP vous dérange, vous pouvez désactiver la réception avec ';stopmp'")
+                            try:
+                                await m.send(embed=em)
+                            except:
+                                pass
+
+                await self.config.guild(guild).set_raw('QuestCheck', value=curtime)
+            
     @xmas_checks.before_loop
     async def before_xmas_checks(self):
         logger.info('Démarrage de la boucle xmas_checks...')
@@ -456,6 +574,59 @@ class XMas(commands.Cog):
         current = await self.config.guild(guild).Teams.get_raw(team, 'Coal')
         return await self.coal_set(guild, team, current - amount)
     
+    # Quetes
+    
+    async def set_quest(self, user: discord.Member, quest_id: str, threshold: int) -> dict:
+        q = {'id': quest_id,
+             'threshold': threshold,
+             'current': 0}
+        await self.config.member(user).Quest.set(q)
+        return q
+    
+    async def update_quest(self, user: discord.Member, quest_id: str, amount: int = 1) -> bool:
+        currentq = await self.config.member(user).Quest()
+        if currentq.get('id', None) != quest_id:
+            return
+        
+        newam = currentq.get('current', 0) + amount
+        await self.config.member(user).Quest.set_raw('current', value=newam)
+        
+        return newam
+    
+    async def clear_quest(self, user: discord.Member):
+        await self.config.member(user).clear_raw('Quest')
+        
+    async def check_quest(self, user: discord.Member):
+        currentq = await self.config.member(user).Quest()
+        if not currentq:
+            return False 
+        if currentq['current'] < currentq['threshold']:
+            return False
+        
+        userteam = await self.check_team(user)
+        qid = currentq['id']
+        prize = QUEST_INFO[qid]['prize']
+        qlevel = QUEST_INFO[qid]['level']
+        tb = ''
+        if prize == "coal":
+            cqte = qlevel * 2
+            await self.coal_add(user.guild, userteam, )
+            tb = f"Charbon x{cqte}"
+        elif prize == "items":
+            rdm_item = random.choice(list(self.items.keys()))
+            item = self.get_item(rdm_item)
+            qte = random.randint(qlevel + 1, qlevel * 2)
+            await self.inventory_add(user, item, qte)
+            tb = f"{item.name} x{qte}"
+        
+        tb += " + 5 points personnels"
+        
+        userpts = await self.config.member(user).Points()
+        await self.config.member(user).Points.set(userpts + 5)
+        
+        await self.clear_quest(user)
+        return tb
+        
     
 # COMMANDES ======================================
 
@@ -801,7 +972,7 @@ class XMas(commands.Cog):
             embeds = []
             for t in tables:
                 em = discord.Embed(color=teaminfo['color'], title=f"Améliorations possibles · {teaminfo['name']}")
-                em.description = box('\n'.join([f'• {gkey} · {gname} ({tierup})' for gkey, gname, tierup in t]))
+                em.description = box('\n'.join([f'{gkey} · {gname} ({tierup})' for gkey, gname, tierup in t]))
                 em.set_footer(text="Améliorez un cadeau avec ';upgrade <ID>'")
                 embeds.append(em)
             
@@ -850,6 +1021,11 @@ class XMas(commands.Cog):
             await self.team_upgrade_gift(guild, userteam, gift_key)
         await ctx.reply(f"{check} **Amélioration effectuée** · Le cadeau **{gift_key}** contenant *{gname}* est désormais __Tier {gift['tier'] + 1}__ !", mention_author=False)
         
+        await self.update_quest(user, 'upgrade_any')
+        if gift['tier'] == 2:
+            await self.update_quest(user, 'upgrade_T3')
+        if gift['tier'] >= 3:
+            await self.update_quest(user, 'upgrade_T45')
         
     @commands.command(name='coal', aliases=['charbon'])
     async def use_coal(self, ctx, qte: int):
@@ -987,6 +1163,46 @@ class XMas(commands.Cog):
             if red in user.roles:
                 await user.remove_roles(red, reason="Changement de rôle d'équipe")
             return await ctx.reply(f"{check} **Rôle Lutin Vert ajouté** · Vous avez enfilé votre bonnet", mention_author=False)
+        
+    @commands.command(name="questmp", aliases=['stopmp'])
+    async def toggle_pm_reception(self, ctx):
+        """Active/désactive la réception de MP quand vous accomplissez une quête dont vous n'avez pas manuellement vérifié le statut"""
+        guild = ctx.guild
+        user = ctx.author
+        check, cross, alert = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551), self.bot.get_emoji(913597560483106836)
+        
+        current = await self.config.member(user).QuestGetMP()
+        if current:
+            await ctx.reply(f"{check} **MP désactivés** · Vous ne recevrez plus de MP en cas d'accomplissement d'une quête non vérifiée manuellement", mention_author=False)
+        else:
+            await ctx.reply(f"{check} **MP activés** · Vous recevrez désormais un MP en cas d'accomplissement d'une quête non vérifiée manuellement", mention_author=False)
+        await self.config.member(user).QuestGetMP.set(not current)
+        
+    @commands.command(name='quest', aliases=['mission'])
+    async def user_quest(self, ctx):
+        """Consulter sa mission actuelle et vérifier son avancement"""
+        user = ctx.author
+        check, cross, alert = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551), self.bot.get_emoji(913597560483106836)
+        
+        quest = await self.config.member(user).Quest()
+        if not quest:
+            rdmq = random.choice(list(QUEST_INFO.keys()))
+            thre = QUEST_INFO[rdmq]['threshold']
+            quest = await self.set_quest(user, rdmq, thre)
+            
+        complete = await self.check_quest(user)
+        em = discord.Embed(color=XMAS_COLOR())
+        em.set_author(name=f"{user} · Quête actuelle", icon_url=user.avatar_url)
+        
+        qinfo = QUEST_INFO[quest['id']]
+        em.description = f"📜 **Mission** · *{qinfo['desc']}*"
+        em.add_field(name="Avancement", value=f"**{quest['current']}**/{quest['threshold']}{f' {check}' if complete else ''}")
+        
+        if complete:
+            em.set_footer(text=f"Quête accomplie, vous remportez {complete}\n» Revenez à midi et minuit pour recevoir une nouvelle quête")
+        
+        await ctx.send(embed=em)
+        
     
 # LISTENERS --------------------------------------
 
@@ -1031,11 +1247,16 @@ class XMas(commands.Cog):
                                     color=emcolor)
             post_em.set_footer(text="Astuce · " + random.choice(_ASTUCES))
             
+            userquest = await self.config.member(user).Quest()
+            qtitle = f'get_{item.id}'
+            if userquest['id'].startswith(qtitle):
+                await self.update_quest(user, userquest['id'], qte)
+            
             await spawn.edit(embed=post_em)
             await spawn.remove_reaction(goodemoji, self.bot.user)
             await spawn.delete(delay=15)
             
-            
+    
     async def simple_gift_spawn(self, channel: discord.TextChannel):
         guild = channel.guild
         dests = await self.fill_destinations(guild)
@@ -1244,6 +1465,9 @@ class XMas(commands.Cog):
         userpts = await self.config.member(winner).Points()
         await self.config.member(winner).Points.set(userpts + 5)
         
+        await self.update_quest(winner, 'event_question')
+        await self.update_quest(winner, 'event_questionhard')
+        
         newem = discord.Embed(title=f"❄️ Jeu des fêtes • Soucis de GPS", color=emcolor)
         newem.description = random.choice((
             f"C'est l'équipe des **{teaminfo['name']}** qui remporte __{giftname} [Tier 3]__ grâce à {winner.mention} !",
@@ -1315,6 +1539,9 @@ class XMas(commands.Cog):
         
         userpts = await self.config.member(winner).Points()
         await self.config.member(winner).Points.set(userpts + 5)
+        
+        await self.update_quest(winner, 'event_question')
+        await self.update_quest(winner, 'event_questionhard')
         
         newem = discord.Embed(title=f"❄️ Jeu des fêtes • Soucis de GPS", color=emcolor)
         newem.description = random.choice((
@@ -1397,6 +1624,11 @@ class XMas(commands.Cog):
                                 cache["EventUsers"][user.id] = False
                             else:
                                 cache["EventUsers"][user.id] = item
+                                
+                            userquest = await self.config.member(user).Quest()
+                            qtitle = f'get_{item.id}'
+                            if userquest['id'].startswith(qtitle):
+                                await self.update_quest(user, userquest['id'])
                     
 
     @commands.group(name="xmasset")

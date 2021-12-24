@@ -788,9 +788,11 @@ class XMas(commands.Cog):
             for g in gifts:
                 if gifts[g]['max_tier'] > gifts[g]['tier']:
                     up = await self.team_check_upgrade(guild, g)
+                    verif = []
                     for u in up:
-                        if inv.get(u, 0) < up[u]:
-                            break
+                        if inv.get(u, 0) >= up[u]:
+                            verif.append(u)
+                    if len(verif) == len(up):
                         gup.append((g, self.gifts[gifts[g]['id']], f"T{gifts[g]['tier']} ➞ T{gifts[g]['tier'] + 1}"))
             if not gup:
                 return await ctx.reply(f"{alert} **Aucun cadeau à améliorer** · Vous ne pouvez pas améliorer de cadeau soit parce qu'il n'y en a pas à améliorer soit parce que vous n'avez pas les items nécessaires pour le faire.")

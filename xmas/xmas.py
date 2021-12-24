@@ -772,7 +772,9 @@ class XMas(commands.Cog):
         
     @commands.command(name='upgrade', aliases=['amelio'])
     async def main_upgrade_gift(self, ctx, gift_key: str = None):
-        """Améliorer un cadeau possédé afin de le faire monter en tier (grade)"""
+        """Améliorer un cadeau possédé afin de le faire monter en tier (grade)
+        
+        Faire la commande sans argument permet d'obtenir une liste des améliorations possibles"""
         user = ctx.author
         guild = ctx.guild
         check, cross, alert = self.bot.get_emoji(812451214037221439), self.bot.get_emoji(812451214179434551), self.bot.get_emoji(913597560483106836)
@@ -785,7 +787,7 @@ class XMas(commands.Cog):
             gup = []
             for g in gifts:
                 if gifts[g]['max_tier'] > gifts[g]['tier']:
-                    up = await self.team_check_upgrade(guild, gift_key)
+                    up = await self.team_check_upgrade(guild, g)
                     for u in up:
                         if inv.get(u, 0) < up[u]:
                             break

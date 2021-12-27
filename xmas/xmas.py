@@ -1404,8 +1404,8 @@ class XMas(commands.Cog):
     def normalize(self, texte: str):
         """Normalise le texte en retirant accents, majuscules et tirets"""
         texte = texte.lower()
-        norm = [l for l in "neeecaaiiuuoo   "]
-        modif = [l for l in "ñéêèçàäîïûùöô-'."]
+        norm = [l for l in "neeecaaaiiuuoo   "]
+        modif = [l for l in "ñéêèçàâäîïûùöô-'."]
         fin_texte = texte
         for char in texte:
             if char in modif:

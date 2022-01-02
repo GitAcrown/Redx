@@ -17,7 +17,7 @@ from redbot.core.utils.menus import start_adding_reactions
 from tabulate import tabulate
 from redbot.core.data_manager import cog_data_path, bundled_data_path
 
-BouncerImg = 'https://i.imgur.com/50xn4uS.png'
+BouncerImg = 'https://i.imgur.com/lbK0pb9.png'
 
 class Bouncer(commands.Cog):
     """Videur virtuel pour serveurs Discord"""
@@ -218,7 +218,7 @@ class Bouncer(commands.Cog):
         try:
             async with aiohttp.ClientSession() as session:
                 webhook = discord.Webhook.from_url(webhook_url, adapter=discord.AsyncWebhookAdapter(session))
-                return await webhook.send(content=text, username=f'{self.bot.user.name} Bouncer', avatar_url=BouncerImg, wait=True)
+                return await webhook.send(content=text, username=f'Sortie', avatar_url=BouncerImg, wait=True)
         except:
             raise
 

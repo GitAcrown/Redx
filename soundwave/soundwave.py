@@ -52,7 +52,7 @@ class Soundwave(commands.Cog):
         path = str(self.temp)
         seed = str(int(time.time()))
         if msg.attachments[0].size <= 2e6:
-            if msg.attachments[0].url.split('.')[-1] in ('mp3', 'wav', 'ogg', 'flac'):
+            if msg.attachments[0].url.split('.')[-1] in ('mp3', 'wav', 'ogg', 'flac', 'm4a'):
                 filename = "{}_{}".format(seed, msg.attachments[0].filename)
                 filepath = "{}/{}".format(str(path), filename)
                 await msg.attachments[0].save(filepath)

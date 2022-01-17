@@ -68,7 +68,7 @@ class Clone(commands.Cog):
         msgtext = message.content
         if message.reference:
             ref = await message.channel.fetch_message(message.reference.message_id)
-            msgtext = f'`> En réponse à {ref.author}`\n'
+            msgtext = f'`> En réponse à {ref.author}`\n' + msgtext
         
         async def webhook_post() -> discord.WebhookMessage:
             try:
@@ -78,6 +78,8 @@ class Clone(commands.Cog):
                     return await webhook.send(content=msgtext, 
                                               username=uname, 
                                               avatar_url=message.author.avatar_url,
+                                              files=message.files,
+                                              embeds=message.embeds,
                                               wait=True)
             except:
                 raise
@@ -87,11 +89,11 @@ class Clone(commands.Cog):
         
         return clone
     
-    async def send_message(self, channel: discord.TextChannel, text: str, *, reply_to: discord.Message = None):
+    async def send_message(self, channel: discord.TextChannel, text: str, *, files: List[discord.File] = None, reply_to: discord.Message = None):
         if reply_to:
-            await reply_to.reply(text, mention_author=False)
+            await reply_to.reply(text, files=files, mention_author=False)
         else:
-            await channel.send(text)
+            await channel.send(text, files=files)
         
             
     @commands.command(name="doppelganger", aliases=['dg'])
@@ -135,5 +137,5 @@ class Clone(commands.Cog):
                     orimsgequiv = sess['Messages'].get(orimsg.id)
                     if not orimsgequiv:
                         return await channel.send("`Impossible d'envoyer la réponse au message sur le salon cloné`")
-                    return await self.send_message(sess['InputChannel'], message.content, reply_to=orimsgequiv)
-                return await self.send_message(sess['InputChannel'], message.content)
+                    return await self.send_message(sess['InputChannel'], message.content, files=message.files, reply_to=orimsgequiv)
+                return await self.send_message(sess['InputChannel'], message.content, files=message.files)

@@ -57,14 +57,11 @@ class Clone(commands.Cog):
             try:
                 async with aiohttp.ClientSession() as clientsession:
                     webhook = discord.Webhook.from_url(webhook_url, adapter=discord.AsyncWebhookAdapter(clientsession))
-                    author = message.author
-                    if session['Member']:
-                        author = session['Member']
-                    uname = author.display_name if author != self.bot.user else f'{author.display_name} [Vous]'
+                    uname = message.author.display_name if message.author != self.bot.user else f'{message.author.display_name} [Vous]'
                     attachs = [await a.to_file() for a in message.attachments] if message.attachments else None
                     return await webhook.send(content=msgtext, 
                                               username=uname, 
-                                              avatar_url=author.avatar_url,
+                                              avatar_url=message.author.avatar_url,
                                               files=attachs,
                                               wait=True)
             except:
@@ -76,10 +73,31 @@ class Clone(commands.Cog):
         return clone
     
     async def send_message(self, channel: discord.TextChannel, text: str, *, files: List[discord.File] = None, reply_to: discord.Message = None):
+        sessionchannel = self.fetch_input_session(channel)
+        session = self.get_session(sessionchannel)
         async with channel.typing():
             await asyncio.sleep(len(text) / 10)
-        if reply_to:
+        if reply_to and not session['Member']:
             await reply_to.reply(text, mention_author=False, files=files)
+        elif session['Member']:
+            webhooks = await channel.webhooks()
+            if webhooks:
+                webhook_url = webhooks[0]
+                try:
+                    async with aiohttp.ClientSession() as clientsession:
+                        webhook = discord.Webhook.from_url(webhook_url, adapter=discord.AsyncWebhookAdapter(clientsession))
+                        author = session['Member']
+                        uname = f'{author.display_name} [Vous]'
+                        attachs = files
+                        return await webhook.send(content=text, 
+                                                username=uname, 
+                                                avatar_url=author.avatar_url,
+                                                files=attachs,
+                                                wait=True)
+                except:
+                    await channel.send(text, files=files)
+            else:
+                await channel.send(text, files=files)
         else:
             await channel.send(text, files=files)
         

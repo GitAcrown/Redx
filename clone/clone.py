@@ -63,7 +63,6 @@ class Clone(commands.Cog):
     
     async def clone_message(self, destination: discord.TextChannel, message: discord.Message):
         """Clone un message et lie le message de destination avec celui d'origine pour la session en cours"""
-        guild = message.guild
         session = self.get_session(destination)
         webhook_url = session['Webhook']
         msgtext = message.content
@@ -77,9 +76,7 @@ class Clone(commands.Cog):
                     webhook = discord.Webhook.from_url(webhook_url, adapter=discord.AsyncWebhookAdapter(clientsession))
                     return await webhook.send(content=msgtext, 
                                               username=message.author.display_name, 
-                                              avatar_url=message.author.avatar_url, 
-                                              files=message.attachments, 
-                                              embeds=message.embeds,
+                                              avatar_url=message.author.avatar_url,
                                               wait=True)
             except:
                 raise
@@ -89,12 +86,12 @@ class Clone(commands.Cog):
         
         return clone
     
-    async def send_message(self, channel: discord.TextChannel, text: str, *, files: List[discord.File] = None, reply_to: discord.Message = None):
+    async def send_message(self, channel: discord.TextChannel, text: str, *, reply_to: discord.Message = None):
         if reply_to:
-            msg = await reply_to.reply(text, files=files, mention_author=False)
+            await reply_to.reply(text, mention_author=False)
         else:
-            msg = await channel.send(text, files=files)
-            
+            await channel.send(text)
+        
             
     @commands.command(name="doppelganger", aliases=['dg'])
     async def new_dg_session(self, ctx, channelid: int, webhook_url: str):

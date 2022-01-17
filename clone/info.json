@@ -1,0 +1,11 @@
+{
+    "author": ["Acrone"],
+	"description": "Clonage de salon pour être dans la peau du bot",
+	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help Clone` pour voir les commandes disponibles",
+	"short": "Pour se faire passer pour le bot",
+	"tags": ["community", "fun", "economy"],
+    "requirements" : [],
+    "required_cogs": {},
+	"type": "COG",
+	"end_user_data_statement": "This cog does not store personal data."
+}

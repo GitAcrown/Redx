@@ -118,9 +118,9 @@ class Clone(commands.Cog):
             
             sessionchannel = self.fetch_input_session(channel)
             if sessionchannel:
-                await self.clone_message(sessionchannel, message)
+                return await self.clone_message(sessionchannel, message)
             
-            sess = self.get_session(message.channel)
+            sess = self.get_session(channel)
             if sess:
                 if message.author.bot:
                     return
@@ -130,6 +130,5 @@ class Clone(commands.Cog):
                     orimsgequiv = sess['Messages'].get(orimsg.id)
                     if not orimsgequiv:
                         return await channel.send("`Impossible d'envoyer la réponse au message sur le salon cloné`")
-                    await self.send_message(sess['InputChannel'], message.content, files=message.files, reply_to=orimsgequiv)
-                else:
-                    await self.send_message(sess['InputChannel'], message.content, files=message.files)
+                    return await self.send_message(sess['InputChannel'], message.content, reply_to=orimsgequiv)
+                return await self.send_message(sess['InputChannel'], message.content)

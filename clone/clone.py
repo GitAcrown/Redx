@@ -103,7 +103,9 @@ class Clone(commands.Cog):
     async def stop_dg_session(self, ctx):
         """Arrête toutes les sessions doppelganger en cours sur ce salon"""
         if ctx.channel.id in self.sessions:
-            self.sessions[ctx.channel.id]['Timeout'] = 0        
+            self.sessions[ctx.channel.id]['Timeout'] = 0  
+        else:
+            await ctx.send("**Aucune session à arrêter**")
         
         
     @commands.Cog.listener()
@@ -118,6 +120,8 @@ class Clone(commands.Cog):
             sess = self.get_session(channel)
             if sess:
                 if message.author.bot:
+                    return
+                if message.content.startswith(';'):
                     return
                 sess['Timeout'] = time.time() + 300
                 if message.reference:

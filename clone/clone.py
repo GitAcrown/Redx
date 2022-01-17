@@ -62,14 +62,14 @@ class Clone(commands.Cog):
             except:
                 raise
             
-        async with destination.typing():
-            await asyncio.sleep(len(message.content) / 7.5)
-            clone = await webhook_post()
+        clone = await webhook_post()
         session['Messages'][clone.id] = message
         
         return clone
     
     async def send_message(self, channel: discord.TextChannel, text: str, reply_to: discord.Message = None):
+        async with channel.typing():
+            await asyncio.sleep(len(text) / 6)
         if reply_to:
             await reply_to.reply(text, mention_author=False)
         else:

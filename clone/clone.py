@@ -117,6 +117,8 @@ class Clone(commands.Cog):
         await ctx.send("**Session ouverte avec le salon clone visé** · Tous les messages tapé dans ce salon seront recopiés automatiquement sur le salon cible et inversement")
         while time.time() < session['Timeout']:
             await asyncio.sleep(1)
+        
+        del session[destination.id]
         await ctx.send("**Session de clonage de salon expirée**")
         
         

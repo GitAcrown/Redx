@@ -56,10 +56,13 @@ class Clone(commands.Cog):
                 async with aiohttp.ClientSession() as clientsession:
                     webhook = discord.Webhook.from_url(webhook_url, adapter=discord.AsyncWebhookAdapter(clientsession))
                     uname = message.author.display_name if message.author != self.bot.user else f'{message.author.display_name} [Vous]'
+                    attachone = message.attachments[0] if len(message.attachments) == 1 else None
+                    attachs = message.attachments if len(message.attachments) > 1 else None
                     return await webhook.send(content=msgtext, 
                                               username=uname, 
                                               avatar_url=message.author.avatar_url,
-                                              files=message.attachments,
+                                              file=attachone,
+                                              files=attachs,
                                               wait=True)
             except:
                 raise
@@ -69,13 +72,13 @@ class Clone(commands.Cog):
         
         return clone
     
-    async def send_message(self, channel: discord.TextChannel, text: str, *, files: List[discord.File] = None, reply_to: discord.Message = None):
+    async def send_message(self, channel: discord.TextChannel, text: str, *, file: discord.File = None, files: List[discord.File] = None, reply_to: discord.Message = None):
         async with channel.typing():
             await asyncio.sleep(len(text) / 10)
         if reply_to:
-            await reply_to.reply(text, mention_author=False, files=files)
+            await reply_to.reply(text, mention_author=False, file=file, files=files)
         else:
-            await channel.send(text, files=files)
+            await channel.send(text, file=file, files=files)
         
             
     @commands.command(name="doppelganger", aliases=['dg'])
@@ -121,6 +124,8 @@ class Clone(commands.Cog):
     async def on_message(self, message):
         if message.guild:
             channel = message.channel
+            attachone = message.attachments[0] if len(message.attachments) == 1 else None
+            attachs = message.attachments if len(message.attachments) > 1 else None
             
             sessionchannel = self.fetch_input_session(channel)
             if sessionchannel:
@@ -138,5 +143,5 @@ class Clone(commands.Cog):
                     orimsgequiv = sess['Messages'].get(orimsg.id)
                     if not orimsgequiv:
                         return await channel.send("`Impossible d'envoyer la réponse au message sur le salon cloné`")
-                    return await self.send_message(sess['InputChannel'], message.content, files=message.attachments, reply_to=orimsgequiv)
-                return await self.send_message(sess['InputChannel'], message.content, files=message.attachments)
+                    return await self.send_message(sess['InputChannel'], message.content, file=attachone, files=attachs, reply_to=orimsgequiv)
+                return await self.send_message(sess['InputChannel'], message.content, file=attachone, files=attachs)

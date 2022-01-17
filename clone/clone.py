@@ -56,7 +56,7 @@ class Clone(commands.Cog):
                 async with aiohttp.ClientSession() as clientsession:
                     webhook = discord.Webhook.from_url(webhook_url, adapter=discord.AsyncWebhookAdapter(clientsession))
                     uname = message.author.display_name if message.author != self.bot.user else f'{message.author.display_name} [Vous]'
-                    attachs = [a.to_file() for a in message.attachments] if message.attachments else None
+                    attachs = [await a.to_file() for a in message.attachments] if message.attachments else None
                     return await webhook.send(content=msgtext, 
                                               username=uname, 
                                               avatar_url=message.author.avatar_url,
@@ -122,7 +122,7 @@ class Clone(commands.Cog):
     async def on_message(self, message):
         if message.guild:
             channel = message.channel
-            attachs = [a.to_file() for a in message.attachments] if message.attachments else None
+            attachs = [await a.to_file() for a in message.attachments] if message.attachments else None
             
             sessionchannel = self.fetch_input_session(channel)
             if sessionchannel:

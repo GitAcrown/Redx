@@ -4,7 +4,7 @@ import time
 import aiohttp
 
 import discord
-from redbot.core import checks, dev_commands
+from redbot.core import checks, commands
 
 logger = logging.getLogger("red.RedX.Clone")
 

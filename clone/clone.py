@@ -5,6 +5,7 @@ import aiohttp
 
 import discord
 from redbot.core import checks, commands
+from typing import List
 
 logger = logging.getLogger("red.RedX.Clone")
 
@@ -58,6 +59,7 @@ class Clone(commands.Cog):
                     return await webhook.send(content=msgtext, 
                                               username=uname, 
                                               avatar_url=message.author.avatar_url,
+                                              files=message.attachments,
                                               wait=True)
             except:
                 raise
@@ -67,13 +69,13 @@ class Clone(commands.Cog):
         
         return clone
     
-    async def send_message(self, channel: discord.TextChannel, text: str, reply_to: discord.Message = None):
+    async def send_message(self, channel: discord.TextChannel, text: str, *, files: List[discord.File] = None, reply_to: discord.Message = None):
         async with channel.typing():
             await asyncio.sleep(len(text) / 10)
         if reply_to:
-            await reply_to.reply(text, mention_author=False)
+            await reply_to.reply(text, mention_author=False, files=files)
         else:
-            await channel.send(text)
+            await channel.send(text, files=files)
         
             
     @commands.command(name="doppelganger", aliases=['dg'])
@@ -131,5 +133,5 @@ class Clone(commands.Cog):
                     orimsgequiv = sess['Messages'].get(orimsg.id)
                     if not orimsgequiv:
                         return await channel.send("`Impossible d'envoyer la réponse au message sur le salon cloné`")
-                    return await self.send_message(sess['InputChannel'], message.content, reply_to=orimsgequiv)
-                return await self.send_message(sess['InputChannel'], message.content)
+                    return await self.send_message(sess['InputChannel'], message.content, files=message.attachments, reply_to=orimsgequiv)
+                return await self.send_message(sess['InputChannel'], message.content, files=message.attachments)

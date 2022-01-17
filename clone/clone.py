@@ -35,6 +35,7 @@ class Clone(commands.Cog):
     def __init__(self, bot):
         super().__init__()
         self.bot = bot
+        self.config = Config.get_conf(self, identifier=736144321857978388, force_registration=True)
         
         default_guild = {
             'Webhooks': {}

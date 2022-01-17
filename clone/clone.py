@@ -62,7 +62,9 @@ class Clone(commands.Cog):
             except:
                 raise
             
-        clone = await webhook_post()
+        async with destination.typing():
+            await asyncio.sleep(len(message.content) / 7.5)
+            clone = await webhook_post()
         session['Messages'][clone.id] = message
         
         return clone

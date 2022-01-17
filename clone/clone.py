@@ -56,7 +56,7 @@ class Clone(commands.Cog):
         
     def fetch_input_session(self, channel: discord.TextChannel) -> discord.TextChannel:
         for destchan in self.sessions:
-            if self.sessions[destchan]['InputChannel'] == channel.id:
+            if self.sessions[destchan]['InputChannel'] == channel:
                 return self.bot.get_channel(destchan)
         return None
     
@@ -101,6 +101,7 @@ class Clone(commands.Cog):
         if not origin:
             return await ctx.reply("**Erreur** · Impossible d'accéder au salon demandé, vérifiez l'identifiant")
         
+        await asyncio.sleep(0.5)
         session = self.init_session(destination, origin, webhook_url)
         session['Timeout'] = time.time() + 300
         await ctx.send("**Session ouverte avec le salon clone visé** · Tous les messages tapé dans ce salon seront recopiés automatiquement sur le salon cible et inversement")

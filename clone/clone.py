@@ -107,7 +107,9 @@ class Clone(commands.Cog):
     async def stop_dg_session(self, ctx):
         """Arrête toutes les sessions doppelganger en cours sur ce salon"""
         if ctx.channel.id in self.sessions:
-            self.sessions[ctx.channel.id]['Timeout'] = 0  
+            self.sessions[ctx.channel.id]['Timeout'] = 0
+            await asyncio.sleep(2)
+            del self.sessions[ctx.channel.id]
         else:
             await ctx.send("**Aucune session à arrêter**")
         

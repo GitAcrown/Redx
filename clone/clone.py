@@ -4,6 +4,7 @@ import time
 import aiohttp
 
 import discord
+from discord import webhook
 from redbot.core import checks, commands
 from typing import List
 
@@ -22,7 +23,8 @@ class Clone(commands.Cog):
             'Messages': {},
             'Webhook': None,
             'Timeout': 0,
-            'InputChannel': None
+            'InputChannel': None,
+            'Member': None
         }
        
         
@@ -55,11 +57,14 @@ class Clone(commands.Cog):
             try:
                 async with aiohttp.ClientSession() as clientsession:
                     webhook = discord.Webhook.from_url(webhook_url, adapter=discord.AsyncWebhookAdapter(clientsession))
-                    uname = message.author.display_name if message.author != self.bot.user else f'{message.author.display_name} [Vous]'
+                    author = message.author
+                    if session['Member']:
+                        author = session['Member']
+                    uname = author.display_name if author != self.bot.user else f'{author.display_name} [Vous]'
                     attachs = [await a.to_file() for a in message.attachments] if message.attachments else None
                     return await webhook.send(content=msgtext, 
                                               username=uname, 
-                                              avatar_url=message.author.avatar_url,
+                                              avatar_url=author.avatar_url,
                                               files=attachs,
                                               wait=True)
             except:
@@ -82,16 +87,29 @@ class Clone(commands.Cog):
     @commands.command(name="doppelganger", aliases=['dg'])
     @commands.guild_only()
     @checks.is_owner()
-    async def new_dg_session(self, ctx, channelid: int, webhook_url: str):
+    async def new_dg_session(self, ctx, channelid: int, as_member: int = None):
         """Clone le salon visé afin de se faire passer pour le bot"""
         origin = self.bot.get_channel(channelid)
         destination = ctx.channel
         if not origin:
             return await ctx.reply("**Erreur** · Impossible d'accéder au salon demandé, vérifiez l'identifiant")
         
+        member = None
+        if as_member:
+            member = origin.guild.get_member(as_member)
+            if not member:
+                return await ctx.reply("**Erreur** · Membre visé inaccessible")
+            
+        
+        webhooks = await destination.webhooks()
+        if not webhooks:
+            return await ctx.reply("**Erreur** · Aucun webhook n'a été créé sur ce channel")
+        webhook_url = webhooks[0].url
+        
         await asyncio.sleep(0.5)
         session = self.init_session(destination, origin, webhook_url)
         session['Timeout'] = time.time() + 300
+        session['Member'] = member
         await ctx.send("**Session ouverte avec le salon clone visé** · Tous les messages tapé dans ce salon seront recopiés automatiquement sur le salon cible et inversement")
         while time.time() < session['Timeout']:
             await asyncio.sleep(1)

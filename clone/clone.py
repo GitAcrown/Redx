@@ -74,8 +74,9 @@ class Clone(commands.Cog):
             try:
                 async with aiohttp.ClientSession() as clientsession:
                     webhook = discord.Webhook.from_url(webhook_url, adapter=discord.AsyncWebhookAdapter(clientsession))
+                    uname = message.author.display_name if message.author != self.bot.user else f'{message.author.display_name} [Vous]'
                     return await webhook.send(content=msgtext, 
-                                              username=message.author.display_name, 
+                                              username=uname, 
                                               avatar_url=message.author.avatar_url,
                                               wait=True)
             except:
@@ -108,7 +109,10 @@ class Clone(commands.Cog):
         while time.time() < session['Timeout']:
             await asyncio.sleep(1)
         
-        del session[destination.id]
+        try:
+            del session[destination.id]
+        except:
+            pass
         await ctx.send("**Session de clonage de salon expirée**")
         
         

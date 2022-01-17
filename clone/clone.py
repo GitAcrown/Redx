@@ -1,30 +1,10 @@
 import asyncio
 import logging
-from numbers import Rational
-import random
-import re
-import string
 import time
-from copy import copy
-from datetime import datetime, timedelta
-from typing import Any, Generator, List, Literal, Union
-import statistics
 import aiohttp
 
 import discord
-from discord.errors import HTTPException
-from discord.ext import tasks
-from discord.ext.commands.converter import MemberConverter
-from discord.ext.commands.errors import CommandRegistrationError
-from discord.member import Member
-from redbot.core import Config, checks, commands
-from redbot.core.commands.commands import Cog
-from redbot.core.config import Value
-from redbot.core.utils import AsyncIter
-from redbot.core.utils.chat_formatting import box, humanize_number, humanize_timedelta
-from redbot.core.utils.menus import (DEFAULT_CONTROLS, menu,
-                                     start_adding_reactions)
-from tabulate import tabulate
+from redbot.core import checks, dev_commands
 
 logger = logging.getLogger("red.RedX.Clone")
 
@@ -95,6 +75,8 @@ class Clone(commands.Cog):
         
             
     @commands.command(name="doppelganger", aliases=['dg'])
+    @commands.guild_only()
+    @checks.is_owner()
     async def new_dg_session(self, ctx, channelid: int, webhook_url: str):
         """Clone le salon visé afin de se faire passer pour le bot"""
         origin = self.bot.get_channel(channelid)
@@ -114,6 +96,14 @@ class Clone(commands.Cog):
         except:
             pass
         await ctx.send("**Session de clonage de salon expirée**")
+        
+    @commands.command(name="doppelstop", aliases=['dgstop'])
+    @commands.guild_only()
+    @checks.is_owner()
+    async def stop_dg_session(self, ctx):
+        """Arrête toutes les sessions doppelganger en cours sur ce salon"""
+        if ctx.channel.id in self.sessions:
+            self.sessions[ctx.channel.id]['Timeout'] = 0        
         
         
     @commands.Cog.listener()

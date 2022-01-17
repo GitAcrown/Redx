@@ -87,7 +87,7 @@ class Clone(commands.Cog):
                     async with aiohttp.ClientSession() as clientsession:
                         webhook = discord.Webhook.from_url(webhook_url, adapter=discord.AsyncWebhookAdapter(clientsession))
                         author = session['Member']
-                        uname = f'{author.display_name} [Vous]'
+                        uname = f'{author.display_name}'
                         attachs = files
                         return await webhook.send(content=text, 
                                                 username=uname, 

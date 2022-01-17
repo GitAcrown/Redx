@@ -35,24 +35,20 @@ class Clone(commands.Cog):
     def __init__(self, bot):
         super().__init__()
         self.bot = bot
-        self.config = Config.get_conf(self, identifier=736144321857978388, force_registration=True)
-        
-        default_guild = {
-            'Webhooks': {}
-        }
-        self.config.register_guild(**default_guild)
         
         self.sessions = {}
         self.DEFAULT_SESSION = {
             'Messages': {},
+            'Webhook': None,
             'Timeout': 0,
             'InputChannel': None
         }
        
         
-    def init_session(self, destination_channel: discord.TextChannel, input_channel: discord.TextChannel):
+    def init_session(self, destination_channel: discord.TextChannel, input_channel: discord.TextChannel, webhook_url:str):
         self.sessions[destination_channel.id] = self.DEFAULT_SESSION
         self.sessions[destination_channel.id]['InputChannel'] = input_channel
+        self.sessions[destination_channel.id]['Webhook'] = webhook_url
         return self.sessions[destination_channel.id]
         
     def get_session(self, channel: discord.TextChannel):
@@ -68,12 +64,8 @@ class Clone(commands.Cog):
     async def clone_message(self, destination: discord.TextChannel, message: discord.Message):
         """Clone un message et lie le message de destination avec celui d'origine pour la session en cours"""
         guild = message.guild
-        try:
-            webhook_url = await self.config.guild(guild).Webhooks.get_raw(destination.id)
-        except KeyError:
-            raise
-        
         session = self.get_session(destination)
+        webhook_url = session['Webhook']
         msgtext = message.content
         if message.reference:
             ref = await message.channel.fetch_message(message.reference.message_id)
@@ -105,14 +97,14 @@ class Clone(commands.Cog):
             
             
     @commands.command(name="doppelganger", aliases=['dg'])
-    async def new_dg_session(self, ctx, channelid: int):
+    async def new_dg_session(self, ctx, channelid: int, webhook_url: str):
         """Clone le salon visé afin de se faire passer pour le bot"""
         origin = self.bot.get_channel(channelid)
         destination = ctx.channel
         if not origin:
             return await ctx.reply("**Erreur** · Impossible d'accéder au salon demandé, vérifiez l'identifiant")
         
-        session = self.init_session(destination, origin)
+        session = self.init_session(destination, origin, webhook_url)
         session['Timeout'] = time.time() + 300
         await ctx.send("**Session ouverte avec le salon clone visé** · Tous les messages tapé dans ce salon seront recopiés automatiquement sur le salon cible et inversement")
         while time.time() < session['Timeout']:

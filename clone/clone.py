@@ -69,7 +69,7 @@ class Clone(commands.Cog):
     
     async def send_message(self, channel: discord.TextChannel, text: str, reply_to: discord.Message = None):
         async with channel.typing():
-            await asyncio.sleep(len(text) / 6)
+            await asyncio.sleep(len(text) / 10)
         if reply_to:
             await reply_to.reply(text, mention_author=False)
         else:

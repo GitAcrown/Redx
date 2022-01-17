@@ -80,9 +80,9 @@ class Clone(commands.Cog):
         if reply_to and not session['Member']:
             await reply_to.reply(text, mention_author=False, files=files)
         elif session['Member']:
-            webhooks =  [u for u in await channel.webhooks() if not u.endswith('None')]
+            webhooks =  [u for u in await channel.webhooks() if not u.url.endswith('None')]
             if webhooks:
-                webhook_url = webhooks[0]
+                webhook_url = webhooks[0].url
                 try:
                     async with aiohttp.ClientSession() as clientsession:
                         webhook = discord.Webhook.from_url(webhook_url, adapter=discord.AsyncWebhookAdapter(clientsession))
@@ -119,7 +119,7 @@ class Clone(commands.Cog):
                 return await ctx.reply("**Erreur** · Membre visé inaccessible")
             
         
-        webhooks = [u for u in await destination.webhooks() if not u.endswith('None')]
+        webhooks = [u for u in await destination.webhooks() if not u.url.endswith('None')]
         if not webhooks:
             return await ctx.reply("**Erreur** · Aucun webhook n'a été créé sur ce channel")
         webhook_url = webhooks[0].url

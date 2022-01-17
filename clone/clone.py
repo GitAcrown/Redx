@@ -109,7 +109,10 @@ class Clone(commands.Cog):
         if ctx.channel.id in self.sessions:
             self.sessions[ctx.channel.id]['Timeout'] = 0
             await asyncio.sleep(2)
-            del self.sessions[ctx.channel.id]
+            try:
+                del self.sessions[ctx.channel.id]
+            except:
+                pass
         else:
             await ctx.send("**Aucune session à arrêter**")
         

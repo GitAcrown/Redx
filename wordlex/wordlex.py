@@ -98,14 +98,20 @@ class WordleX(commands.Cog):
                     pass
                 elif l.upper() != combi_try[i]:
                     wordlist.remove(w)
-                    continue
+                    break
                 elif l.lower() == combi_try[i]:
                     wordlist.remove(w)
-                    continue
+                    break
         
         lower_letters = [l for wl in tries for l in wl if l.islower()] 
         
-        wordlist = [w for w in wordlist if [ll for ll in lower_letters if ll in w]]
+        wlcache = copy(wordlist)
+        for w in wlcache:
+            for ll in lower_letters:
+                if ll not in w.lower():
+                    wordlist.remove(w)
+                    break
+       
         return self.score_words(lang, wordlist)
     
 
@@ -168,7 +174,7 @@ class WordleX(commands.Cog):
         
         word = wordrep.content.lower()
         
-        em = discord.Embed(title="**Wordle** · Résultat de #{wnum}", description=f"Indiquez le résultat de cette tentative : **{word.upper()}**" + "\n\n" + f"`{word[0].lower()}` Lettre minuscule si lettre en mauvaise position (vert)" + "\n"+ f"`{word[0].upper()}` Lettre majuscule si lettre en bonne position (orange)" + "\n" + "`-` Si mauvaise lettre (gris)")
+        em = discord.Embed(title="**Wordle** · Résultat de #{wnum}", description=f"Indiquez le résultat de cette tentative : **{word.upper()}**" + "\n\n" + f"`{word[0].lower()}` Lettre minuscule si lettre en mauvaise position (orange)" + "\n"+ f"`{word[0].upper()}` Lettre majuscule si lettre en bonne position (vert)" + "\n" + "`-` Si mauvaise lettre (gris)")
         em.set_footer(text="» Indiquez ci-dessous le résultat :")
             
         msg = await ctx.reply(embed=em, mention_author=False)

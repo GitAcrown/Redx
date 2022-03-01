@@ -191,15 +191,23 @@ class WordleX(commands.Cog):
         
         result = resultrep.content
         
+        old_combi_try = ['-', '-', '-', '-', '-']
+        for t in solver['tries']:
+            i = 0
+            for l in t:
+                if l.isupper() and old_combi_try[i] == '-':
+                    old_combi_try[i] = l
+                i += 1
+        
         wtry = [w for w in word.upper()]
-        wresult = [r for r in result]
         wsave = []
         i = 0
         for r in result:
             if r == '-':
                 wsave.append('-')
                 if wtry[i].lower() not in solver['wrong']:
-                    solver['wrong'].append(wtry[i].lower())
+                    if wtry[i].upper() not in old_combi_try:
+                        solver['wrong'].append(wtry[i].lower())
             elif r == wtry[i].upper():
                 wsave.append(r)
             elif r == wtry[i].lower():

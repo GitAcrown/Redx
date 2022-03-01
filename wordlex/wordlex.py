@@ -171,7 +171,7 @@ class WordleX(commands.Cog):
         msg = await ctx.reply(embed=em, mention_author=False)
         
         try:
-            wordrep = await self.bot.wait_for('message', timeout=30, check=lambda m: m.author == user)
+            wordrep = await self.bot.wait_for('message', timeout=30, check=lambda m: m.author == user and len(m.content) == 5)
         except asyncio.TimeoutError:
             await msg.delete(delay=5)
             return await ctx.reply(f"**Session expirée** · Relancez la commande quand vous voudrez soumettre vos choix et résultats Wordle", mention_author=False)
@@ -184,7 +184,7 @@ class WordleX(commands.Cog):
         msg = await ctx.reply(embed=em, mention_author=False)
         
         try:
-            resultrep = await self.bot.wait_for('message', timeout=120, check=lambda m: m.author == user)
+            resultrep = await self.bot.wait_for('message', timeout=120, check=lambda m: m.author == user and len(m.content) == 5)
         except asyncio.TimeoutError:
             await msg.delete(delay=5)
             return await ctx.reply(f"**Session expirée** · Relancez la commande quand vous voudrez soumettre vos choix et résultats Wordle", mention_author=False)

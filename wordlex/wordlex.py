@@ -206,7 +206,7 @@ class WordleX(commands.Cog):
             if r == '-':
                 wsave.append('-')
                 if wtry[i].lower() not in solver['wrong']:
-                    if wtry[i].upper() not in old_combi_try or wtry[i].upper() not in result:
+                    if wtry[i].upper() not in old_combi_try or wtry[i].upper() not in result.upper():
                         solver['wrong'].append(wtry[i].lower())
             elif r == wtry[i].upper():
                 wsave.append(r)

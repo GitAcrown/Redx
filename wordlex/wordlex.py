@@ -137,7 +137,7 @@ class WordleX(commands.Cog):
         
         await self.config.user(user).Solver.set(solver)
         
-        em = discord.Embed(title="**Wordle** · Suggestions de mot de départ", description=f"Voici les mots optimaux pour commencer :\n```{'\n'.join(best_words)}```")
+        em = discord.Embed(title="**Wordle** · Suggestions de mot de départ", description=f"Voici les mots optimaux pour commencer : `{', '.join(best_words)}`")
         em.set_footer(text="Utilisez la commande 'wordle next' pour poursuivre")
         await ctx.reply(embed=em, mention_author=False)
         
@@ -170,7 +170,7 @@ class WordleX(commands.Cog):
         
         word = wordrep.content.lower()
         
-        em = discord.Embed(title="**Wordle** · Résultat de #{wnum}", description=f"Indiquez le résultat de cette tentative : **{word.upper()}**\n\n`{word[0].lower()}` Lettre minuscule si lettre en mauvaise position (vert)\n`{word[0].upper()}` Lettre majuscule si lettre en bonne position (orange)\n`-` Si mauvaise lettre (gris)")
+        em = discord.Embed(title="**Wordle** · Résultat de #{wnum}", description=f"Indiquez le résultat de cette tentative : **{word.upper()}**" + "\n\n" + f"`{word[0].lower()}` Lettre minuscule si lettre en mauvaise position (vert)" + "\n"+ f"`{word[0].upper()}` Lettre majuscule si lettre en bonne position (orange)" + "\n" + "`-` Si mauvaise lettre (gris)")
         em.set_footer(text="» Indiquez ci-dessous le résultat :")
             
         msg = await ctx.reply(embed=em, mention_author=False)
@@ -209,7 +209,7 @@ class WordleX(commands.Cog):
             return await ctx.reply(embed=em, mention_author=False)
         
         if wnum < 6:
-            em = discord.Embed(title="**Wordle** · Prise en compte de #{wnum}", description=f"Tentative enregistrée !\nD'après mes calculs, la meilleure proposition pour la prochaine tentative est `{best_word}`")
+            em = discord.Embed(title="**Wordle** · Prise en compte de #{wnum}", description=f"Tentative enregistrée !" + "\n" + f"D'après mes calculs, la meilleure proposition pour la prochaine tentative est `{best_word}`")
             em.set_footer(text="Utilisez 'wordle next' pour rentrer la prochaine étape !")
             await self.config.user(user).Solver.set(solver)
             return await ctx.reply(embed=em, mention_author=False)

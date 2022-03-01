@@ -1,7 +1,7 @@
 {
     "author": ["Acrone"],
 	"description": "Algorithme de résolution de Wordle",
-	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help Courtroom` pour voir les commandes disponibles",
+	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help WordleX` pour voir les commandes disponibles",
 	"short": "Algorithme de résolution de Wordle",
 	"tags": ["community", "fun", "customisation"],
     "requirements" : [],

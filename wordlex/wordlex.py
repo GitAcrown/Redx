@@ -85,25 +85,27 @@ class WordleX(commands.Cog):
         
         combi_try = ['-', '-', '-', '-', '-']
         for t in tries:
+            i = 0
             for l in t:
-                i = t.index(l)
                 if l.isupper() and combi_try[i] == '-':
                     combi_try[i] = l
+                i += 1
                     
         wordlist = [w for w in wordlist if not [l for l in w if l in wrong_letters]]
                     
         wlcache = copy(wordlist)
         for w in wlcache:
+            i = 0
             for l in w:
-                i = w.index(l)
                 if combi_try[i] == '-':
                     pass
                 elif l.upper() != combi_try[i]:
                     wordlist.remove(w)
-                    break
                 elif l.lower() == combi_try[i]:
                     wordlist.remove(w)
-                    break
+                    
+                i += 1
+                break
         
         lower_letters = [l for wl in tries for l in wl if l.islower()] 
         wlcache = copy(wordlist)
@@ -192,16 +194,17 @@ class WordleX(commands.Cog):
         wtry = [w for w in word.upper()]
         wresult = [r for r in result]
         wsave = []
+        i = 0
         for r in result:
-            i = wresult.index(r)
             if r == '-':
                 wsave.append('-')
-                if wtry[i] not in solver['wrong']:
+                if wtry[i].lower() not in solver['wrong']:
                     solver['wrong'].append(wtry[i].lower())
             elif r == wtry[i].upper():
                 wsave.append(r)
             elif r == wtry[i].lower():
                 wsave.append(r)
+            i += 1
                 
         solver['tries'].append(wsave)
         

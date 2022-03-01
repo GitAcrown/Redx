@@ -59,7 +59,7 @@ class WordleX(commands.Cog):
         
         return lscore
 
-    def score_words(self, lang: str, wordlist: list = None) -> dict:
+    def score_words(self, lang: str, wordlist: list = None, first: bool = False) -> dict:
         """Calcule un score des mots disponibles en fonction de l'apparition des lettres dans la langue séléctionnée"""
         if not wordlist:
             try:
@@ -70,7 +70,7 @@ class WordleX(commands.Cog):
         lscore = self.most_used_letters(lang)
         wscore = {}
         for w in wordlist:
-            wscore[w] = sum([lscore[l] for l in w])
+            wscore[w] = sum([lscore[l] for l in set(list(w))]) if first else sum([lscore[l] for l in w])
         
         return wscore
     

@@ -70,7 +70,7 @@ class WordleX(commands.Cog):
         lscore = self.most_used_letters(lang)
         wscore = {}
         for w in wordlist:
-            wscore[w] = sum([lscore[l] for l in set(list(w))]) if first else sum([lscore[l] for l in w])
+            wscore[w] = sum([lscore[l] for l in list(set(w))]) if first else sum([lscore[l] for l in w])
         
         return wscore
     
@@ -137,7 +137,7 @@ class WordleX(commands.Cog):
             'wrong': []
         }
         
-        start_words = self.score_words(lang)
+        start_words = self.score_words(lang, first=True)
         sorted_words = sorted([(w, start_words[w]) for w in start_words], key=itemgetter(1), reverse=True)
         best_words = [w[0].upper() for w in sorted_words][:5]
         

@@ -38,12 +38,10 @@ class WordleX(commands.Cog):
         
     
     def _load_bundled_data(self):
-        self.words = {}
-        
         path = bundled_data_path(self) / 'words.json'
         with path.open() as json_data:
-            data = json.load(json_data)
-        
+            self.words = json.load(json_data)
+            
         logger.info("Chargement des mots Wordle effectué avec succès")
     
     

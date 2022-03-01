@@ -74,7 +74,7 @@ class WordleX(commands.Cog):
         
         return wscore
     
-    def score_words_advanced(self, lang: str, tries: list) -> dict:
+    def score_words_advanced(self, lang: str, tries: list, wrong_letters: list) -> dict:
         """Calcule un score des mots disponibles en prenant en compte l'avancement actuel de la session"""
         try:
             wordlist = self.words[lang.lower()]
@@ -90,6 +90,8 @@ class WordleX(commands.Cog):
                 if l.isupper() and combi_try[i] == '-':
                     combi_try[i] = l
                     
+        wordlist = [w for w in wordlist if not [l for l in w if l in wrong_letters]]
+                    
         wlcache = copy(wordlist)
         for w in wlcache:
             for l in w:
@@ -104,7 +106,6 @@ class WordleX(commands.Cog):
                     break
         
         lower_letters = [l for wl in tries for l in wl if l.islower()] 
-        
         wlcache = copy(wordlist)
         for w in wlcache:
             for ll in lower_letters:
@@ -132,7 +133,8 @@ class WordleX(commands.Cog):
         await self.config.user(user).Solver.clear()
         solver = {
             'lang': lang,
-            'tries': []
+            'tries': [],
+            'wrong': []
         }
         
         start_words = self.score_words(lang)
@@ -194,6 +196,8 @@ class WordleX(commands.Cog):
             i = wresult.index(r)
             if r == '-':
                 wsave.append('-')
+                if wtry[i] not in solver['wrong']:
+                    solver['wrong'].append(wtry[i].lower())
             elif r == wtry[i].upper():
                 wsave.append(r)
             elif r == wtry[i].lower():
@@ -203,7 +207,7 @@ class WordleX(commands.Cog):
         
         # Calcul de la prochaine proposition
         lang = solver['lang']
-        optimum = self.score_words_advanced(lang, solver['tries'])
+        optimum = self.score_words_advanced(lang, solver['tries'], solver['wrong'])
         sorted_words = sorted([(w, optimum[w]) for w in optimum], key=itemgetter(1), reverse=True)
         best_word = [w[0].upper() for w in sorted_words][0]
         

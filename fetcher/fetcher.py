@@ -219,10 +219,15 @@ class Fetcher(commands.Cog):
         em.set_footer(text="Inspirobot.me", icon_url='https://inspirobot.me/website/images/inspirobot-dark-green.png')
         await ctx.reply(embed=em, mention_author=False)
         
-    @commands.command(name="wikihow", aliases=['wh'])
+    
+    @commands.group(name='wikihow', aliases=['wh'], invoke_without_command=True)
+    async def wikihow_commands(self, ctx):
+        """Commandes exploitant les données du site WikiHow"""
+        
+    @wikihow_commands.command(name="shuffle")
     @commands.cooldown(1, 900, commands.BucketType.member)
-    async def wikihow_random(self, ctx):
-        """Obtenir un faux titre d'article Wikihow
+    async def wikihow_suffle(self, ctx):
+        """Obtenir un mélange d'un titre d'un article avec une image aléatoire issue de WikiHow
         
         Vous devez attendre 15m entre deux demandes"""
         async with ctx.typing():
@@ -240,7 +245,29 @@ class Fetcher(commands.Cog):
                 
             em = discord.Embed(title=hwtitle, color=ctx.author.color)
             em.set_image(url=random.choice(images))
-            em.set_footer(text="wikiHow")
+            em.set_footer(text="Shuffle · wikiHow", icon_url=self.bot.user.avatar_url)
         await ctx.reply(embed=em, mention_author=False)
             
+    @wikihow_commands.command(name="random")
+    @commands.cooldown(1, 900, commands.BucketType.member)
+    async def wikihow_random_article(self, ctx):
+        """Obtenir un article aléatoire WikiHow
+        
+        Vous devez attendre 15m entre deux demandes"""
+        async with ctx.typing():
+            artid = whapi.random_article()
+            details = whapi.return_details(artid)
+            
+            em = discord.Embed(title='**How to** ' + details['title'], url=details['url'], color=ctx.author.color)
+            em.description = whapi.parse_intro(artid)
+            em.set_footer(text="Random · wikiHow", icon_url=self.bot.user.avatar_url)
+            
+            try:
+                images = whapi.get_images(artid)
+                if images:
+                    em.set_image(url=images[0])
+            except:
+                pass
+            
+        await ctx.reply(embed=em, mention_author=False)
             

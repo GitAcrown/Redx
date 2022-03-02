@@ -240,7 +240,7 @@ class Fetcher(commands.Cog):
                 
             em = discord.Embed(title=hwtitle)
             em.set_image(url=random.choice(images))
-            em.set_footer("wikiHow")
+            em.set_footer(text="wikiHow")
         await ctx.reply(embed=em, mention_author=False)
             
             

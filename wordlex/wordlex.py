@@ -94,27 +94,23 @@ class WordleX(commands.Cog):
         wordlist = [w for w in wordlist if not [l for l in w if l in wrong_letters]]
                     
         wlcache = copy(wordlist)
-        for w in wlcache:
-            i = 0
-            for l in w:
-                if combi_try[i] == '-':
+        for w in wlcache: # Lettres majs
+            for x, y in zip(w, combi_try):
+                if y == '-':
                     pass
-                elif l.upper() != combi_try[i]:
-                    wordlist.remove(w)
-                elif l.lower() == combi_try[i]:
-                    wordlist.remove(w)
-                    
-                i += 1
-                break
-        
-        lower_letters = [l for wl in tries for l in wl if l.islower()] 
-        wlcache = copy(wordlist)
-        for w in wlcache:
-            for ll in lower_letters:
-                if ll not in w.lower():
+                elif x.upper() != y:
                     wordlist.remove(w)
                     break
-       
+        
+        wlcache = copy(wordlist)
+        for tr in [t for t in tries if [l for wl in tries for l in wl if l.islower()]]: # Lettres minuscules
+            for w in wlcache: 
+                for x, y in zip(w, tr):
+                    if y == '-' or y.isupper():
+                        pass
+                    elif x.lower() == y:
+                        wordlist.remove(w)
+                    
         return self.score_words(lang, wordlist)
     
 

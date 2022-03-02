@@ -80,7 +80,7 @@ class WordleX(commands.Cog):
         
         return wscore
     
-    def score_words_advanced(self, lang: str, tries: list, wrong_letters: list) -> dict:
+    def score_words_advanced(self, lang: str, tries: list, wrong_letters: list, words_tested: list) -> dict:
         """Calcule un score des mots disponibles en prenant en compte l'avancement actuel de la session"""
         try:
             wordlist = self.words[lang.lower()]
@@ -96,7 +96,8 @@ class WordleX(commands.Cog):
                 if l.isupper() and combi_try[i] == '-':
                     combi_try[i] = l
                 i += 1
-                    
+        
+        wordlist = [w for w in wordlist if w not in words_tested]
         wordlist = [w for w in wordlist if not [l for l in w if l in wrong_letters]]
                     
         wlcache = copy(wordlist)
@@ -150,7 +151,8 @@ class WordleX(commands.Cog):
         solver = {
             'lang': lang,
             'tries': [],
-            'wrong': []
+            'wrong': [],
+            'words_tested': []
         }
         
         start_words = self.score_words(lang, first=True)
@@ -220,6 +222,7 @@ class WordleX(commands.Cog):
             elif x.lower() != y.lower():
                 return await ctx.reply(f"**Erreur** · L'emplacement des lettres indiquées en résultat ne correspondent pas avec celles du mot donné", mention_author=False)
         
+        solver['words_tested'].append(word.lower())
         
         old_combi_try = ['-', '-', '-', '-', '-']
         for t in solver['tries']:
@@ -248,7 +251,7 @@ class WordleX(commands.Cog):
         
         # Calcul de la prochaine proposition
         lang = solver['lang']
-        optimum = self.score_words_advanced(lang, solver['tries'], solver['wrong'])
+        optimum = self.score_words_advanced(lang, solver['tries'], solver['wrong'], solver['words_tested'])
         sorted_words = sorted([(w, optimum[w]) for w in optimum], key=itemgetter(1), reverse=True)
         best_words = [w[0].upper() for w in sorted_words][:5]
         
@@ -304,9 +307,10 @@ class WordleX(commands.Cog):
         except asyncio.TimeoutError:
             return await ctx.send("**Partie annulée** · Vous avez eu peur de perdre ? Je peux comprendre. A la prochaine !")
         
-        propcount = 0
+        propcount = 1
         tries = []
         wrong = []
+        words_tested = []
         success = False
         
         def verif_input(result, word):
@@ -318,13 +322,13 @@ class WordleX(commands.Cog):
             return True
         
         while propcount < 6 or success:
-            if propcount == 0:
+            if propcount == 1:
                 start_words = self.score_words(lang, first=True)
                 sorted_words = sorted([(w, start_words[w]) for w in start_words], key=itemgetter(1), reverse=True)
                 best_words = [w[0].upper() for w in sorted_words][:10]
                 word = random.choice(best_words)
             else:
-                optimum = self.score_words_advanced(lang, tries, wrong)
+                optimum = self.score_words_advanced(lang, tries, wrong, words_tested)
                 sorted_words = sorted([(w, optimum[w]) for w in optimum], key=itemgetter(1), reverse=True)
                 best_words = [w[0].upper() for w in sorted_words]
                 if len(best_words) > 1:
@@ -358,6 +362,7 @@ class WordleX(commands.Cog):
                     await ctx.reply(f"**Erreur** · Les lettres du résultat indiqué ne correspondent pas au mot que j'ai donné, réessayez.", mention_author=False)
                 
             propcount += 1
+            words_tested.append(word.lower())
             
             old_combi_try = ['-', '-', '-', '-', '-']
             for t in tries:

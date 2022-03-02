@@ -321,7 +321,7 @@ class WordleX(commands.Cog):
                     return False
             return True
         
-        while propcount < 6 and not success:
+        while propcount <= 6 and not success:
             if propcount == 1:
                 start_words = self.score_words(lang, first=True)
                 sorted_words = sorted([(w, start_words[w]) for w in start_words], key=itemgetter(1), reverse=True)
@@ -361,7 +361,6 @@ class WordleX(commands.Cog):
                 if not prop_ok:
                     await resultrep.reply(f"**Erreur** · Les lettres du résultat indiqué ne correspondent pas au mot que j'ai donné, réessayez.", mention_author=False)
                 
-            propcount += 1
             words_tested.append(word.lower())
             
             old_combi_try = ['-', '-', '-', '-', '-']
@@ -397,8 +396,9 @@ class WordleX(commands.Cog):
                 em.set_footer(text="Je réfléchis...")
                 await ctx.send(embed=em)
                 await asyncio.sleep(random.randint(2, 4))
+            propcount += 1
         
-        if propcount == 6:
+        if propcount > 6:
             em = discord.Embed(title=f"**Wordle vs. {self.bot.user.name}** · Victoire (pour vous)",
                                description="On dirait bien que j'ai perdu... Bien joué. Je ne me laisserai pas faire la prochaine fois !")
         elif success:

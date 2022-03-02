@@ -330,7 +330,7 @@ class WordleX(commands.Cog):
                 
             prop_ok = False
             while not prop_ok:
-                exfmt = ''.join([random.choice(i.upper(), i.lower(), '-') for i in word])
+                exfmt = ''.join([random.choice((i.upper(), i.lower(), '-')) for i in word])
                 rtxt =  f"**Lettre dans le mot + __Bonne place__** = Lettre majuscule `{word[0].upper()}`" + "\n" + f"**Lettre dans le mot + __Mauvaise place__** = Lettre minuscule `{word[0].lower()}`" + "\n" + "**Lettre pas dans le mot** = Tiret ou point (`-` ou `.`)"
                 rtxt += "\n" + f"**Exemple :** `{exfmt}`"
                 em = discord.Embed(title=f"**Wordle vs. {self.bot.user.name}** · Proposition #{propcount}",
@@ -341,7 +341,7 @@ class WordleX(commands.Cog):
                 msg = await ctx.reply(embed=em, mention_author=False)
             
                 try:
-                    resultrep = await self.bot.wait_for('message', timeout=300, check=lambda m: m.author == user and len(m.content) == 5)
+                    resultrep = await self.bot.wait_for('message', timeout=120, check=lambda m: m.author == user and len(m.content) == 5)
                 except asyncio.TimeoutError:
                     await msg.delete(delay=5)
                     return await ctx.reply(f"**Session expirée** · Avez-vous abandonné la partie ? Tant pis, à la prochaine !", mention_author=False)

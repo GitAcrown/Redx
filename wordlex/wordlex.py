@@ -71,7 +71,8 @@ class WordleX(commands.Cog):
         lscore = self.most_used_letters(lang)
         if letter_balance:
             for l in letter_balance:
-                lscore[l] = round(lscore[l] * (0.80 ** letter_balance[l]))
+                if l in lscore:
+                    lscore[l] = round(lscore[l] * (0.80 ** letter_balance[l]))
             
         wscore = {}
         for w in wordlist:
@@ -125,7 +126,7 @@ class WordleX(commands.Cog):
                     wordlist.remove(w)
                     continue
         
-        alltries = [l for w in tries for l in w if l not in ('-', '.')]
+        alltries = [l.lower() for w in tries for l in w if l not in ('-', '.')]
         llcount = {s: alltries.count(s) for s in set(alltries)}
                     
         return self.score_words(lang, wordlist, letter_balance=llcount)

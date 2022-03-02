@@ -220,7 +220,7 @@ class Fetcher(commands.Cog):
         await ctx.reply(embed=em, mention_author=False)
         
     
-    @commands.group(name='wikihow', aliases=['wh'], invoke_without_command=True)
+    @commands.group(name='wikihow', aliases=['wh'])
     async def wikihow_commands(self, ctx):
         """Commandes exploitant les données du site WikiHow"""
         

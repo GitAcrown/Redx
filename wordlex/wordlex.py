@@ -204,6 +204,13 @@ class WordleX(commands.Cog):
         
         result = resultrep.content
         
+        for x, y in zip(result, word):
+            if x == '-':
+                pass
+            elif x.lower() != y.lower():
+                return await ctx.reply(f"**Erreur** · L'emplacement des lettres indiquées en résultat ne correspondent pas avec celles du mot donné", mention_author=False)
+        
+        
         old_combi_try = ['-', '-', '-', '-', '-']
         for t in solver['tries']:
             i = 0

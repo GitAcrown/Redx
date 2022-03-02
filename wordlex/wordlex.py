@@ -321,7 +321,7 @@ class WordleX(commands.Cog):
                     return False
             return True
         
-        while propcount < 6 or success:
+        while propcount < 6 and not success:
             if propcount == 1:
                 start_words = self.score_words(lang, first=True)
                 sorted_words = sorted([(w, start_words[w]) for w in start_words], key=itemgetter(1), reverse=True)

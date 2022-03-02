@@ -220,7 +220,6 @@ class Fetcher(commands.Cog):
         await ctx.reply(embed=em, mention_author=False)
         
     @commands.command(name="wikihow", aliases=['wh'])
-    @commands.cooldown(1, 900, commands.BucketType.member)
     async def wikihow_random(self, ctx):
         """Obtenir un faux titre d'article Wikihow
         
@@ -240,7 +239,7 @@ class Fetcher(commands.Cog):
                 
             em = discord.Embed(title=hwtitle, color=ctx.author.color)
             em.set_image(url=random.choice(images))
-            em.set_footer(text="Faux titre wikiHow")
+            em.set_footer(text="wikiHow")
         await ctx.reply(embed=em, mention_author=False)
             
             

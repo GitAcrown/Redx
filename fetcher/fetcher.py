@@ -238,9 +238,9 @@ class Fetcher(commands.Cog):
                     if secu == 3:
                         return await ctx.reply("**Erreur** · Impossible d'obtenir les données depuis WikiHow")
                 
-            em = discord.Embed(title=hwtitle)
+            em = discord.Embed(title=hwtitle, color=ctx.author.color)
             em.set_image(url=random.choice(images))
-            em.set_footer(text="wikiHow")
+            em.set_footer(text="Faux titre wikiHow")
         await ctx.reply(embed=em, mention_author=False)
             
             

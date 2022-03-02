@@ -112,13 +112,13 @@ class WordleX(commands.Cog):
                         wordlist.remove(w)
                         break
         
-        wlcache = copy(wordlist)
         lower_letters = [l for wl in tries for l in wl if l.islower()]
         for ll in lower_letters:
+            wlcache = copy(wordlist)
             for w in wlcache:
                 if ll not in w:
                     wordlist.remove(w)
-                    break
+                    continue
                     
         return self.score_words(lang, wordlist)
     

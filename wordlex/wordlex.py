@@ -403,7 +403,7 @@ class WordleX(commands.Cog):
                                description="On dirait bien que j'ai perdu... Bien joué. Je ne me laisserai pas faire la prochaine fois !")
         elif success:
             em = discord.Embed(title=f"**Wordle vs. {self.bot.user.name}** · Défaite (pour vous)",
-                               description=f"J'ai gagné en **{propcount} propositions** ! Le mot était `{word}` ! Je suis vraiment trop fort. Bon allez, à la prochaine !")
+                               description=f"J'ai gagné en **{propcount - 1} propositions** ! Le mot était `{word}` ! Je suis vraiment trop fort. Bon allez, à la prochaine !")
         await ctx.send(embed=em)
         
         

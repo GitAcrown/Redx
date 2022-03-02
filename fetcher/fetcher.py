@@ -220,6 +220,7 @@ class Fetcher(commands.Cog):
         await ctx.reply(embed=em, mention_author=False)
         
     @commands.command(name="wikihow", aliases=['wh'])
+    @commands.cooldown(1, 900, commands.BucketType.member)
     async def wikihow_random(self, ctx):
         """Obtenir un faux titre d'article Wikihow
         

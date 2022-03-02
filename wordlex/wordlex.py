@@ -155,7 +155,7 @@ class WordleX(commands.Cog):
         await ctx.reply(embed=em, mention_author=False)
         
     @wordle_solver.command(name="next")
-    async def next_solver(self, ctx):
+    async def next_solver(self, ctx, mot: str = None):
         """Ajouter des mots au résolveur de Wordle (personnel)
         
         A faire après `wordle start` !"""
@@ -164,26 +164,34 @@ class WordleX(commands.Cog):
         solver = await self.config.user(user).Solver()
         if not solver:
             return await ctx.reply(f"**Erreur** · Vous devez d'abord démarrer une session avec `wordle start` !", mention_author=False)
-    
+
         wnum = len(solver['tries']) + 1
-        if wnum == 1:
-            em = discord.Embed(title="**Wordle** · Mot de départ", description=f"Quel mot de départ avez-vous choisi ?")
-            em.set_footer(text="» Indiquez ci-dessous le mot choisi :")
-        else:
-            em = discord.Embed(title="**Wordle** · Tentative #{wnum}", description=f"Quel mot avez-vous choisi ?")
-            em.set_footer(text="» Indiquez ci-dessous le mot choisi :")
+        
+        if mot:
+            if len(mot) != 5:
+                mot = None
+        
+        if not mot:
+            if wnum == 1:
+                em = discord.Embed(title="**Wordle** · Mot de départ", description=f"Quel mot de départ avez-vous choisi ?")
+                em.set_footer(text="» Indiquez ci-dessous le mot choisi :")
+            else:
+                em = discord.Embed(title=f"**Wordle** · Tentative #{wnum}", description=f"Quel mot avez-vous choisi ?")
+                em.set_footer(text="» Indiquez ci-dessous le mot choisi :")
+                
+            msg = await ctx.reply(embed=em, mention_author=False)
             
-        msg = await ctx.reply(embed=em, mention_author=False)
+            try:
+                wordrep = await self.bot.wait_for('message', timeout=30, check=lambda m: m.author == user and len(m.content) == 5)
+            except asyncio.TimeoutError:
+                await msg.delete(delay=5)
+                return await ctx.reply(f"**Session expirée** · Relancez la commande quand vous voudrez soumettre vos choix et résultats Wordle", mention_author=False)
+            
+            word = wordrep.content.lower()
+        else:
+            word = mot.lower()
         
-        try:
-            wordrep = await self.bot.wait_for('message', timeout=30, check=lambda m: m.author == user and len(m.content) == 5)
-        except asyncio.TimeoutError:
-            await msg.delete(delay=5)
-            return await ctx.reply(f"**Session expirée** · Relancez la commande quand vous voudrez soumettre vos choix et résultats Wordle", mention_author=False)
-        
-        word = wordrep.content.lower()
-        
-        em = discord.Embed(title="**Wordle** · Résultat de #{wnum}", description=f"Indiquez le résultat de cette tentative : **{word.upper()}**" + "\n\n" + f"`{word[0].lower()}` Lettre minuscule si lettre en mauvaise position (orange)" + "\n"+ f"`{word[0].upper()}` Lettre majuscule si lettre en bonne position (vert)" + "\n" + "`-` Si mauvaise lettre (gris)")
+        em = discord.Embed(title=f"**Wordle** · Résultat de #{wnum}", description=f"Indiquez le résultat de cette tentative : **{word.upper()}**" + "\n\n" + f"`{word[0].lower()}` Lettre minuscule si lettre en mauvaise position (orange)" + "\n"+ f"`{word[0].upper()}` Lettre majuscule si lettre en bonne position (vert)" + "\n" + "`-` Si mauvaise lettre (gris)")
         em.set_footer(text="» Indiquez ci-dessous le résultat :")
             
         msg = await ctx.reply(embed=em, mention_author=False)
@@ -233,7 +241,7 @@ class WordleX(commands.Cog):
             return await ctx.reply(embed=em, mention_author=False)
         
         if wnum < 6:
-            em = discord.Embed(title="**Wordle** · Prise en compte de #{wnum}", description=f"Tentative enregistrée !" + "\n" + f"D'après mes calculs, la meilleure proposition pour la prochaine tentative est `{best_word}`")
+            em = discord.Embed(title=f"**Wordle** · Prise en compte de #{wnum}", description=f"Tentative enregistrée !" + "\n" + f"D'après mes calculs, la meilleure proposition pour la prochaine tentative est `{best_word}`")
             em.set_footer(text="Utilisez 'wordle next' pour rentrer la prochaine étape !")
             await self.config.user(user).Solver.set(solver)
             return await ctx.reply(embed=em, mention_author=False)

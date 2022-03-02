@@ -346,7 +346,7 @@ class WordleX(commands.Cog):
                 em.add_field(name="Indiquer le résultat", value=rtxt, inline=False)
                 em.set_footer(text="» Notez ci-dessous le résultat avec le mot que j'ai donné :")
                 
-                msg = await ctx.reply(embed=em, mention_author=False)
+                msg = await ctx.send(embed=em, mention_author=False)
             
                 try:
                     resultrep = await self.bot.wait_for('message', timeout=120, check=lambda m: m.author == user and len(m.content) == 5)
@@ -359,7 +359,7 @@ class WordleX(commands.Cog):
                     
                 prop_ok = verif_input(result, word)
                 if not prop_ok:
-                    await ctx.reply(f"**Erreur** · Les lettres du résultat indiqué ne correspondent pas au mot que j'ai donné, réessayez.", mention_author=False)
+                    await resultrep.reply(f"**Erreur** · Les lettres du résultat indiqué ne correspondent pas au mot que j'ai donné, réessayez.", mention_author=False)
                 
             propcount += 1
             words_tested.append(word.lower())
@@ -389,7 +389,7 @@ class WordleX(commands.Cog):
                     
             tries.append(wsave)
         
-            if word == result:
+            if word.lower() == result.lower():
                 success = True
             else:
                 em = discord.Embed(title=f"**Wordle vs. {self.bot.user.name}** · Proposition #{propcount}",

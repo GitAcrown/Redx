@@ -102,8 +102,8 @@ class WordleX(commands.Cog):
                     wordlist.remove(w)
                     break
         
-        wlcache = copy(wordlist)
         for tr in [t for t in tries if [l for l in t if l.islower()]]: # Lettres minuscules
+            wlcache = copy(wordlist)
             for w in wlcache: 
                 for x, y in zip(w, tr):
                     if y == '-' or y.isupper():

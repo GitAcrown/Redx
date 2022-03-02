@@ -54,7 +54,7 @@ class WordleX(commands.Cog):
         
         lscore = {}
         for w in wordlist:
-            for l in w:
+            for l in set(w):
                 lscore[l] = lscore.get(l, 0) + 1
         
         return lscore

@@ -4,7 +4,9 @@
 	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help Fetcher` pour voir les commandes disponibles",
 	"short": "Diverses API",
 	"tags": ["community", "fun", "APIs"],
-    "requirements" : [],
+    "requirements" : [
+		"whapi"
+	],
     "required_cogs": {},
 	"type": "COG",
 	"end_user_data_statement": "This cog does not store personal data."

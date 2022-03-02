@@ -13,6 +13,7 @@ from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
 from tabulate import tabulate
 
 import aiohttp
+import whapi
 
 logger = logging.getLogger("red.RedX.Fetcher")
 
@@ -217,3 +218,29 @@ class Fetcher(commands.Cog):
         em.set_image(url=img)
         em.set_footer(text="Inspirobot.me", icon_url='https://inspirobot.me/website/images/inspirobot-dark-green.png')
         await ctx.reply(embed=em, mention_author=False)
+        
+    @commands.command(name="wikihow", aliases=['wh'])
+    @commands.cooldown(1, 900, commands.BucketType.member)
+    async def wikihow_random(self, ctx):
+        """Obtenir un faux titre d'article Wikihow
+        
+        Vous devez attendre 15m entre deux demandes"""
+        async with ctx.typing():
+            secu = 1
+            while True:
+                f1, f2 = whapi.random_article(2)
+                hwtitle = '**How to** ' + whapi.return_details(f1)['title']
+                try:
+                    images = whapi.get_images(f2)
+                    break
+                except:
+                    secu += 1
+                    if secu == 3:
+                        return await ctx.reply("**Erreur** · Impossible d'obtenir les données depuis WikiHow")
+                
+            em = discord.Embed(title=hwtitle)
+            em.set_image(url=random.choice(images))
+            em.set_footer("wikiHow")
+        await ctx.reply(embed=em, mention_author=False)
+            
+            

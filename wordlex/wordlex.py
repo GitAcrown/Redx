@@ -307,7 +307,7 @@ class WordleX(commands.Cog):
         except asyncio.TimeoutError:
             return await ctx.send("**Partie annulée** · Vous avez eu peur de perdre ? Je peux comprendre. A la prochaine !")
         
-        propcount = 1
+        propcount = 0
         tries = []
         wrong = []
         words_tested = []
@@ -322,6 +322,7 @@ class WordleX(commands.Cog):
             return True
         
         while propcount <= 6 and not success:
+            propcount += 1
             if propcount == 1:
                 start_words = self.score_words(lang, first=True)
                 sorted_words = sorted([(w, start_words[w]) for w in start_words], key=itemgetter(1), reverse=True)
@@ -396,7 +397,6 @@ class WordleX(commands.Cog):
                 em.set_footer(text="Je réfléchis...")
                 await ctx.send(embed=em)
                 await asyncio.sleep(random.randint(2, 4))
-            propcount += 1
         
         if propcount > 6:
             em = discord.Embed(title=f"**Wordle vs. {self.bot.user.name}** · Victoire (pour vous)",

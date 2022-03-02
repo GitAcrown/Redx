@@ -125,7 +125,7 @@ class WordleX(commands.Cog):
                     wordlist.remove(w)
                     continue
         
-        alltries = [l for w in tries for l in w]
+        alltries = [l for w in tries for l in w if l not in ('-', '.')]
         llcount = {s: alltries.count(s) for s in set(alltries)}
                     
         return self.score_words(lang, wordlist, letter_balance=llcount)

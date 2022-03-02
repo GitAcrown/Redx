@@ -233,7 +233,7 @@ class WordleX(commands.Cog):
         lang = solver['lang']
         optimum = self.score_words_advanced(lang, solver['tries'], solver['wrong'])
         sorted_words = sorted([(w, optimum[w]) for w in optimum], key=itemgetter(1), reverse=True)
-        best_word = [w[0].upper() for w in sorted_words][0]
+        best_words = [w[0].upper() for w in sorted_words][:5]
         
         if '-' not in solver['tries'][-1]:
             em = discord.Embed(title="**Wordle** · Fin", description=f"Vous avez réussi, bravo ! Le mot était ainsi `{word.upper()}` !")
@@ -241,7 +241,7 @@ class WordleX(commands.Cog):
             return await ctx.reply(embed=em, mention_author=False)
         
         if wnum < 6:
-            em = discord.Embed(title=f"**Wordle** · Prise en compte de #{wnum}", description=f"Tentative enregistrée !" + "\n" + f"D'après mes calculs, la meilleure proposition pour la prochaine tentative est `{best_word}`")
+            em = discord.Embed(title=f"**Wordle** · Prise en compte de #{wnum}", description=f"Tentative enregistrée !" + "\n" + f"D'après mes calculs, les meilleures proposition pour la prochaine tentative sont `{', '.join(best_words)}`")
             em.set_footer(text="Utilisez 'wordle next' pour rentrer la prochaine étape !")
             await self.config.user(user).Solver.set(solver)
             return await ctx.reply(embed=em, mention_author=False)

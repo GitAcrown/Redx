@@ -103,7 +103,7 @@ class WordleX(commands.Cog):
                     break
         
         wlcache = copy(wordlist)
-        for tr in [t for t in tries if [l for wl in tries for l in wl if l.islower()]]: # Lettres minuscules
+        for tr in [t for t in tries if [l for l in t if l.islower()]]: # Lettres minuscules
             for w in wlcache: 
                 for x, y in zip(w, tr):
                     if y == '-' or y.isupper():
@@ -111,6 +111,14 @@ class WordleX(commands.Cog):
                     elif x.lower() == y:
                         wordlist.remove(w)
                         break
+        
+        wlcache = copy(wordlist)
+        lower_letters = [l for wl in tries for l in wl if l.islower()]
+        for ll in lower_letters:
+            for w in wlcache:
+                if ll not in w:
+                    wordlist.remove(w)
+                    break
                     
         return self.score_words(lang, wordlist)
     

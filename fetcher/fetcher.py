@@ -255,7 +255,10 @@ class Fetcher(commands.Cog):
         
         Vous devez attendre 15m entre deux demandes"""
         async with ctx.typing():
-            artid = whapi.random_article()
+            while True:
+                artid = whapi.random_article()
+                if not whapi.return_details(artid)['is_stub']:
+                    break
             details = whapi.return_details(artid)
             
             em = discord.Embed(title='**How to** ' + details['title'], url=details['url'], color=ctx.author.color)

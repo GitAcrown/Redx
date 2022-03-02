@@ -110,6 +110,7 @@ class WordleX(commands.Cog):
                         pass
                     elif x.lower() == y:
                         wordlist.remove(w)
+                        break
                     
         return self.score_words(lang, wordlist)
     

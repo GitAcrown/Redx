@@ -330,9 +330,11 @@ class WordleX(commands.Cog):
                 
             prop_ok = False
             while not prop_ok:
+                exfmt = ''.join([random.choice(i.upper(), i.lower(), '-') for i in word])
                 rtxt =  f"**Lettre dans le mot + __Bonne place__** = Lettre majuscule `{word[0].upper()}`" + "\n" + f"**Lettre dans le mot + __Mauvaise place__** = Lettre minuscule `{word[0].lower()}`" + "\n" + "**Lettre pas dans le mot** = Tiret ou point (`-` ou `.`)"
+                rtxt += "\n" + f"**Exemple :** `{exfmt}`"
                 em = discord.Embed(title=f"**Wordle vs. {self.bot.user.name}** · Proposition #{propcount}",
-                                description=random.choice((f"Ma proposition est `{word}` !", "J'ai choisi `{choice}` !", "Partons pour `{choice}`.", "Allons pour `{choice}` !")))
+                                description=random.choice((f"Ma proposition est `{word}` !", f"J'ai choisi `{word}` !", f"Partons pour `{word}`.", f"Allons pour `{word}` !")))
                 em.add_field(name="Indiquer le résultat", value=rtxt, inline=False)
                 em.set_footer(text="» Notez ci-dessous le résultat avec le mot que j'ai donné :")
                 

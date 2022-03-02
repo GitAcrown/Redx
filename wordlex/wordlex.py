@@ -322,11 +322,15 @@ class WordleX(commands.Cog):
                 start_words = self.score_words(lang, first=True)
                 sorted_words = sorted([(w, start_words[w]) for w in start_words], key=itemgetter(1), reverse=True)
                 best_words = [w[0].upper() for w in sorted_words][:10]
+                word = random.choice(best_words)
             else:
                 optimum = self.score_words_advanced(lang, tries, wrong)
                 sorted_words = sorted([(w, optimum[w]) for w in optimum], key=itemgetter(1), reverse=True)
-                best_words = [w[0].upper() for w in sorted_words][:3]
-            word = random.choice(best_words)
+                best_words = [w[0].upper() for w in sorted_words]
+                if len(best_words) > 1:
+                    word = random.choice(best_words)
+                else:
+                    word = best_words[0]
                 
             prop_ok = False
             while not prop_ok:

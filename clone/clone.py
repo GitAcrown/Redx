@@ -178,3 +178,34 @@ class Clone(commands.Cog):
                         return await channel.send("`Impossible d'envoyer la réponse au message sur le salon cloné`")
                     return await self.send_message(sess['InputChannel'], message.content, files=attachs, reply_to=orimsgequiv)
                 return await self.send_message(sess['InputChannel'], message.content, files=attachs)
+            
+    @commands.command(name="publish")
+    @checks.is_owner()
+    async def publish_custom_webhook(self, ctx, 
+                                     avatar_url: str, 
+                                     name: str, 
+                                     channel: discord.TextChannel, 
+                                     *, text: str):
+        """Publier un message sous forme d'un webhook personnalisé
+        
+        Supporte les PJ"""
+        
+        webhooks = [u for u in await channel.webhooks() if not u.url.endswith('None')]
+        if not webhooks:
+            return await ctx.reply("**Erreur** · Aucun webhook n'a été créé sur ce channel")
+        webhook_url = webhooks[0].url
+        
+        async def webhook_post() -> discord.WebhookMessage:
+            try:
+                async with aiohttp.ClientSession() as clientsession:
+                    webhook = discord.Webhook.from_url(webhook_url, adapter=discord.AsyncWebhookAdapter(clientsession))
+                    attachs = [await a.to_file() for a in ctx.message.attachments] if ctx.message.attachments else None
+                    return await webhook.send(content=text, 
+                                              username=name, 
+                                              avatar_url=avatar_url,
+                                              files=attachs,
+                                              wait=True)
+            except:
+                raise
+        
+        await webhook_post()

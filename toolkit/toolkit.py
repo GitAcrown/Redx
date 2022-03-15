@@ -33,7 +33,11 @@ class Toolkit(commands.Cog):
         `;dice 10 10 10 | ;dice 3!10` lancera trois d10
         `;dice 5!10:90*5` lancera un d[10-90] avec un pas de 5"""
         text = []
-        dice = [dice1].extend(diceN)
+        if diceN:
+            dice = [dice1].extend(diceN)
+        else:
+            dice = [dice1]
+            
         for die in dice:
             if die.count('!') > 1 or die.count('*') > 1 or die.count(':') > 1:
                 text.append(f'`{die}` · ???')

@@ -180,7 +180,7 @@ class Clone(commands.Cog):
                 return await self.send_message(sess['InputChannel'], message.content, files=attachs)
             
     @commands.command(name="publish")
-    @checks.is_owner()
+    @checks.admin_or_permissions(manage_messages=True)
     async def publish_custom_webhook(self, ctx, 
                                      avatar_url: str, 
                                      name: str, 

@@ -33,14 +33,13 @@ class Toolkit(commands.Cog):
         `;dice 10 10 10 | ;dice 3!10` lancera trois d10
         `;dice 5!10:90*5` lancera un d[10-90] avec un pas de 5"""
         text = []
+        dice = [dice1]
         if diceN:
-            dice = [dice1].extend(diceN)
-        else:
-            dice = [dice1]
+            dice.extend(diceN)
             
         for die in dice:
             if die.count('!') > 1 or die.count('*') > 1 or die.count(':') > 1:
-                text.append(f'`{die}` · ???')
+                text.append(f'`d{die}` · ???')
                 continue
             
             n, p = 1, 1
@@ -55,36 +54,44 @@ class Toolkit(commands.Cog):
                         die, p = die.split('*', 1)
                     if ':' in die:
                         start, end = die.split(':', 1)
+                    else:
+                        end = die
                     
                     try:
                         start, end = int(start), int(end)
                     except:
-                        text.append(f'`{die}` #{sn-n+1} · ???')
+                        text.append(f'`d{die}` #{sn-n+1} · ???')
                         continue
                     
                     if not p:
                         result = random.randint(start, end)
                     else:
                         result = random.choice(range(start, end, p))
-                    text.append(f'`{die}` #{sn-n+1} · {result}')
+                    text.append(f'`d{die}` #{sn-n+1} · {result}')
                     n -= 1
             else:
                 if '*' in die:
                     die, p = die.split('*', 1)
                 if ':' in die:
                     start, end = die.split(':', 1)
+                else:
+                    end = die
                 
                 try:
                     start, end = int(start), int(end)
                 except:
-                    text.append(f'`{die}` · ???')
+                    text.append(f'`d{die}` · ???')
                     continue
                 
-                if not p:
-                    result = random.randint(start, end)
-                else:
-                    result = random.choice(range(start, end, p))
-                text.append(f'`{die}` · {result}')
+                try:
+                    if not p:
+                        result = random.randint(start, end)
+                    else:
+                        result = random.choice(range(start, end, p))
+                except:
+                    text.append(f'`d{die}` · ???')
+                    continue
+                text.append(f'`d{die}` · {result}')
             
         if not text:
             return await ctx.reply("Vos dés sont invalides ou n'ont pu être lancés", mention_author=False)

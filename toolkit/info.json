@@ -1,0 +1,11 @@
+{
+    "author": ["Acrone"],
+	"description": "Ensemble d'outils communautaires",
+	"install_msg": "Merci d'avoir installé ce module. Consultez `[p]help Toolkit` pour voir les commandes disponibles",
+	"short": "Ensemble d'outils communautaires",
+	"tags": ["community", "fun", "customisation"],
+    "requirements" : [],
+    "required_cogs": {},
+	"type": "COG",
+	"end_user_data_statement": "This cog does not store personal data."
+}

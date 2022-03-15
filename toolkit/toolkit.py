@@ -44,7 +44,7 @@ class Toolkit(commands.Cog):
                 continue
             
             n, p = 1, 1
-            start, end = 0, 10
+            start, end = 1, 6
             if '!' in die:
                 n, die = die.split('!', 1)
             

@@ -48,6 +48,7 @@ class Toolkit(commands.Cog):
             if '!' in die:
                 n, die = die.split('!', 1)
             
+            n = int(n)
             if n > 1:
                 sn = n
                 while n >= 1:

@@ -62,14 +62,14 @@ class Toolkit(commands.Cog):
                     try:
                         start, end = int(start), int(end)
                     except:
-                        text.append(f'`d{fdie}` #{sn-n+1} · ???')
+                        text.append(f'`d{fdie} #{sn-n+1}` · ???')
                         continue
                     
                     if not p:
                         result = random.randint(start, end)
                     else:
                         result = random.choice(list(range(start, end, int(p))))
-                    text.append(f'`d{fdie}` #{sn-n+1} · {result}')
+                    text.append(f'`d{fdie} #{sn-n+1}` · {result}')
                     n -= 1
             else:
                 if '*' in die:
@@ -98,5 +98,5 @@ class Toolkit(commands.Cog):
         if not text:
             return await ctx.reply("Vos dés sont invalides ou n'ont pu être lancés", mention_author=False)
         
-        em = discord.Embed(description='\n'.join(text), color=ctx.author.color)
+        em = discord.Embed(description='\n'.join(text), color=0x2f3136)
         return await ctx.reply(embed=em, mention_author=False)

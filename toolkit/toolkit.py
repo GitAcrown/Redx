@@ -67,7 +67,7 @@ class Toolkit(commands.Cog):
                     if not p:
                         result = random.randint(start, end)
                     else:
-                        result = random.choice(list(range(start, end, p)))
+                        result = random.choice(list(range(start, end, int(p))))
                     text.append(f'`d{fdie}` #{sn-n+1} · {result}')
                     n -= 1
             else:
@@ -88,7 +88,7 @@ class Toolkit(commands.Cog):
                     if not p:
                         result = random.randint(start, end)
                     else:
-                        result = random.choice(list(range(start, end, p)))
+                        result = random.choice(list(range(start, end, int(p))))
                 except:
                     text.append(f'`d{fdie}` · ???')
                     continue

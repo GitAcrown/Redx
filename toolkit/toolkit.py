@@ -1,25 +1,9 @@
 import logging
-import asyncio
 import random
-from os import name
-import time
-from datetime import datetime
-from operator import itemgetter
-from copy import copy
-from io import StringIO
-from tkinter.filedialog import Directory
 
 import discord
-from typing import Callable, List, Union
-from discord.channel import TextChannel
 
-import json
-from redbot.core import Config, commands, checks
-from redbot.core.data_manager import bundled_data_path
-from redbot.core.utils.menus import menu, DEFAULT_CONTROLS
-from redbot.core.utils.chat_formatting import box, humanize_number
-from redbot.core.utils.menus import start_adding_reactions
-from tabulate import tabulate
+from redbot.core import commands
 
 logger = logging.getLogger("red.RedX.Toolkit")
 

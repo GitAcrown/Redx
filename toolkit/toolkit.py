@@ -16,7 +16,7 @@ class Toolkit(commands.Cog):
         self.bot = bot
         
     @commands.command(name="dice", aliases=['die'])
-    async def random_numbers(self, ctx, *dice):
+    async def random_numbers(self, ctx, dice1: str, *diceN):
         """Lance un ou plusieurs dés
         
         Si vous voulez lancer plusieurs dés, vous pouvez séparer les instructions par un espace, ex. `;dice 10 20 50-100` lancera un d10, d20 et un dé entre 50 et 100
@@ -33,6 +33,7 @@ class Toolkit(commands.Cog):
         `;dice 10 10 10 | ;dice 3!10` lancera trois d10
         `;dice 5!10:90*5` lancera un d[10-90] avec un pas de 5"""
         text = []
+        dice = [dice1].extend(diceN)
         for die in dice:
             if die.count('!') > 1 or die.count('*') > 1 or die.count(':') > 1:
                 text.append(f'`{die}` · ???')
